@@ -1,0 +1,29 @@
+# Common
+/.gradle/
+/local.properties
+
+
+# Build output directies
+/target
+*/target
+/build
+*/build
+
+# OS generated files #
+.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
+
+# Intellij IDEA (see https://intellij-support.jetbrains.com/entries/23393067)
+**/.idea/workspace.xml
+**/.idea/tasks.xml
+**/.idea/libraries/
+**/.idea/dictionaries/
+**/.idea/datasources.xml
+**/.idea/dataSources.ids
+
+# Don't ignore the iml, ipr project files, ignore the *.iws specifics
+!*.iml
+!*.ipr
+*.iws
