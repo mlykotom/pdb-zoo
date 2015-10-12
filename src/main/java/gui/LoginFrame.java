@@ -1,8 +1,6 @@
 package gui;
 
-import controller.DataManager;
-import controller.DataManagerException;
-import logger.Logger;
+import controller.LoginFrameController;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -17,7 +15,7 @@ import java.awt.event.ActionListener;
  * includes form, which is used to connect with the database
  * server. User can set there his UserName and Password. If connection
  * ends successfully, application disposes this frame and opens
- * MenuFrame, otherwise user can not move out of this frame
+ * MainFrame, otherwise user can not move out of this frame
  * without closing the application.
  *
  * @author Jakub Tutko
@@ -27,8 +25,17 @@ public class LoginFrame extends JFrame {
 	public static final int DESCR_LABEL_FONT_SIZE = 14;
 	public static final int HEADER_LABEL_FONT_SIZE = 26;
 
-	private JTextField tfUsername;
-	private JPasswordField pfPassword;
+	private JTextField userNameTextField;
+	private JPasswordField passwordPasswordField;
+	private JLabel passwordLabel;
+	private JPanel headerPanel;
+	private JLabel headerLabel;
+	private JPanel loginFormPanel;
+	private JLabel userNameLabel;
+	private JButton loginButton;
+	private JButton quitButton;
+	private JPanel buttonsPanel;
+	private JPanel rootPanel;
 
 	/**
 	 * Constructor calls initUI() method
@@ -41,105 +48,95 @@ public class LoginFrame extends JFrame {
 	 * Method initializes LoginFrame content
 	 */
 	private void initUI() {
+		final LoginFrameController controller = new LoginFrameController(this);
+
 		/* Header label */
-		JPanel headerPanel = new JPanel();
-		JLabel lbHeader = new JLabel("Log In");
-		lbHeader.setFont(new Font(lbHeader.getFont().getFontName(), Font.BOLD, HEADER_LABEL_FONT_SIZE));
-		headerPanel.add(lbHeader);
+		headerPanel = new JPanel();
+		headerLabel = new JLabel("Log In");
+		headerLabel.setFont(new Font(headerLabel.getFont().getFontName(), Font.BOLD, HEADER_LABEL_FONT_SIZE));
+		headerPanel.add(headerLabel);
 
 		/* Panel for the user name and password */
-		JPanel formPanel = new JPanel(new GridBagLayout());
+		loginFormPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints cs = new GridBagConstraints();
 		cs.fill = GridBagConstraints.HORIZONTAL;
 
 		/* User name label */
-		JLabel lbUsername = new JLabel("Username: ");
-		lbUsername.setFont(new Font(lbUsername.getFont().getFontName(), Font.BOLD, DESCR_LABEL_FONT_SIZE));
+		userNameLabel = new JLabel("Username: ");
+		userNameLabel.setFont(new Font(userNameLabel.getFont().getFontName(), Font.BOLD, DESCR_LABEL_FONT_SIZE));
 		cs.gridx = 0;
 		cs.gridy = 0;
 		cs.gridwidth = 1;
-		formPanel.add(lbUsername, cs);
+		loginFormPanel.add(userNameLabel, cs);
 
 		/* User name input */
-		tfUsername = new JTextField(20);
-		setComponentFixSize(tfUsername, 200, 25);
+		userNameTextField = new JTextField(20);
+		userNameTextField.setText("XMLYNA06"); // TODO: remove later
+		setComponentFixSize(userNameTextField, 200, 25);
 		cs.gridx = 1;
 		cs.gridy = 0;
 		cs.gridwidth = 2;
-		formPanel.add(tfUsername, cs);
+		loginFormPanel.add(userNameTextField, cs);
 
 		/* Password label */
-		JLabel lbPassword = new JLabel("Password: ");
-		lbPassword.setFont(new Font(lbPassword.getFont().getFontName(), Font.BOLD, DESCR_LABEL_FONT_SIZE));
+		passwordLabel = new JLabel("Password: ");
+		passwordLabel.setFont(new Font(passwordLabel.getFont().getFontName(), Font.BOLD, DESCR_LABEL_FONT_SIZE));
 		cs.gridx = 0;
 		cs.gridy = 1;
 		cs.gridwidth = 1;
-		formPanel.add(lbPassword, cs);
+		loginFormPanel.add(passwordLabel, cs);
 
 		/* Password input */
-		pfPassword = new JPasswordField(20);
-		setComponentFixSize(pfPassword, 200, 25);
+		passwordPasswordField = new JPasswordField(20);
+		passwordPasswordField.setText("04h3xlr6"); // TODO: remove later
+		setComponentFixSize(passwordPasswordField, 200, 25);
 		cs.gridx = 1;
 		cs.gridy = 1;
 		cs.gridwidth = 2;
-		formPanel.add(pfPassword, cs);
+		loginFormPanel.add(passwordPasswordField, cs);
 
 		/* Login button */
-		JButton btnLogin = new JButton("Login");
-		btnLogin.setFont(new Font(btnLogin.getFont().getFontName(), Font.BOLD, DESCR_LABEL_FONT_SIZE));
-		setComponentFixSize(btnLogin, 100, 30);
-		btnLogin.addActionListener(new ActionListener() {
+		loginButton = new JButton("Login");
+		loginButton.setFont(new Font(loginButton.getFont().getFontName(), Font.BOLD, DESCR_LABEL_FONT_SIZE));
+		setComponentFixSize(loginButton, 100, 30);
+		loginButton.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent event) {
-				DataManager dataManager = DataManager.getInstance();
-
-				try {
-					dataManager.connectDatabase(tfUsername.getText(), String.valueOf(pfPassword.getPassword()));
-
-					dispose();
-					new MenuFrame().setVisible(true);
-
-				} catch (DataManagerException e) {
-					Logger.createLog(Logger.ERROR_LOG, e.getMessage());
-
-					JOptionPane.showMessageDialog(LoginFrame.this,
-							"Invalid username or password!",
-							"Login failed",
-							JOptionPane.ERROR_MESSAGE);
-				}
+			public void actionPerformed(ActionEvent e) {
+				controller.loginButtonAction();
 			}
 		});
 
 		/* Quit Button */
-		JButton btnQuit = new JButton("Quit");
-		btnQuit.setFont(new Font(btnQuit.getFont().getFontName(), Font.BOLD, DESCR_LABEL_FONT_SIZE));
-		setComponentFixSize(btnQuit, 70, 30);
-		btnQuit.addActionListener(new ActionListener() {
+		quitButton = new JButton("Quit");
+		quitButton.setFont(new Font(quitButton.getFont().getFontName(), Font.BOLD, DESCR_LABEL_FONT_SIZE));
+		setComponentFixSize(quitButton, 70, 30);
+		quitButton.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent event) {
-				System.exit(0);
+			public void actionPerformed(ActionEvent e) {
+				controller.quitButtonAction();
 			}
 		});
 
 		/* Panel for the buttons */
-		JPanel btnPanel = new JPanel();
-		btnPanel.add(btnLogin);
-		btnPanel.add(btnQuit);
+		buttonsPanel = new JPanel();
+		buttonsPanel.add(loginButton);
+		buttonsPanel.add(quitButton);
 
 		/* Panel for the whole frame */
-		JPanel rootPanel = new JPanel(new BorderLayout());
+		rootPanel = new JPanel(new BorderLayout());
 		rootPanel.setBorder(new EmptyBorder(0, 20, 20, 20));
 		rootPanel.add(headerPanel, BorderLayout.NORTH);
-		rootPanel.add(formPanel, BorderLayout.CENTER);
-		rootPanel.add(btnPanel, BorderLayout.PAGE_END);
+		rootPanel.add(loginFormPanel, BorderLayout.CENTER);
+		rootPanel.add(buttonsPanel, BorderLayout.PAGE_END);
 
 		/* Setting root panel */
-		getContentPane().add(rootPanel);
+		setContentPane(rootPanel);
 
 		pack();
 		setTitle("Zoo IS");
 		setResizable(false);
 		setLocationRelativeTo(null);
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 	}
 
 	/**
@@ -153,5 +150,92 @@ public class LoginFrame extends JFrame {
 		component.setMinimumSize(new Dimension(width, height));
 		component.setMaximumSize(new Dimension(width, height));
 		component.setPreferredSize(new Dimension(width, height));
+	}
+
+	public JTextField getUserNameTextField() {
+		return userNameTextField;
+	}
+	public void setUserNameTextField(JTextField tfUserName) {
+		this.userNameTextField = tfUserName;
+	}
+
+	public JPasswordField getPasswordPasswordField() {
+		return passwordPasswordField;
+	}
+
+	public void setPasswordPasswordField(JPasswordField passwordPasswordField) {
+		this.passwordPasswordField = passwordPasswordField;
+	}
+
+	public JLabel getPasswordLabel() {
+		return passwordLabel;
+	}
+
+	public void setPasswordLabel(JLabel passwordLabel) {
+		this.passwordLabel = passwordLabel;
+	}
+
+	public JPanel getHeaderPanel() {
+		return headerPanel;
+	}
+
+	public void setHeaderPanel(JPanel headerPanel) {
+		this.headerPanel = headerPanel;
+	}
+
+	public JLabel getHeaderLabel() {
+		return headerLabel;
+	}
+
+	public void setHeaderLabel(JLabel headerLabel) {
+		this.headerLabel = headerLabel;
+	}
+
+	public JPanel getLoginFormPanel() {
+		return loginFormPanel;
+	}
+
+	public void setLoginFormPanel(JPanel loginFormPanel) {
+		this.loginFormPanel = loginFormPanel;
+	}
+
+	public JLabel getUserNameLabel() {
+		return userNameLabel;
+	}
+
+	public void setUserNameLabel(JLabel userNameLabel) {
+		this.userNameLabel = userNameLabel;
+	}
+
+	public JButton getLoginButton() {
+		return loginButton;
+	}
+
+	public void setLoginButton(JButton loginButton) {
+		this.loginButton = loginButton;
+	}
+
+	public JButton getQuitButton() {
+		return quitButton;
+	}
+
+	public void setQuitButton(JButton quitButton) {
+		this.quitButton = quitButton;
+	}
+
+	public JPanel getButtonsPanel() {
+		return buttonsPanel;
+	}
+
+	public void setButtonsPanel(JPanel buttonsPanel) {
+		this.buttonsPanel = buttonsPanel;
+	}
+
+	public JPanel getRootPanel() {
+		return rootPanel;
+	}
+
+	public void setRootPanel(JPanel rootPanel) {
+		this.rootPanel = rootPanel;
 	}
 }

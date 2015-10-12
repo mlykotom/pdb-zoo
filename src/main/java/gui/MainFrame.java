@@ -8,11 +8,11 @@ import java.awt.event.KeyEvent;
 /**
  * Created by Jakub on 10.10.2015.
  */
-public class MenuFrame extends JFrame {
+public class MainFrame extends JFrame {
 
 	// TODO
 
-	public MenuFrame() {
+	public MainFrame() {
 		initUI();
 	}
 

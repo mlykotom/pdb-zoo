@@ -1,4 +1,4 @@
-package controller;
+package exception;
 
 /**
  * Exception used by DataManager class.
