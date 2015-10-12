@@ -1,11 +1,12 @@
 package gui;
 
-import controller.LoginFrame.ButtonLogin;
-import controller.LoginFrame.ButtonQuit;
+import controller.LoginFrameController;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Frame for Log In form.
@@ -14,7 +15,7 @@ import java.awt.*;
  * includes form, which is used to connect with the database
  * server. User can set there his UserName and Password. If connection
  * ends successfully, application disposes this frame and opens
- * MenuFrame, otherwise user can not move out of this frame
+ * MainFrame, otherwise user can not move out of this frame
  * without closing the application.
  *
  * @author Jakub Tutko
@@ -24,16 +25,16 @@ public class LoginFrame extends JFrame {
 	public static final int DESCR_LABEL_FONT_SIZE = 14;
 	public static final int HEADER_LABEL_FONT_SIZE = 26;
 
-	private JTextField tfUsername;
-	private JPasswordField pfPassword;
-	private JLabel lbPassword;
+	private JTextField userNameTextField;
+	private JPasswordField passwordPasswordField;
+	private JLabel passwordLabel;
 	private JPanel headerPanel;
-	private JLabel lbHeader;
+	private JLabel headerLabel;
 	private JPanel loginFormPanel;
-	private JLabel lbUsername;
-	private JButton btnLogin;
-	private JButton btnQuit;
-	private JPanel btnPanel;
+	private JLabel userNameLabel;
+	private JButton loginButton;
+	private JButton quitButton;
+	private JPanel buttonsPanel;
 	private JPanel rootPanel;
 
 	/**
@@ -47,11 +48,13 @@ public class LoginFrame extends JFrame {
 	 * Method initializes LoginFrame content
 	 */
 	private void initUI() {
+		final LoginFrameController controller = new LoginFrameController(this);
+
 		/* Header label */
 		headerPanel = new JPanel();
-		lbHeader = new JLabel("Log In");
-		lbHeader.setFont(new Font(lbHeader.getFont().getFontName(), Font.BOLD, HEADER_LABEL_FONT_SIZE));
-		headerPanel.add(lbHeader);
+		headerLabel = new JLabel("Log In");
+		headerLabel.setFont(new Font(headerLabel.getFont().getFontName(), Font.BOLD, HEADER_LABEL_FONT_SIZE));
+		headerPanel.add(headerLabel);
 
 		/* Panel for the user name and password */
 		loginFormPanel = new JPanel(new GridBagLayout());
@@ -59,68 +62,81 @@ public class LoginFrame extends JFrame {
 		cs.fill = GridBagConstraints.HORIZONTAL;
 
 		/* User name label */
-		lbUsername = new JLabel("Username: ");
-		lbUsername.setFont(new Font(lbUsername.getFont().getFontName(), Font.BOLD, DESCR_LABEL_FONT_SIZE));
+		userNameLabel = new JLabel("Username: ");
+		userNameLabel.setFont(new Font(userNameLabel.getFont().getFontName(), Font.BOLD, DESCR_LABEL_FONT_SIZE));
 		cs.gridx = 0;
 		cs.gridy = 0;
 		cs.gridwidth = 1;
-		loginFormPanel.add(lbUsername, cs);
+		loginFormPanel.add(userNameLabel, cs);
 
 		/* User name input */
-		tfUsername = new JTextField(20);
-		setComponentFixSize(tfUsername, 200, 25);
+		userNameTextField = new JTextField(20);
+		userNameTextField.setText("XMLYNA06"); // TODO: remove later
+		setComponentFixSize(userNameTextField, 200, 25);
 		cs.gridx = 1;
 		cs.gridy = 0;
 		cs.gridwidth = 2;
-		loginFormPanel.add(tfUsername, cs);
+		loginFormPanel.add(userNameTextField, cs);
 
 		/* Password label */
-		lbPassword = new JLabel("Password: ");
-		lbPassword.setFont(new Font(lbPassword.getFont().getFontName(), Font.BOLD, DESCR_LABEL_FONT_SIZE));
+		passwordLabel = new JLabel("Password: ");
+		passwordLabel.setFont(new Font(passwordLabel.getFont().getFontName(), Font.BOLD, DESCR_LABEL_FONT_SIZE));
 		cs.gridx = 0;
 		cs.gridy = 1;
 		cs.gridwidth = 1;
-		loginFormPanel.add(lbPassword, cs);
+		loginFormPanel.add(passwordLabel, cs);
 
 		/* Password input */
-		pfPassword = new JPasswordField(20);
-		setComponentFixSize(pfPassword, 200, 25);
+		passwordPasswordField = new JPasswordField(20);
+		passwordPasswordField.setText("04h3xlr6"); // TODO: remove later
+		setComponentFixSize(passwordPasswordField, 200, 25);
 		cs.gridx = 1;
 		cs.gridy = 1;
 		cs.gridwidth = 2;
-		loginFormPanel.add(pfPassword, cs);
+		loginFormPanel.add(passwordPasswordField, cs);
 
 		/* Login button */
-		btnLogin = new JButton("Login");
-		btnLogin.setFont(new Font(btnLogin.getFont().getFontName(), Font.BOLD, DESCR_LABEL_FONT_SIZE));
-		setComponentFixSize(btnLogin, 100, 30);
-		btnLogin.addActionListener(new ButtonLogin(this));
+		loginButton = new JButton("Login");
+		loginButton.setFont(new Font(loginButton.getFont().getFontName(), Font.BOLD, DESCR_LABEL_FONT_SIZE));
+		setComponentFixSize(loginButton, 100, 30);
+		loginButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				controller.loginButtonAction();
+			}
+		});
 
 		/* Quit Button */
-		btnQuit = new JButton("Quit");
-		btnQuit.setFont(new Font(btnQuit.getFont().getFontName(), Font.BOLD, DESCR_LABEL_FONT_SIZE));
-		setComponentFixSize(btnQuit, 70, 30);
-		btnQuit.addActionListener(new ButtonQuit(this));
+		quitButton = new JButton("Quit");
+		quitButton.setFont(new Font(quitButton.getFont().getFontName(), Font.BOLD, DESCR_LABEL_FONT_SIZE));
+		setComponentFixSize(quitButton, 70, 30);
+		quitButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				controller.quitButtonAction();
+			}
+		});
 
 		/* Panel for the buttons */
-		btnPanel = new JPanel();
-		btnPanel.add(btnLogin);
-		btnPanel.add(btnQuit);
+		buttonsPanel = new JPanel();
+		buttonsPanel.add(loginButton);
+		buttonsPanel.add(quitButton);
 
 		/* Panel for the whole frame */
 		rootPanel = new JPanel(new BorderLayout());
 		rootPanel.setBorder(new EmptyBorder(0, 20, 20, 20));
 		rootPanel.add(headerPanel, BorderLayout.NORTH);
 		rootPanel.add(loginFormPanel, BorderLayout.CENTER);
-		rootPanel.add(btnPanel, BorderLayout.PAGE_END);
+		rootPanel.add(buttonsPanel, BorderLayout.PAGE_END);
 
 		/* Setting root panel */
-		getContentPane().add(rootPanel);
+		setContentPane(rootPanel);
 
 		pack();
 		setTitle("Zoo IS");
 		setResizable(false);
 		setLocationRelativeTo(null);
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 	}
 
 	/**
@@ -136,27 +152,27 @@ public class LoginFrame extends JFrame {
 		component.setPreferredSize(new Dimension(width, height));
 	}
 
-	public JTextField getTfUsername() {
-		return tfUsername;
+	public JTextField getUserNameTextField() {
+		return userNameTextField;
 	}
-	public void setTfUsername(JTextField tfUserName) {
-		this.tfUsername = tfUserName;
-	}
-
-	public JPasswordField getPfPassword() {
-		return pfPassword;
+	public void setUserNameTextField(JTextField tfUserName) {
+		this.userNameTextField = tfUserName;
 	}
 
-	public void setPfPassword(JPasswordField pfPassword) {
-		this.pfPassword = pfPassword;
+	public JPasswordField getPasswordPasswordField() {
+		return passwordPasswordField;
 	}
 
-	public JLabel getLbPassword() {
-		return lbPassword;
+	public void setPasswordPasswordField(JPasswordField passwordPasswordField) {
+		this.passwordPasswordField = passwordPasswordField;
 	}
 
-	public void setLbPassword(JLabel lbPassword) {
-		this.lbPassword = lbPassword;
+	public JLabel getPasswordLabel() {
+		return passwordLabel;
+	}
+
+	public void setPasswordLabel(JLabel passwordLabel) {
+		this.passwordLabel = passwordLabel;
 	}
 
 	public JPanel getHeaderPanel() {
@@ -167,12 +183,12 @@ public class LoginFrame extends JFrame {
 		this.headerPanel = headerPanel;
 	}
 
-	public JLabel getLbHeader() {
-		return lbHeader;
+	public JLabel getHeaderLabel() {
+		return headerLabel;
 	}
 
-	public void setLbHeader(JLabel lbHeader) {
-		this.lbHeader = lbHeader;
+	public void setHeaderLabel(JLabel headerLabel) {
+		this.headerLabel = headerLabel;
 	}
 
 	public JPanel getLoginFormPanel() {
@@ -183,36 +199,36 @@ public class LoginFrame extends JFrame {
 		this.loginFormPanel = loginFormPanel;
 	}
 
-	public JLabel getLbUsername() {
-		return lbUsername;
+	public JLabel getUserNameLabel() {
+		return userNameLabel;
 	}
 
-	public void setLbUsername(JLabel lbUsername) {
-		this.lbUsername = lbUsername;
+	public void setUserNameLabel(JLabel userNameLabel) {
+		this.userNameLabel = userNameLabel;
 	}
 
-	public JButton getBtnLogin() {
-		return btnLogin;
+	public JButton getLoginButton() {
+		return loginButton;
 	}
 
-	public void setBtnLogin(JButton btnLogin) {
-		this.btnLogin = btnLogin;
+	public void setLoginButton(JButton loginButton) {
+		this.loginButton = loginButton;
 	}
 
-	public JButton getBtnQuit() {
-		return btnQuit;
+	public JButton getQuitButton() {
+		return quitButton;
 	}
 
-	public void setBtnQuit(JButton btnQuit) {
-		this.btnQuit = btnQuit;
+	public void setQuitButton(JButton quitButton) {
+		this.quitButton = quitButton;
 	}
 
-	public JPanel getBtnPanel() {
-		return btnPanel;
+	public JPanel getButtonsPanel() {
+		return buttonsPanel;
 	}
 
-	public void setBtnPanel(JPanel btnPanel) {
-		this.btnPanel = btnPanel;
+	public void setButtonsPanel(JPanel buttonsPanel) {
+		this.buttonsPanel = buttonsPanel;
 	}
 
 	public JPanel getRootPanel() {

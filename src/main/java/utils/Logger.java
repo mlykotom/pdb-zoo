@@ -1,4 +1,8 @@
-package logger;
+package utils;
+
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 /**
  * Class for creating logs.
@@ -58,7 +62,10 @@ public class Logger {
 	 */
 	public void logMessage(int severity, String message) {
 		if(severity >= this.severityLevel) {
-			System.out.println(castSeverityLevelToInt(severity) + ": " + message);
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss", Locale.UK);
+			LocalTime time = LocalTime.now();
+			String f = formatter.format(time);
+			System.out.println(f + " " + castSeverityLevelToInt(severity) + ": " + message);
 		}
 	}
 

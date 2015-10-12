@@ -1,5 +1,7 @@
 package adapter;
 
+import exception.DataManagerException;
+import utils.Logger;
 import oracle.jdbc.pool.OracleDataSource;
 
 import java.sql.Connection;
@@ -65,9 +67,21 @@ public class DataManager {
 	 *
 	 * @return instance of the DataManager
 	 */
-	public static DataManager getInstance() {
+	public synchronized static DataManager getInstance() {
 		return instance;
 	}
 
 
+	/**
+	 * Closes connection if opened.
+	 */
+	public void disconnectDatabase() {
+		if(connection != null) {
+			try {
+				connection.close();
+			} catch (SQLException e) {
+				Logger.createLog(Logger.ERROR_LOG, "Can not close connection!");
+			}
+		}
+	}
 }
