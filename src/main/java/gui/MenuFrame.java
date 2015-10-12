@@ -10,6 +10,8 @@ import java.awt.event.KeyEvent;
  */
 public class MenuFrame extends JFrame {
 
+	// TODO
+
 	public MenuFrame() {
 		initUI();
 	}

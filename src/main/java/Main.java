@@ -1,5 +1,7 @@
+import gui.LoginFrame;
 import oracle.jdbc.pool.OracleDataSource;
 
+import javax.swing.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,6 +13,23 @@ import java.time.LocalTime;
  */
 public class Main {
 	public static void main(String[] args) {
+		/**
+		 * GUI
+		 */
+
+		SwingUtilities.invokeLater(new Runnable() {
+
+			public void run() {
+				LoginFrame loginFrame = new LoginFrame();
+				loginFrame.setVisible(true);
+			}
+		});
+
+		/**
+		 * THE END OF GUI
+		 */
+
+
 		LocalTime currentTime = LocalTime.now();
 		System.out.println("---------");
 		System.out.println("The current local time is: " + currentTime);
