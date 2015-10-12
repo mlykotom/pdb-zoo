@@ -1,14 +1,11 @@
 package gui;
 
-import controller.DataManager;
-import controller.DataManagerException;
-import logger.Logger;
+import controller.LoginFrame.ButtonLogin;
+import controller.LoginFrame.ButtonQuit;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * Frame for Log In form.
@@ -29,6 +26,15 @@ public class LoginFrame extends JFrame {
 
 	private JTextField tfUsername;
 	private JPasswordField pfPassword;
+	private JLabel lbPassword;
+	private JPanel headerPanel;
+	private JLabel lbHeader;
+	private JPanel loginFormPanel;
+	private JLabel lbUsername;
+	private JButton btnLogin;
+	private JButton btnQuit;
+	private JPanel btnPanel;
+	private JPanel rootPanel;
 
 	/**
 	 * Constructor calls initUI() method
@@ -42,23 +48,23 @@ public class LoginFrame extends JFrame {
 	 */
 	private void initUI() {
 		/* Header label */
-		JPanel headerPanel = new JPanel();
-		JLabel lbHeader = new JLabel("Log In");
+		headerPanel = new JPanel();
+		lbHeader = new JLabel("Log In");
 		lbHeader.setFont(new Font(lbHeader.getFont().getFontName(), Font.BOLD, HEADER_LABEL_FONT_SIZE));
 		headerPanel.add(lbHeader);
 
 		/* Panel for the user name and password */
-		JPanel formPanel = new JPanel(new GridBagLayout());
+		loginFormPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints cs = new GridBagConstraints();
 		cs.fill = GridBagConstraints.HORIZONTAL;
 
 		/* User name label */
-		JLabel lbUsername = new JLabel("Username: ");
+		lbUsername = new JLabel("Username: ");
 		lbUsername.setFont(new Font(lbUsername.getFont().getFontName(), Font.BOLD, DESCR_LABEL_FONT_SIZE));
 		cs.gridx = 0;
 		cs.gridy = 0;
 		cs.gridwidth = 1;
-		formPanel.add(lbUsername, cs);
+		loginFormPanel.add(lbUsername, cs);
 
 		/* User name input */
 		tfUsername = new JTextField(20);
@@ -66,15 +72,15 @@ public class LoginFrame extends JFrame {
 		cs.gridx = 1;
 		cs.gridy = 0;
 		cs.gridwidth = 2;
-		formPanel.add(tfUsername, cs);
+		loginFormPanel.add(tfUsername, cs);
 
 		/* Password label */
-		JLabel lbPassword = new JLabel("Password: ");
+		lbPassword = new JLabel("Password: ");
 		lbPassword.setFont(new Font(lbPassword.getFont().getFontName(), Font.BOLD, DESCR_LABEL_FONT_SIZE));
 		cs.gridx = 0;
 		cs.gridy = 1;
 		cs.gridwidth = 1;
-		formPanel.add(lbPassword, cs);
+		loginFormPanel.add(lbPassword, cs);
 
 		/* Password input */
 		pfPassword = new JPasswordField(20);
@@ -82,55 +88,30 @@ public class LoginFrame extends JFrame {
 		cs.gridx = 1;
 		cs.gridy = 1;
 		cs.gridwidth = 2;
-		formPanel.add(pfPassword, cs);
+		loginFormPanel.add(pfPassword, cs);
 
 		/* Login button */
-		JButton btnLogin = new JButton("Login");
+		btnLogin = new JButton("Login");
 		btnLogin.setFont(new Font(btnLogin.getFont().getFontName(), Font.BOLD, DESCR_LABEL_FONT_SIZE));
 		setComponentFixSize(btnLogin, 100, 30);
-		btnLogin.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				DataManager dataManager = DataManager.getInstance();
-
-				try {
-					dataManager.connectDatabase(tfUsername.getText(), String.valueOf(pfPassword.getPassword()));
-
-					dispose();
-					new MenuFrame().setVisible(true);
-
-				} catch (DataManagerException e) {
-					Logger.createLog(Logger.ERROR_LOG, e.getMessage());
-
-					JOptionPane.showMessageDialog(LoginFrame.this,
-							"Invalid username or password!",
-							"Login failed",
-							JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		});
+		btnLogin.addActionListener(new ButtonLogin(this));
 
 		/* Quit Button */
-		JButton btnQuit = new JButton("Quit");
+		btnQuit = new JButton("Quit");
 		btnQuit.setFont(new Font(btnQuit.getFont().getFontName(), Font.BOLD, DESCR_LABEL_FONT_SIZE));
 		setComponentFixSize(btnQuit, 70, 30);
-		btnQuit.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				System.exit(0);
-			}
-		});
+		btnQuit.addActionListener(new ButtonQuit(this));
 
 		/* Panel for the buttons */
-		JPanel btnPanel = new JPanel();
+		btnPanel = new JPanel();
 		btnPanel.add(btnLogin);
 		btnPanel.add(btnQuit);
 
 		/* Panel for the whole frame */
-		JPanel rootPanel = new JPanel(new BorderLayout());
+		rootPanel = new JPanel(new BorderLayout());
 		rootPanel.setBorder(new EmptyBorder(0, 20, 20, 20));
 		rootPanel.add(headerPanel, BorderLayout.NORTH);
-		rootPanel.add(formPanel, BorderLayout.CENTER);
+		rootPanel.add(loginFormPanel, BorderLayout.CENTER);
 		rootPanel.add(btnPanel, BorderLayout.PAGE_END);
 
 		/* Setting root panel */
@@ -153,5 +134,92 @@ public class LoginFrame extends JFrame {
 		component.setMinimumSize(new Dimension(width, height));
 		component.setMaximumSize(new Dimension(width, height));
 		component.setPreferredSize(new Dimension(width, height));
+	}
+
+	public JTextField getTfUsername() {
+		return tfUsername;
+	}
+	public void setTfUsername(JTextField tfUserName) {
+		this.tfUsername = tfUserName;
+	}
+
+	public JPasswordField getPfPassword() {
+		return pfPassword;
+	}
+
+	public void setPfPassword(JPasswordField pfPassword) {
+		this.pfPassword = pfPassword;
+	}
+
+	public JLabel getLbPassword() {
+		return lbPassword;
+	}
+
+	public void setLbPassword(JLabel lbPassword) {
+		this.lbPassword = lbPassword;
+	}
+
+	public JPanel getHeaderPanel() {
+		return headerPanel;
+	}
+
+	public void setHeaderPanel(JPanel headerPanel) {
+		this.headerPanel = headerPanel;
+	}
+
+	public JLabel getLbHeader() {
+		return lbHeader;
+	}
+
+	public void setLbHeader(JLabel lbHeader) {
+		this.lbHeader = lbHeader;
+	}
+
+	public JPanel getLoginFormPanel() {
+		return loginFormPanel;
+	}
+
+	public void setLoginFormPanel(JPanel loginFormPanel) {
+		this.loginFormPanel = loginFormPanel;
+	}
+
+	public JLabel getLbUsername() {
+		return lbUsername;
+	}
+
+	public void setLbUsername(JLabel lbUsername) {
+		this.lbUsername = lbUsername;
+	}
+
+	public JButton getBtnLogin() {
+		return btnLogin;
+	}
+
+	public void setBtnLogin(JButton btnLogin) {
+		this.btnLogin = btnLogin;
+	}
+
+	public JButton getBtnQuit() {
+		return btnQuit;
+	}
+
+	public void setBtnQuit(JButton btnQuit) {
+		this.btnQuit = btnQuit;
+	}
+
+	public JPanel getBtnPanel() {
+		return btnPanel;
+	}
+
+	public void setBtnPanel(JPanel btnPanel) {
+		this.btnPanel = btnPanel;
+	}
+
+	public JPanel getRootPanel() {
+		return rootPanel;
+	}
+
+	public void setRootPanel(JPanel rootPanel) {
+		this.rootPanel = rootPanel;
 	}
 }
