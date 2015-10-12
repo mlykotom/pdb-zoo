@@ -11,8 +11,13 @@ public class Main {
 	public static void main(String[] args) {
 		/** GUI */
 		SwingUtilities.invokeLater(new Runnable() {
-
 			public void run() {
+				try {
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				} catch (ClassNotFoundException | IllegalAccessException | UnsupportedLookAndFeelException | InstantiationException e) {
+					e.printStackTrace();
+				}
+
 				LoginFrame loginFrame = new LoginFrame();
 				loginFrame.setVisible(true);
 			}
