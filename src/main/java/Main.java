@@ -22,13 +22,5 @@ public class Main {
 				loginFrame.setVisible(true);
 			}
 		});
-
-		/** Closing connection with database at the end of the application */
-		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-			public void run() {
-				Utils.closeApplication();
-				Logger.createLog(Logger.DEBUG_LOG, "Closing application");
-			}
-		}, "Shutdown-thread"));
 	}
 }
