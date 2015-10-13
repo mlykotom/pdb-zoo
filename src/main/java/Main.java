@@ -1,6 +1,4 @@
-import gui.LoginFrame;
-import utils.Logger;
-import utils.Utils;
+import gui.LoginForm;
 
 import javax.swing.*;
 
@@ -18,8 +16,8 @@ public class Main {
 					e.printStackTrace();
 				}
 
-				LoginFrame loginFrame = new LoginFrame();
-				loginFrame.setVisible(true);
+				LoginForm loginForm = new LoginForm();
+				loginForm.setVisible(true);
 			}
 		});
 	}

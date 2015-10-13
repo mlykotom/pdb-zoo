@@ -14,7 +14,7 @@ public class Utils {
 	 */
 	public static void closeApplication() {
 		DataManager.getInstance().disconnectDatabase();
-		Logger.createLog(Logger.DEBUG_LOG, "Closing application with System.exit(0)");
+		Logger.createLog(Logger.DEBUG_LOG, "Closing application with System.exit(0).");
 		System.exit(0);
 	}
 }
