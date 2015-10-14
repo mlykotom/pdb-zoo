@@ -79,6 +79,8 @@ public class DataManager {
 		if(connection != null) {
 			try {
 				connection.close();
+				connection = null;
+				Logger.createLog(Logger.DEBUG_LOG, "DB connection closed!");
 			} catch (SQLException e) {
 				Logger.createLog(Logger.ERROR_LOG, "Can not close connection!");
 			}

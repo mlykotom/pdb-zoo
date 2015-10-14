@@ -1,99 +1,76 @@
 package gui;
 
+import controller.MenuBarController;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 /**
- * Created by Jakub on 10.10.2015.
+ * Main Frame for the whole application.
+ * <p>
+ * All windows of the application are opened in this frame
+ * as a JPanel. This frame contains only navigation menu.
+ *
+ * @author Jakub Tutko
  */
 public class MainFrame extends JFrame {
+	private MenuBarController menuBarController;
 
-	// TODO
-
+	/**
+	 * Constructor creates instance of the MenuBarController for
+	 * events occurred in MenuBar and initializes frame.
+	 */
 	public MainFrame() {
+		this.menuBarController = new MenuBarController(this);
+
 		initUI();
 	}
 
-	private void initUI() {
+	/**
+	 * Method initializes MainFrame. New frame contains only navigation
+	 * menu at the top of the frame.
+	 */
+	public void initUI() {
 
-		/* creating button */
-		JButton quitButton = new JButton("Quit");
-		quitButton.setToolTipText("Quit application");
-
-		/* action on button click */
-		quitButton.addActionListener(new ActionListener() {
+		JButton homeMenu = new JButton("Home");
+		homeMenu.setIcon(new ImageIcon("homeMenu-icon.png"));
+		homeMenu.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent event) {
-				System.exit(0);
+			public void actionPerformed(ActionEvent e) {
+				menuBarController.homeMenuAction();
 			}
 		});
 
-		createLayout(quitButton);
-		createMenuBar();
+		JButton zooMapMenu = new JButton("Zoo map");
+		//zooMapMenu.setIcon(new ImageIcon("homeMenu-icon.png"));
+		zooMapMenu.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				menuBarController.zooMapMenuAction();
+			}
+		});
 
-		/* window title */
-		setTitle("ZOO IS");
+		JButton logoutMenu = new JButton("Logout");
+		logoutMenu.setIcon(new ImageIcon("logoutMenu-icon.png"));
+		logoutMenu.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				menuBarController.logoutMenuAction();
+			}
+		});
 
-		/* size of the window */
-		setSize(300, 200);
+		JMenuBar menuBar = new JMenuBar();
+		menuBar.add(homeMenu);
+		menuBar.add(zooMapMenu);
+		menuBar.add(Box.createHorizontalGlue());
+		menuBar.add(logoutMenu);
+		setJMenuBar(menuBar);
 
-		/* window will be at the center of the screen */
+		setTitle("ZOO");
+		setSize(800, 600);
 		setLocationRelativeTo(null);
-
-		/* operation for X button in the upper right corner */
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 	}
-
-	private void createLayout(JComponent... arg) {
-
-		JPanel pane = (JPanel) getContentPane();
-		GroupLayout gl = new GroupLayout(pane);
-		pane.setLayout(gl);
-
-		/* sets gaps between elements */
-		gl.setAutoCreateContainerGaps(true);
-
-		gl.setHorizontalGroup(gl.createParallelGroup()
-				.addComponent(arg[0])
-		);
-
-		gl.setVerticalGroup(gl.createSequentialGroup()
-				.addComponent(arg[0])
-		);
-
-		pack();
-	}
-
-	private void createMenuBar() {
-
-		JMenuBar menubar = new JMenuBar();
-		ImageIcon icon = new ImageIcon("exit.png");
-
-		JMenu file = new JMenu("File");
-		file.setMnemonic(KeyEvent.VK_F);
-
-		JMenuItem eMenuItem = new JMenuItem("Exit", icon);
-		eMenuItem.setMnemonic(KeyEvent.VK_E);
-		eMenuItem.setToolTipText("Exit application");
-		eMenuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				System.exit(0);
-			}
-		});
-
-		JMenuItem eMenuItem1 = new JMenuItem("Open");
-		JMenuItem eMenuItem2 = new JMenuItem("Save");
-
-		file.add(eMenuItem1);
-		file.add(eMenuItem2);
-		file.addSeparator();
-		file.add(eMenuItem);
-		menubar.add(file);
-
-		setJMenuBar(menubar);
-	}
-
 }
