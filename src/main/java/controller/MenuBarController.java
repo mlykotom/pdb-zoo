@@ -2,6 +2,9 @@ package controller;
 
 import gui.LoginForm;
 import gui.MainFrame;
+import gui.ZooMapForm;
+
+import javax.swing.*;
 
 /**
  * Class controls all events occurred in MainFrame's MenuBar.
@@ -38,9 +41,14 @@ public class MenuBarController extends Controller {
 	}
 
 	/**
-	 * ZooMapMenu in MenuBar opens JPanel with zooMapForm.
+	 * ZooMapMenu in MenuBar opens JPanel with zooMapForm in MainFrame.
 	 */
 	public void zooMapMenuAction() {
-		// TODO: opens zoo map JPanel in mainframe
+		JPanel contentPane = (JPanel) mainFrame.getContentPane();
+
+		contentPane.removeAll();
+		contentPane.add(new ZooMapForm());
+		contentPane.revalidate();
+		contentPane.repaint();
 	}
 }
