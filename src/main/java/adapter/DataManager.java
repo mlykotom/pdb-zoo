@@ -1,15 +1,21 @@
 package adapter;
 
 import exception.DataManagerException;
+import model.SpatialObject;
+import model.SpatialObjectType;
 import oracle.jdbc.OraclePreparedStatement;
+import oracle.jdbc.pool.OracleDataSource;
+import oracle.spatial.geometry.JGeometry;
 import oracle.sql.ORAData;
 import utils.Logger;
-import oracle.jdbc.pool.OracleDataSource;
 
+import java.awt.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Class for communicating with the database.
@@ -37,6 +43,8 @@ public class DataManager {
 	 * @throws DataManagerException when can not connect to the database
 	 */
 	public void connectDatabase(String userName, String password) throws DataManagerException {
+		if(userName == null || password == null) throw new DataManagerException("connectDatabase: Null userName or password received");
+
 		try {
 			OracleDataSource ods = new OracleDataSource();
 
@@ -47,7 +55,7 @@ public class DataManager {
 			this.connection = ods.getConnection();
 
 		} catch (SQLException sqlEx) {
-			throw new DataManagerException("SQLException: " + sqlEx.getMessage());
+			throw new DataManagerException("connectDatabase: SQLException: " + sqlEx.getMessage());
 		}
 	}
 
@@ -64,6 +72,90 @@ public class DataManager {
 		// TODO here will be run initialize script
 	}
 
+	public Set<SpatialObject> getAllSpatialObjects() throws DataManagerException {
+		Set<SpatialObject> spatialObjects = new HashSet<>();
+
+		String sqlQuery = "SELECT ID, Type, Shape FROM Spatial_Objects";
+		ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+		try {
+			while (resultSet.next()) {
+				Long id = resultSet.getLong("ID");
+
+				Long typeID = resultSet.getLong("Type");
+				SpatialObjectType type = getSpatialObjectType(typeID);
+
+				byte[] image = resultSet.getBytes("Shape");
+				JGeometry jGeometry = JGeometry.load(image);
+				Shape shape = jGeometry2Shape(jGeometry);
+
+				SpatialObject spatialObject = new SpatialObject(id, type, shape);
+				spatialObjects.add(spatialObject);
+			}
+		} catch (SQLException ex) {
+			throw new DataManagerException("getAllSpatialObjects: SQLException: " + ex.getMessage());
+		}
+
+		return spatialObjects;
+	}
+
+	/**
+	 * Method returns spatial object type with specific ID. If type with this ID
+	 * does not exists, method returns null pointer.
+	 *
+	 * @param typeID ID of the type in the database
+	 * @return SpatialObjectType of the concrete type or null
+	 * @throws DataManagerException when exception from createDatabaseQuery() is received
+	 */
+	public SpatialObjectType getSpatialObjectType(Long typeID) throws DataManagerException {
+		if(typeID == null) throw new DataManagerException("getSpatialObjectType: Null typeID received");
+
+		SpatialObjectType spatialObjectType = null;
+
+		String sqlQuery = "SELECT ID, Type FROM Spatial_Object_Types WHERE ID=" + typeID.toString();
+		ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+		try {
+			if(resultSet.next()) {
+
+				Long id = resultSet.getLong("ID");
+				String type = resultSet.getString("Type");
+
+				spatialObjectType = new SpatialObjectType(id, type);
+			}
+		} catch (SQLException ex) {
+			throw new DataManagerException("getSpatialObjectType: SQLException: " + ex.getMessage());
+		}
+
+		return spatialObjectType;
+	}
+
+	/**
+	 * Method returns all spatial object types from the database.
+	 *
+	 * @return Set of the SpacialObjectType, which contains all object types saved in the database
+	 * @throws DataManagerException when exception from createDatabaseQuery() is received
+	 */
+	public Set<SpatialObjectType> getAllSpatialObjectTypes() throws DataManagerException {
+		Set<SpatialObjectType> spatialObjectTypes = new HashSet<>();
+
+		String sqlQuery = "SELECT ID, Type FROM Spatial_Object_Types";
+		ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+		try {
+			while (resultSet.next()) {
+				Long id = resultSet.getLong("ID");
+				String type = resultSet.getString("Type");
+				SpatialObjectType spatialObjectType = new SpatialObjectType(id, type);
+				spatialObjectTypes.add(spatialObjectType);
+			}
+		} catch (SQLException ex) {
+			throw new DataManagerException("getAllSpatialObjectTypes: SQLException: " + ex.getMessage());
+		}
+
+		return spatialObjectTypes;
+	}
+
 	/**
 	 * Method executes sql query on database server. This method is used for
 	 * SELECT queries. After successful execution method returns ResultSet which
@@ -75,6 +167,8 @@ public class DataManager {
 	 * sql exception occurs during execution
 	 */
 	private ResultSet createDatabaseQuery(String sqlQuery) throws DataManagerException {
+		if(sqlQuery == null) throw new DataManagerException("createDatabaseQuery: Null sqlQuery received!");
+
 		tryConnection();
 
 		try {
@@ -82,10 +176,12 @@ public class DataManager {
 				statement = connection.createStatement();
 			}
 
+			Logger.createLog(Logger.DEBUG_LOG, "Sending query: " + sqlQuery);
+
 			resultSet = statement.executeQuery(sqlQuery);
 		}
 		catch (SQLException ex) {
-			throw new DataManagerException("SQLException: " + ex.getMessage());
+			throw new DataManagerException("createDatabaseQuery: SQLException: " + ex.getMessage());
 		}
 
 		return resultSet;
@@ -100,6 +196,8 @@ public class DataManager {
 	 * sql exception occurs during execution
 	 */
 	private void createDatabaseUpdate(String sqlUpdate) throws DataManagerException {
+		if(sqlUpdate == null) throw new DataManagerException("createDatabaseUpdate: Null sqlUpdate received!");
+
 		tryConnection();
 
 		try {
@@ -107,10 +205,12 @@ public class DataManager {
 				statement = connection.createStatement();
 			}
 
+			Logger.createLog(Logger.DEBUG_LOG, "Sending update: " + sqlUpdate);
+
 			statement.executeUpdate(sqlUpdate);
 		}
 		catch (SQLException ex) {
-			throw new DataManagerException("SQLException: " + ex.getMessage());
+			throw new DataManagerException("createDatabaseUpdate: SQLException: " + ex.getMessage());
 		}
 	}
 
@@ -124,6 +224,8 @@ public class DataManager {
 	 * sql exception occurs during execution
 	 */
 	private void createDatabaseUpdatePrepared(String sqlUpdate, ORAData... data) throws DataManagerException {
+		if(sqlUpdate == null) throw new DataManagerException("createDatabaseUpdatePrepared: Null sqlUpdate received!");
+
 		tryConnection();
 
 		try {
@@ -134,11 +236,13 @@ public class DataManager {
 				preparedStatement.setORAData(i++, actualData);
 			}
 
+			Logger.createLog(Logger.DEBUG_LOG, "Sending update: " + sqlUpdate);
+
 			preparedStatement.executeUpdate();
 			preparedStatement.close();
 		}
 		catch (SQLException ex) {
-			throw new DataManagerException("SQLException: " + ex.getMessage());
+			throw new DataManagerException("createDatabaseUpdatePrepared: SQLException: " + ex.getMessage());
 		}
 	}
 
