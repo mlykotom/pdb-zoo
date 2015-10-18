@@ -69,7 +69,7 @@ public class MainFrame extends JFrame {
 		setJMenuBar(menuBar);
 
 		setTitle("ZOO");
-		setSize(800, 600);
+		setSize(1024, 768);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 	}
