@@ -20,7 +20,13 @@ public class ZooMapCanvas extends JPanel {
 
 	public ZooMapCanvas() {
 		this.controller = new ZooMapCanvasController(this);
+
+		initUI();
+	}
+
+	public void initUI() {
 		MouseMoveScale();
+
 		Utils.setComponentFixSize(this, 800, 600);
 	}
 
@@ -74,6 +80,7 @@ public class ZooMapCanvas extends JPanel {
 	}
 
 	class ScaleHandler implements MouseWheelListener {
+
 		public void mouseWheelMoved(MouseWheelEvent e) {
 
 			int x = e.getX();
