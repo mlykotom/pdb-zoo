@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.Set;
 
 /**
@@ -22,7 +23,7 @@ import java.util.Set;
 public class ZooMapCanvas extends JPanel {
 	private final ZooMapCanvasController controller;
 
-	private Set<Shape> shapes;
+	private ArrayList<Shape> shapes;
 
 	public ZooMapCanvas() {
 		shapes = null;
@@ -42,7 +43,7 @@ public class ZooMapCanvas extends JPanel {
 	}
 
 
-	public void setShapes(Set<Shape> shapes) {
+	public void setShapes(ArrayList<Shape> shapes) {
 		this.shapes = shapes;
 	}
 

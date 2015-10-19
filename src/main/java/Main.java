@@ -5,6 +5,7 @@ import model.SpatialObject;
 import model.SpatialObjectType;
 
 import javax.swing.*;
+import java.util.ArrayList;
 import java.util.Set;
 
 /**
@@ -15,9 +16,9 @@ public class Main {
 
 		/** TEST */
 		try {
-			Set<SpatialObjectType> types;
+			ArrayList<SpatialObjectType> types;
 			SpatialObjectType type;
-			Set<SpatialObject> objects;
+			ArrayList<SpatialObject> objects;
 			DataManager.getInstance().connectDatabase("XMLYNA06", "04h3xlr6");
 			types = DataManager.getInstance().getAllSpatialObjectTypes();
 			type = DataManager.getInstance().getSpatialObjectType(10L);

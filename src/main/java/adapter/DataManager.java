@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -79,8 +80,8 @@ public class DataManager {
 	 * @throws DataManagerException when exception from createDatabaseQuery() is received or
 	 * when SQLException is caught
 	 */
-	public Set<SpatialObject> getAllSpatialObjects() throws DataManagerException {
-		Set<SpatialObject> spatialObjects = new HashSet<>();
+	public ArrayList<SpatialObject> getAllSpatialObjects() throws DataManagerException {
+		ArrayList<SpatialObject> spatialObjects = new ArrayList<>();
 
 		String sqlQuery = "SELECT ID, Type, Geometry FROM Spatial_Objects";
 		ResultSet resultSet = createDatabaseQuery(sqlQuery);
@@ -162,8 +163,8 @@ public class DataManager {
 	 * @return Set of the SpacialObjectType, which contains all object types saved in the database
 	 * @throws DataManagerException when exception from createDatabaseQuery() is received
 	 */
-	public Set<SpatialObjectType> getAllSpatialObjectTypes() throws DataManagerException {
-		Set<SpatialObjectType> spatialObjectTypes = new HashSet<>();
+	public ArrayList<SpatialObjectType> getAllSpatialObjectTypes() throws DataManagerException {
+		ArrayList<SpatialObjectType> spatialObjectTypes = new ArrayList<>();
 
 		String sqlQuery = "SELECT ID, Type FROM Spatial_Object_Types";
 		ResultSet resultSet = createDatabaseQuery(sqlQuery);

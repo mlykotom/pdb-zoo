@@ -6,6 +6,7 @@ import model.SpatialObject;
 import utils.Logger;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,7 +20,7 @@ public class ZooMapCanvasController extends Controller {
 		super();
 		this.canvas = zooMapCanvas;
 
-		Set<SpatialObject> spatialObjects;
+		ArrayList<SpatialObject> spatialObjects;
 
 		try {
 			spatialObjects = dataManager.getAllSpatialObjects();
@@ -28,7 +29,7 @@ public class ZooMapCanvasController extends Controller {
 			return;
 		}
 
-		Set<Shape> shapes = new HashSet<>();
+		ArrayList<Shape> shapes = new ArrayList<>();
 
 		for(SpatialObject object : spatialObjects) {
 			shapes.add(object.getShape());
