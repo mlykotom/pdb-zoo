@@ -9,7 +9,6 @@ import tasks.QueryTask1;
  *
  * @Author Tomas Hanus
  */
-
 public class MainPanelController extends Controller {
 	private final MainFrame frame;
 
@@ -27,7 +26,7 @@ public class MainPanelController extends Controller {
 		//TODO Remove temporary AsyncTask example
 		AsyncTask task = new AsyncTask() {
 			@Override
-			protected Void doInBackground() throws Exception {
+			protected Boolean doInBackground() throws Exception {
 				Thread.sleep(1500);
 				return null;
 			}
@@ -39,7 +38,7 @@ public class MainPanelController extends Controller {
 		//TODO Remove temporary AsyncTask example
 		AsyncTask task = new AsyncTask() {
 			@Override
-			protected Void doInBackground() throws Exception {
+			protected Boolean doInBackground() throws Exception {
 				Thread.sleep(2000);
 				return null;
 			}

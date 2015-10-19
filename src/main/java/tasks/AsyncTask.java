@@ -14,7 +14,7 @@ import javax.swing.*;
  *
  * @author Tomas Hanus
  */
-public abstract class AsyncTask extends SwingWorker<Void, String>{
+public abstract class AsyncTask extends SwingWorker<Boolean, String>{
 	private LoadingDialogController loadingDialogController;
 
 	public AsyncTask() {
@@ -27,6 +27,20 @@ public abstract class AsyncTask extends SwingWorker<Void, String>{
 	protected void done() {
 		super.done();
 		this.loadingDialogController.disposeDialog();
+	}
+
+
+	/**
+	 * It should be used when you want to find out if your async task was successful.
+	 *
+	 * @return Returns True if process of asyncTask was completed, False if not.
+	 */
+	public Boolean isComplete(){
+		try {
+			return get();
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 

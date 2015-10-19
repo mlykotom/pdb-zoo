@@ -16,7 +16,7 @@ public class QueryTask1 extends AsyncTask {
 		super();
 	}
 	@Override
-	protected Void doInBackground() throws Exception {
+	protected Boolean doInBackground() throws Exception {
 		try{
 			Thread.sleep(1500); //Simulated long query
 			return null;
