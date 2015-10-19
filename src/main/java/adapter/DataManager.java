@@ -10,6 +10,7 @@ import oracle.sql.ORAData;
 import utils.Logger;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,8 +32,6 @@ public class DataManager {
 	private static DataManager instance = new DataManager();
 
 	private Connection connection;
-	private Statement statement;
-	private ResultSet resultSet;
 
 	/**
 	 * Method connects to the database and save connection for later use.
@@ -72,6 +71,14 @@ public class DataManager {
 		// TODO here will be run initialize script
 	}
 
+	/**
+	 * Method gets all spatial objects saved in the database. Spatial object
+	 * represents one building at the zoo map.
+	 *
+	 * @return all zoo buildings saved in the database
+	 * @throws DataManagerException when exception from createDatabaseQuery() is received or
+	 * when SQLException is caught
+	 */
 	public Set<SpatialObject> getAllSpatialObjects() throws DataManagerException {
 		Set<SpatialObject> spatialObjects = new HashSet<>();
 
@@ -94,9 +101,28 @@ public class DataManager {
 			}
 		} catch (SQLException ex) {
 			throw new DataManagerException("getAllSpatialObjects: SQLException: " + ex.getMessage());
+		} catch (DataManagerException ex) {
+			throw ex;
+		} catch (Exception ex) {
+			throw new DataManagerException("getAllSpatialObjects: JGeometry exception: " + ex.getMessage());
 		}
 
 		return spatialObjects;
+	}
+
+	private Shape jGeometry2Shape(JGeometry jGeometry) throws DataManagerException {
+		if(jGeometry == null) throw new DataManagerException("jGeometry2Shape: Null jGeometry received!");
+
+		Shape shape;
+
+		switch (jGeometry.getType()) {
+			case JGeometry.GTYPE_POLYGON:
+				shape = jGeometry.createShape();
+				break;
+			default:
+				throw new DataManagerException("jGeometry2Shape: Can not convert jGeometry!");
+		}
+		return shape;
 	}
 
 	/**
@@ -131,7 +157,7 @@ public class DataManager {
 	}
 
 	/**
-	 * Method returns all spatial object types from the database.
+	 * Method returns all spatial objects types from the database.
 	 *
 	 * @return Set of the SpacialObjectType, which contains all object types saved in the database
 	 * @throws DataManagerException when exception from createDatabaseQuery() is received
@@ -171,10 +197,11 @@ public class DataManager {
 
 		tryConnection();
 
+		ResultSet resultSet;
+		Statement statement;
+
 		try {
-			if (statement == null) {
-				statement = connection.createStatement();
-			}
+			statement = connection.createStatement();
 
 			Logger.createLog(Logger.DEBUG_LOG, "Sending query: " + sqlQuery);
 
@@ -200,10 +227,10 @@ public class DataManager {
 
 		tryConnection();
 
+		Statement statement;
+
 		try {
-			if (statement == null) {
-				statement = connection.createStatement();
-			}
+			statement = connection.createStatement();
 
 			Logger.createLog(Logger.DEBUG_LOG, "Sending update: " + sqlUpdate);
 
@@ -261,26 +288,6 @@ public class DataManager {
 	 * Closes connection if opened.
 	 */
 	public void disconnectDatabase() {
-		if(resultSet != null) {
-			try {
-				resultSet.close();
-				resultSet = null;
-				Logger.createLog(Logger.DEBUG_LOG, "ResultSet closed!");
-			} catch (SQLException e) {
-				Logger.createLog(Logger.ERROR_LOG, "Can not close resultSet!");
-			}
-		}
-
-		if(statement != null) {
-			try {
-				statement.close();
-				statement = null;
-				Logger.createLog(Logger.DEBUG_LOG, "Statement closed!");
-			} catch (SQLException e) {
-				Logger.createLog(Logger.ERROR_LOG, "Can not close statement!");
-			}
-		}
-
 		if(connection != null) {
 			try {
 				connection.close();

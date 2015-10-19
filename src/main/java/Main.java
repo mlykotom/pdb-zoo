@@ -1,6 +1,7 @@
 import adapter.DataManager;
 import exception.DataManagerException;
 import gui.LoginForm;
+import model.SpatialObject;
 import model.SpatialObjectType;
 
 import javax.swing.*;
@@ -16,9 +17,11 @@ public class Main {
 		try {
 			Set<SpatialObjectType> types;
 			SpatialObjectType type;
+			Set<SpatialObject> objects;
 			DataManager.getInstance().connectDatabase("XMLYNA06", "04h3xlr6");
 			types = DataManager.getInstance().getAllSpatialObjectTypes();
 			type = DataManager.getInstance().getSpatialObjectType(10L);
+			objects = DataManager.getInstance().getAllSpatialObjects();
 			DataManager.getInstance().disconnectDatabase();
 		} catch (DataManagerException ex) {
 			System.out.println("ERROR: " + ex.getMessage());

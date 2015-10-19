@@ -1,7 +1,8 @@
 package model;
 
 /**
- * Class represents one row in Spatial_Object_Type table.
+ * Class represents one row in Spatial_Object_Type table. Object type
+ * represents type of the building at the zoo map.
  *
  * @author Jakub Tutko
  */

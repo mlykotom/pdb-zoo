@@ -1,7 +1,9 @@
 -- ----------------------------------------------------------------------------------------
--- DROPING TABLES
+-- DROPPING TABLES AND SEQUENCES
 -- ----------------------------------------------------------------------------------------
 
+DROP SEQUENCE Spatial_Object_Types_seq;
+DROP SEQUENCE Spatial_Objects_seq;
 DROP TABLE Spatial_Objects;
 DROP TABLE Spatial_Object_Types;
 

@@ -3,7 +3,9 @@ package model;
 import java.awt.*;
 
 /**
- * Class represents one row in Spatial_Object table.
+ * Class represents one row in Spatial_Object table. Spatial object
+ * represents one building at the zoo map which contains its coordinates,
+ * shape and type of the object.
  *
  * @author Jakub Tutko
  */
