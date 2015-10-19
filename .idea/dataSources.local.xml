@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="dataSourceStorageLocal">
-    <data-source name="Oracle -" uuid="66a9b5dd-b495-46c9-9c1c-fd9f3e0b0dda">
-      <secret-storage>master_key</secret-storage>
-      <user-name>XMLYNA06</user-name>
-      <schema-pattern>*.SYS *.SYSTEM *.XMLYNA06</schema-pattern>
-      <default-schemas>*.SYS *.SYSTEM *.XMLYNA06</default-schemas>
-    </data-source>
+    <data-source name="Oracle - dbgort@gort.fit.vutbr.cz" uuid="08144f56-5be7-4290-9cc1-ba484fc226e7" />
   </component>
 </project>
