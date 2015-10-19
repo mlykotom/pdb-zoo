@@ -21,7 +21,7 @@ CREATE TABLE Spatial_Object_Types (
 CREATE TABLE Spatial_Objects (
 	ID int NOT NULL,
 	Type int NOT NULL,
-	Shape SDO_GEOMETRY NOT NULL,
+	Geometry SDO_GEOMETRY NOT NULL,
 
 	PRIMARY KEY (ID),
 	FOREIGN KEY (Type) REFERENCES Spatial_Object_Types(ID)
@@ -61,19 +61,19 @@ INSERT INTO Spatial_Object_Types (Type) VALUES ('Cage');
 INSERT INTO Spatial_Object_Types (Type) VALUES ('Restaurant');
 INSERT INTO Spatial_Object_Types (Type) VALUES ('Entry');
 
-INSERT INTO Spatial_Objects (Type, Shape) VALUES (
+INSERT INTO Spatial_Objects (Type, Geometry) VALUES (
 	1,
 	SDO_GEOMETRY(2003, NULL, NULL,
 		SDO_ELEM_INFO_ARRAY(1, 1003, 3),
 		SDO_ORDINATE_ARRAY(50,100, 80,130)
 	));
-INSERT INTO Spatial_Objects (Type, Shape) VALUES (
+INSERT INTO Spatial_Objects (Type, Geometry) VALUES (
 	1,
 	SDO_GEOMETRY(2003, NULL, NULL,
 		SDO_ELEM_INFO_ARRAY(1, 1003, 3),
 		SDO_ORDINATE_ARRAY(20,200, 80,260)
 	));
-INSERT INTO Spatial_Objects (Type, Shape) VALUES (
+INSERT INTO Spatial_Objects (Type, Geometry) VALUES (
 	2,
 	SDO_GEOMETRY(2003, NULL, NULL,
 		SDO_ELEM_INFO_ARRAY(1, 1003, 3),

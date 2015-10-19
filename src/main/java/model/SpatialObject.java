@@ -1,5 +1,7 @@
 package model;
 
+import oracle.spatial.geometry.JGeometry;
+
 import java.awt.*;
 
 /**
@@ -12,11 +14,13 @@ import java.awt.*;
 public class SpatialObject {
 	private Long id;
 	private SpatialObjectType type;
+	private JGeometry geometry;
 	private Shape shape;
 
-	public SpatialObject(Long id, SpatialObjectType type, Shape shape) {
+	public SpatialObject(Long id, SpatialObjectType type, JGeometry geometry, Shape shape) {
 		this.id = id;
 		this.type = type;
+		this.geometry = geometry;
 		this.shape = shape;
 	}
 

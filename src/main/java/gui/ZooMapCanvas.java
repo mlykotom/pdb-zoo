@@ -60,9 +60,11 @@ public class ZooMapCanvas extends JPanel {
 
 		for(Shape shape : shapes) {
 			g2d.setPaint(Color.GRAY);
+			//g2d.translate(100, 100);
 			g2d.fill(shape);
 			g2d.setPaint(Color.BLACK);
 			g2d.draw(shape);
+
 		}
 	}
 

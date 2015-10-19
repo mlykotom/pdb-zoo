@@ -82,7 +82,7 @@ public class DataManager {
 	public Set<SpatialObject> getAllSpatialObjects() throws DataManagerException {
 		Set<SpatialObject> spatialObjects = new HashSet<>();
 
-		String sqlQuery = "SELECT ID, Type, Shape FROM Spatial_Objects";
+		String sqlQuery = "SELECT ID, Type, Geometry FROM Spatial_Objects";
 		ResultSet resultSet = createDatabaseQuery(sqlQuery);
 
 		try {
@@ -92,11 +92,11 @@ public class DataManager {
 				Long typeID = resultSet.getLong("Type");
 				SpatialObjectType type = getSpatialObjectType(typeID);
 
-				byte[] image = resultSet.getBytes("Shape");
+				byte[] image = resultSet.getBytes("Geometry");
 				JGeometry jGeometry = JGeometry.load(image);
 				Shape shape = jGeometry2Shape(jGeometry);
 
-				SpatialObject spatialObject = new SpatialObject(id, type, shape);
+				SpatialObject spatialObject = new SpatialObject(id, type, jGeometry, shape);
 				spatialObjects.add(spatialObject);
 			}
 		} catch (SQLException ex) {
