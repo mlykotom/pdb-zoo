@@ -5,8 +5,11 @@ import tasks.AsyncTask;
 import tasks.QueryTask1;
 
 /**
- * Created by Tomas on 10/14/2015.
+ * Controller for Main screen of the application.
+ *
+ * @Author Tomas Hanus
  */
+
 public class MainPanelController extends Controller {
 	private final MainFrame frame;
 

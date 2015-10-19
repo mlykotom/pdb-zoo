@@ -1,6 +1,6 @@
 package tasks;
 
-import gui.dialog.LoadingDialog;
+import controller.LoadingDialogController;
 
 import javax.swing.*;
 
@@ -15,19 +15,19 @@ import javax.swing.*;
  * @author Tomas Hanus
  */
 public abstract class AsyncTask extends SwingWorker<Void, String>{
-	private LoadingDialog loadingDialog;
+	private LoadingDialogController loadingDialogController;
 
 	public AsyncTask() {
-		this.loadingDialog = new LoadingDialog(); //TODO Decide whether to add the frame to anchor created Loading dialog to
+		this.loadingDialogController = new LoadingDialogController(this); //TODO Decide whether to add the frame to anchor created Loading dialog to
 		this.execute();
-		loadingDialog.setVisible(true);
+		loadingDialogController.showDialog(true);
 	}
 
 	@Override
 	protected void done() {
 		super.done();
-		this.loadingDialog.dispose();
+		this.loadingDialogController.disposeDialog();
 	}
 
-	//TODO async thread cancellation
+
 }

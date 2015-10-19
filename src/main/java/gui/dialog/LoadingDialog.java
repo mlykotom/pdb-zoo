@@ -3,6 +3,7 @@ package gui.dialog;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import controller.LoadingDialogController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,23 +14,20 @@ public class LoadingDialog extends JDialog {
 	private JButton buttonCancel;
 	private JProgressBar progressBar1;
 
-	public LoadingDialog() {
-		//super(owner, "Loading", true);
+	private LoadingDialogController loadingDialogController;
 
+	public LoadingDialog(final LoadingDialogController loadingDialogController) {
+		this.loadingDialogController = loadingDialogController;
 		initUI();
-
-// call onCancel() when cross is clicked
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				onCancel();
+				loadingDialogController.cancelProcessAction();
 			}
 		});
-
-// call onCancel() on ESCAPE
 		contentPane.registerKeyboardAction(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				onCancel();
+				loadingDialogController.cancelProcessAction();
 			}
 		}, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 	}
@@ -49,14 +47,9 @@ public class LoadingDialog extends JDialog {
 		progressBar1.setIndeterminate(true);
 		buttonCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				onCancel();
+				loadingDialogController.cancelProcessAction();
 			}
 		});
-	}
-
-	private void onCancel() {
-// add your code here if necessary
-		dispose();
 	}
 
 	{
