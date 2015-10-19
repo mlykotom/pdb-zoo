@@ -23,6 +23,7 @@ public class Main {
 			types = DataManager.getInstance().getAllSpatialObjectTypes();
 			type = DataManager.getInstance().getSpatialObjectType(10L);
 			objects = DataManager.getInstance().getAllSpatialObjects();
+			DataManager.getInstance().updateSpatialObject(objects.get(0));
 			DataManager.getInstance().disconnectDatabase();
 		} catch (DataManagerException ex) {
 			System.out.println("ERROR: " + ex.getMessage());

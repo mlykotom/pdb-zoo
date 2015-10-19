@@ -12,6 +12,7 @@ import java.awt.*;
  * @author Jakub Tutko
  */
 public class SpatialObject {
+
 	private Long id;
 	private SpatialObjectType type;
 	private JGeometry geometry;
@@ -30,6 +31,18 @@ public class SpatialObject {
 
 	public void setShape(Shape shape) {
 		this.shape = shape;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public SpatialObjectType getType() {
+		return type;
+	}
+
+	public JGeometry getGeometry() {
+		return geometry;
 	}
 
 	@Override

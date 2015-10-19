@@ -10,14 +10,12 @@ import oracle.sql.ORAData;
 import utils.Logger;
 
 import java.awt.*;
-import java.awt.geom.Point2D;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Arrays;
 
 /**
  * Class for communicating with the database.
@@ -31,6 +29,8 @@ import java.util.Set;
  */
 public class DataManager {
 	private static DataManager instance = new DataManager();
+	private static final int INSERT = 0;
+	private static final int UPDATE = 1;
 
 	private Connection connection;
 
@@ -60,6 +60,21 @@ public class DataManager {
 	}
 
 	/**
+	 * Closes connection if opened.
+	 */
+	public void disconnectDatabase() {
+		if(connection != null) {
+			try {
+				connection.close();
+				connection = null;
+				Logger.createLog(Logger.DEBUG_LOG, "DB connection closed!");
+			} catch (SQLException e) {
+				Logger.createLog(Logger.ERROR_LOG, "Can not close connection!");
+			}
+		}
+	}
+
+	/**
 	 * Method opens script saved on local disk and initialize database data.
 	 * Initialization includes deleting all tables, creating all tables and
 	 * filling up tables with some general data.
@@ -70,6 +85,30 @@ public class DataManager {
 		tryConnection();
 
 		// TODO here will be run initialize script
+	}
+
+	/**
+	 * Method transforms SpatialObject into sql UPDATE query and sends database update
+	 * with that query.
+	 *
+	 * @param spatialObject object, which is filled up with all mandatory fields
+	 * @throws DataManagerException when some mandatory field is missing or when exception
+	 * from createDatabaseUpdate() is received
+	 */
+	public void updateSpatialObject(SpatialObject spatialObject) throws DataManagerException {
+		updateOrInsertSpatialObject(spatialObject, UPDATE);
+	}
+
+	/**
+	 * Method transforms SpatialObject into sql INSERT query and sends database insert
+	 * with that query.
+	 *
+	 * @param spatialObject object, which is filled up with all mandatory fields
+	 * @throws DataManagerException when some mandatory field is missing or when exception
+	 * from createDatabaseUpdate() is received
+	 */
+	public void insertSpatialObject(SpatialObject spatialObject) throws DataManagerException {
+		updateOrInsertSpatialObject(spatialObject, INSERT);
 	}
 
 	/**
@@ -236,6 +275,7 @@ public class DataManager {
 			Logger.createLog(Logger.DEBUG_LOG, "Sending update: " + sqlUpdate);
 
 			statement.executeUpdate(sqlUpdate);
+			statement.close();
 		}
 		catch (SQLException ex) {
 			throw new DataManagerException("createDatabaseUpdate: SQLException: " + ex.getMessage());
@@ -286,18 +326,79 @@ public class DataManager {
 	}
 
 	/**
-	 * Closes connection if opened.
+	 * Method parses all needed data from SpacialObject and builds sql query, which is sent
+	 * at the server with the createDatabaseUpdate() method.
+	 *
+	 * @param spatialObject object, which is filled up with all mandatory fields
+	 * @param action can be UPDATE or INSERT
+	 * @throws DataManagerException when some mandatory field is missing or when exception
+	 * from createDatabaseUpdate() is received
 	 */
-	public void disconnectDatabase() {
-		if(connection != null) {
-			try {
-				connection.close();
-				connection = null;
-				Logger.createLog(Logger.DEBUG_LOG, "DB connection closed!");
-			} catch (SQLException e) {
-				Logger.createLog(Logger.ERROR_LOG, "Can not close connection!");
-			}
+	private void updateOrInsertSpatialObject(SpatialObject spatialObject, int action) throws DataManagerException {
+		if(spatialObject == null) throw new DataManagerException("updateOrInsertSpatialObject: Null spatialObject received!");
+
+		String id, typeId, sdoGType, sdoSrid, sdoPoint, sdoElemInfo, sdoOrdinates, sdoGeometry, sql;
+
+		if(action == UPDATE && spatialObject.getId() == null) {
+			throw new DataManagerException("updateOrInsertSpatialObject: Null spatialObject's ID!");
+		} else {
+			id = spatialObject.getId().toString();
 		}
+
+		if(spatialObject.getType() == null) {
+			throw new DataManagerException("updateOrInsertSpatialObject: Null spatialObject's Type!");
+		} else {
+			typeId = spatialObject.getType().getId().toString();
+		}
+
+		if(spatialObject.getGeometry() == null) {
+			throw new DataManagerException("updateOrInsertSpatialObject: Null spatialObject's Geometry!");
+		} else {
+			JGeometry jGeometry = spatialObject.getGeometry();
+
+			sdoGType = "";
+			sdoGType += String.valueOf(jGeometry.getDimensions());
+			sdoGType += String.valueOf(jGeometry.getLRMDimension());
+			sdoGType += '0';
+			sdoGType += String.valueOf(jGeometry.getType());
+
+			sdoSrid = (jGeometry.getSRID() == 0 ? "NULL" : String.valueOf(jGeometry.getSRID()));
+
+			double[] point = jGeometry.getPoint();
+			sdoPoint = (point == null || point.length < 2 ? "NULL" : "SDO_POINT_TYPE(" + point[0] + ", " + point[1] + ", NULL)");
+
+			int[] elemInfo = jGeometry.getElemInfo();
+			sdoElemInfo = (elemInfo == null ? "NULL" : "SDO_ELEM_INFO_ARRAY(" + Arrays.toString(elemInfo)) + ")";
+			sdoElemInfo = sdoElemInfo.replace("[", "");
+			sdoElemInfo = sdoElemInfo.replace("]", "");
+
+			double[] ordinates = jGeometry.getOrdinatesArray();
+			sdoOrdinates = (ordinates == null ? "NULL" : "SDO_ORDINATE_ARRAY(" + Arrays.toString(ordinates)) + ")";
+			sdoOrdinates = sdoOrdinates.replace("[", "");
+			sdoOrdinates = sdoOrdinates.replace("]", "");
+			
+			sdoGeometry = "SDO_GEOMETRY("+ sdoGType +", "+ sdoSrid +", "+ sdoPoint +", "+ sdoElemInfo +", "+ sdoOrdinates +")";
+		}
+
+		switch (action) {
+			case INSERT:
+				sql = "INSERT INTO Spatial_Objects (Type, Geometry) VALUES (";
+				sql += typeId + ", ";
+				sql += sdoGeometry +")";
+				break;
+
+			case UPDATE:
+				sql = "UPDATE Spatial_Objects ";
+				sql += "SET Type=" + typeId + ", ";
+				sql += "Geometry=" + sdoGeometry + " ";
+				sql += "WHERE ID=" + id;
+				break;
+
+			default:
+				throw new DataManagerException("updateOrInsertSpatialObject: Unknown action [" + action + "]!");
+		}
+
+		createDatabaseUpdate(sql);
 	}
 
 	/**
