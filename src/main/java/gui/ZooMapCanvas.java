@@ -13,7 +13,10 @@ import java.awt.event.MouseWheelListener;
 import java.awt.geom.Rectangle2D;
 
 /**
- * Created by Jakub on 15.10.2015.
+ * Class paints spatial objects into JPanel, so user can better see
+ * properties of the objects.
+ *
+ * @author Jakub Tutko
  */
 public class ZooMapCanvas extends JPanel {
 	private final ZooMapCanvasController controller;
