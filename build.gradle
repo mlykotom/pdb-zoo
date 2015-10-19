@@ -11,6 +11,8 @@ repositories {
     mavenCentral()
 }
 
+sourceSets { main { resources { srcDir 'src/main/java'	} }	}
+
 // dependencies (jars from libs folder not mentioned here, linked automatically)
 dependencies {
     //testCompile group: 'junit', name: 'junit', version: '4.11'
