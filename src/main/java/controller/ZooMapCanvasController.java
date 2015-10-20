@@ -13,28 +13,22 @@ import java.util.ArrayList;
  */
 public class ZooMapCanvasController extends Controller {
 	private ZooMapCanvas canvas;
+	private ArrayList<SpatialObjectModel> spacialObjects = new ArrayList<>();
 
 	public ZooMapCanvasController(ZooMapCanvas zooMapCanvas) {
 		super();
-		this.canvas = zooMapCanvas;
-
-		ArrayList<SpatialObjectModel> spacialModels;
-
 		try {
-			spacialModels = dataManager.getAllSpatialObjects();
+			spacialObjects = dataManager.getAllSpatialObjects();
 		} catch (DataManagerException e) {
 			Logger.createLog(Logger.ERROR_LOG, e.getMessage());
 			return;
 		}
 
-		ArrayList<Shape> shapes = new ArrayList<>();
-
-		for(SpatialObjectModel model : spacialModels) {
-			shapes.add(model.getShape());
-		}
-
-		canvas.setShapes(shapes);
-
+		this.canvas = zooMapCanvas;
 		canvas.repaint();
+	}
+
+	public ArrayList<SpatialObjectModel> getSpacialObjects() {
+		return spacialObjects;
 	}
 }

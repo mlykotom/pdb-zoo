@@ -14,7 +14,7 @@ DROP TABLE Spatial_Object_Types;
 CREATE TABLE Spatial_Object_Types (
 	ID int NOT NULL,
 	Type varchar(255),
-
+	Color varchar(6) DEFAULT 000000 NOT NULL,
 	PRIMARY KEY(ID)
 );
 

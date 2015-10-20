@@ -2,6 +2,7 @@ package gui;
 
 import controller.ZooMapCanvasController;
 import controller.ZooMapFormController;
+import model.SpatialObjectModel;
 import utils.Utils;
 
 import javax.swing.*;
@@ -19,17 +20,17 @@ import java.util.Set;
  * properties of the objects.
  *
  * @author Jakub Tutko
+ * @author Tomas Mlynaric
  */
 public class ZooMapCanvas extends JPanel {
-	private final ZooMapCanvasController controller;
+	private static final Color CANVAS_DEFAULT_COLOR = new Color(115, 239, 97);
 
-	private ArrayList<Shape> shapes;
+	private final ZooMapCanvasController controller;
+	private ArrayList<SpatialObjectModel> spatialObjects;
 
 	public ZooMapCanvas() {
-		shapes = null;
-
 		this.controller = new ZooMapCanvasController(this);
-
+		this.spatialObjects = controller.getSpacialObjects();
 		initUI();
 	}
 
@@ -39,16 +40,11 @@ public class ZooMapCanvas extends JPanel {
 		addMouseWheelListener(new ScaleHandler());
 
 		Utils.setComponentFixSize(this, 800, 600);
-		setBackground(new Color(115, 239, 97));
-	}
-
-
-	public void setShapes(ArrayList<Shape> shapes) {
-		this.shapes = shapes;
+		setBackground(CANVAS_DEFAULT_COLOR);
 	}
 
 	public void paint(Graphics g) {
-		if(shapes == null) return;
+		if(controller.getSpacialObjects().isEmpty()) return;
 
 		super.paint(g);
 
@@ -59,14 +55,13 @@ public class ZooMapCanvas extends JPanel {
 				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
 
-		for(Shape shape : shapes) {
-			g2d.setPaint(Color.GRAY);
-			//g2d.translate(100, 100);
+		for(SpatialObjectModel model : this.spatialObjects) {
+			Shape shape = model.getShape();
+			g2d.setPaint(model.getType().getColor());
 			g2d.fill(shape);
-			g2d.setPaint(Color.BLACK);
 			g2d.draw(shape);
-
 		}
+		g2d.setPaint(CANVAS_DEFAULT_COLOR);
 	}
 
 
@@ -84,8 +79,13 @@ public class ZooMapCanvas extends JPanel {
 			x = e.getX();
 			y = e.getY();
 
-			for(Shape shape : shapes) {
-				if(shape.contains(x, y)) selectedShape = shape;
+
+			for(SpatialObjectModel spatialObject : spatialObjects){
+				Shape shape = spatialObject.getShape();
+				if(shape.contains(x, y)){
+					selectedShape = shape;
+					break;
+				}
 			}
 		}
 

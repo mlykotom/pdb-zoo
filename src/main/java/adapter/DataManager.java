@@ -157,14 +157,15 @@ public class DataManager {
 
 		SpatialObjectTypeModel spatialObjectType = null;
 
-		String sqlQuery = "SELECT ID, Type FROM Spatial_Object_Types WHERE ID=" + typeID.toString();
+		String sqlQuery = "SELECT ID, Type, Color FROM Spatial_Object_Types WHERE ID=" + typeID.toString();
 		ResultSet resultSet = createDatabaseQuery(sqlQuery);
 
 		try {
 			if(resultSet.next()) {
 				Long id = resultSet.getLong("ID");
 				String type = resultSet.getString("Type");
-				spatialObjectType = new SpatialObjectTypeModel(id, type);
+				String colorHexString = resultSet.getString("Color");
+				spatialObjectType = new SpatialObjectTypeModel(id, type, colorHexString);
 			}
 		} catch (SQLException ex) {
 			throw new DataManagerException("getType: SQLException: " + ex.getMessage());
@@ -182,7 +183,7 @@ public class DataManager {
 	public ArrayList<SpatialObjectTypeModel> getAllSpatialObjectTypes() throws DataManagerException {
 		ArrayList<SpatialObjectTypeModel> spacialTypes = new ArrayList<>();
 
-		String sqlQuery = "SELECT ID, Type FROM Spatial_Object_Types";
+		String sqlQuery = "SELECT ID, Type, Color FROM Spatial_Object_Types";
 		ResultSet resultSet = createDatabaseQuery(sqlQuery);
 
 		try {
@@ -190,7 +191,8 @@ public class DataManager {
 				Long id = resultSet.getLong("ID");
 				String type = resultSet.getString("Type");
 				// TODO is it type? or just name? rename DB?
-				spacialTypes.add(new SpatialObjectTypeModel(id, type));
+				String colorHexString = resultSet.getString("Color");
+				spacialTypes.add(new SpatialObjectTypeModel(id, type, colorHexString));
 			}
 		} catch (SQLException ex) {
 			throw new DataManagerException("getAllSpatialObjectTypes: SQLException: " + ex.getMessage());

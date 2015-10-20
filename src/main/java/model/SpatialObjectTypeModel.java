@@ -1,14 +1,28 @@
 package model;
 
+import java.awt.*;
+
 /**
  * Created by mlyko on 20.10.2015.
  */
 public class SpatialObjectTypeModel extends BaseModel {
-	public java.awt.Color color;
+	private java.awt.Color color;
 
-	public SpatialObjectTypeModel(long id, String name) {
+	public SpatialObjectTypeModel(long id, String name, String colorHex) {
 		super(id, name);
-		// TODO will have constructor with color string (DB representation)
-		//this.color = Color.getColor() // is it HEX?
+		setColor(colorHex);
+	}
+
+	public Color getColor() {
+		return color;
+	}
+
+	/**
+	 * Sets color from hex number
+	 *
+	 * @param colorHex hex format of color without # char!
+	 */
+	public void setColor(String colorHex) {
+		this.color = Color.decode(String.format("#%s", colorHex));
 	}
 }
