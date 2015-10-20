@@ -1,7 +1,8 @@
 package model;
 
 /**
- * Created by mlyko on 20.10.2015.
+ * Generic model containing data which should be in any model in system
+ * Created by Tomas Mlynaric on 20.10.2015.
  */
 abstract public class BaseModel {
 	private long id;
@@ -45,9 +46,10 @@ abstract public class BaseModel {
 
 	/**
 	 * Checks if model new based on Id
+	 *
 	 * @return
 	 */
-	public boolean isNew(){
+	public boolean isNew() {
 		return this.id == 0;
 	}
 

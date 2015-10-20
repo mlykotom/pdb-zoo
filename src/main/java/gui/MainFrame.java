@@ -9,7 +9,7 @@ import java.awt.event.ActionListener;
 
 /**
  * Main Frame for the whole application.
- * <p>
+ * <p/>
  * All windows of the application are opened in this frame
  * as a JPanel. This frame contains only navigation menu.
  *
@@ -49,15 +49,16 @@ public class MainFrame extends JFrame {
 		menuBar.add(createLogoutButton());
 
 		// ------ content
-		JPanel activePage = switchContent(new ContentPanel());
+		switchContent(new ContentPanel());
 	}
 
 
 	/**
-	 * Switch content of some panel
-	 * @param panelToShow
+	 * Switch content of content panel
+	 *
+	 * @param panelToShow  instanciated component to show
 	 */
-	public JPanel switchContent(JPanel panelToShow){
+	public JPanel switchContent(JPanel panelToShow) {
 		Container contentPane = getContentPane();
 		contentPane.removeAll();
 		contentPane.add(panelToShow);
@@ -71,6 +72,7 @@ public class MainFrame extends JFrame {
 
 	/**
 	 * Factory for login button
+	 *
 	 * @return
 	 */
 	private Component createLogoutButton() {

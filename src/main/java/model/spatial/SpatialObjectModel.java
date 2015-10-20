@@ -1,20 +1,30 @@
 package model.spatial;
 
-import exception.DataManagerException;
+import exception.ModelException;
 import model.BaseModel;
 import oracle.spatial.geometry.JGeometry;
 
 import java.awt.*;
 
 /**
- * Created by mlyko on 20.10.2015.
+ * Abstract representation of object in spatial DB.
+ * Created by Tomas Mlynaric on 20.10.2015.
  */
 abstract public class SpatialObjectModel extends BaseModel {
 	protected JGeometry geometry;
 	protected Shape shape;
 	protected SpatialObjectTypeModel spatialObjectType;
 
-	protected SpatialObjectModel(long id, SpatialObjectTypeModel type, JGeometry geometry) throws Exception {
+	/**
+	 * Setups object and creates shape for graphic representation from jGeometry.
+	 * It's protected so that it's not possible to instantiate the class
+	 * otherwise than by {@link #createFromType(Long, SpatialObjectTypeModel, byte[])}
+	 *
+	 * @param id
+	 * @param type     association to object type (basket, house, path, ...)
+	 * @param geometry spatial data
+	 */
+	protected SpatialObjectModel(long id, SpatialObjectTypeModel type, JGeometry geometry) {
 		super(id);
 		this.spatialObjectType = type;
 		this.geometry = geometry;
@@ -23,16 +33,17 @@ abstract public class SpatialObjectModel extends BaseModel {
 
 	/**
 	 * Creates specific SpatialObject based on type from JGeometry which is served in raw format
+	 *
 	 * @param id
-	 * @param spatialType
-	 * @param rawGeometry
+	 * @param spatialType association to object type (basket, house, path, ...)
+	 * @param rawGeometry data from DB query result
 	 * @return
 	 * @throws Exception
 	 */
 	public static SpatialObjectModel createFromType(Long id, SpatialObjectTypeModel spatialType, byte[] rawGeometry) throws Exception {
 		JGeometry geometry = JGeometry.load(rawGeometry);
 		SpatialObjectModel newModel;
-		switch(geometry.getType()){
+		switch (geometry.getType()) {
 
 			case JGeometry.GTYPE_POLYGON:
 				newModel = new SpatialPolygonModel(id, spatialType, geometry);
@@ -44,8 +55,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 				break;
 
 			default:
-				// TODO model exception?
-				throw new DataManagerException("Not existing type of SpatialObjectModel");
+				throw new ModelException("createFromType: Not existing type of SpatialObjectModel");
 		}
 
 		return newModel;

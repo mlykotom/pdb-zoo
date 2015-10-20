@@ -1,9 +1,9 @@
 package model.spatial;
 
-import exception.DataManagerException;
 import oracle.spatial.geometry.JGeometry;
 
 /**
+ * Representation of polygon model in ODB & Shape in Swing
  * Created by Tomas Mlynaric on 20.10.2015.
  */
 public class SpatialPolygonModel extends SpatialObjectModel {
@@ -12,7 +12,7 @@ public class SpatialPolygonModel extends SpatialObjectModel {
 	}
 
 	@Override
-	public void regenerateShape(){
+	public void regenerateShape() {
 		this.shape = geometry.createShape();
 	}
 }

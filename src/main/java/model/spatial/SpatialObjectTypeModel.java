@@ -5,7 +5,8 @@ import model.BaseModel;
 import java.awt.*;
 
 /**
- * Created by mlyko on 20.10.2015.
+ * Type of object in system (basket, path, trash, ...)
+ * Created by Tomas Mlynaric on 20.10.2015.
  */
 public class SpatialObjectTypeModel extends BaseModel {
 	private java.awt.Color color;
