@@ -3,9 +3,9 @@ package gui;
 import controller.MenuBarController;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 
 /**
  * Main Frame for the whole application.
@@ -16,7 +16,12 @@ import java.awt.event.KeyEvent;
  * @author Jakub Tutko
  */
 public class MainFrame extends JFrame {
+	private static final int WINDOW_DEFAULT_WIDTH = 1024;
+	private static final int WINDOW_DEFAULT_HEIGHT = 768;
+
 	private MenuBarController menuBarController;
+
+	JTabbedPane tabbedPane;
 
 	/**
 	 * Constructor creates instance of the MenuBarController for
@@ -24,7 +29,6 @@ public class MainFrame extends JFrame {
 	 */
 	public MainFrame() {
 		this.menuBarController = new MenuBarController(this);
-
 		initUI();
 	}
 
@@ -33,44 +37,54 @@ public class MainFrame extends JFrame {
 	 * menu at the top of the frame.
 	 */
 	public void initUI() {
+		// ------ window
+		setTitle("ZOO");
+		setSize(WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT);
+		setLocationRelativeTo(null);
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-		JButton homeMenu = new JButton("Home");
-		homeMenu.setIcon(new ImageIcon("homeMenu-icon.png"));
-		homeMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				menuBarController.homeMenuAction();
-			}
-		});
+		// ------ menu
+		JMenuBar menuBar = new JMenuBar();
+		menuBar.add(Box.createHorizontalGlue());
+		menuBar.add(createLogoutButton());
 
-		JButton zooMapMenu = new JButton("Zoo map");
-		//zooMapMenu.setIcon(new ImageIcon("homeMenu-icon.png"));
-		zooMapMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				menuBarController.zooMapMenuAction();
-			}
-		});
+		// ------ content
+		JPanel activePage = switchContent(new ContentPanel());
+	}
 
-		JButton logoutMenu = new JButton("Logout");
-		logoutMenu.setIcon(new ImageIcon("logoutMenu-icon.png"));
-		logoutMenu.addActionListener(new ActionListener() {
+
+	/**
+	 * Switch content of some panel
+	 * @param panelToShow
+	 */
+	public JPanel switchContent(JPanel panelToShow){
+		Container contentPane = getContentPane();
+		contentPane.removeAll();
+		contentPane.add(panelToShow);
+		// TODO is it necessary?
+		//contentPane.revalidate();
+		//contentPane.repaint();
+
+		return panelToShow;
+	}
+
+
+	/**
+	 * Factory for login button
+	 * @return
+	 */
+	private Component createLogoutButton() {
+		JButton logoutButton = new JButton("Logout");
+		logoutButton.setIcon(new ImageIcon("logoutMenu-icon.png"));
+		logoutButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				menuBarController.logoutMenuAction();
 			}
 		});
 
-		JMenuBar menuBar = new JMenuBar();
-		menuBar.add(homeMenu);
-		menuBar.add(zooMapMenu);
-		menuBar.add(Box.createHorizontalGlue());
-		menuBar.add(logoutMenu);
-		setJMenuBar(menuBar);
-
-		setTitle("ZOO");
-		setSize(1024, 768);
-		setLocationRelativeTo(null);
-		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		return logoutButton;
 	}
+
+
 }

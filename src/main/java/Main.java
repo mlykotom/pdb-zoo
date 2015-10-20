@@ -14,7 +14,7 @@ public class Main {
 	public static void main(String[] args) {
 
 		/** TEST */
-		try {
+		/*try {
 			ArrayList<SpatialObjectTypeModel> types;
 			SpatialObjectTypeModel type;
 			ArrayList<SpatialObjectModel> spatialObjectModels;
@@ -27,6 +27,7 @@ public class Main {
 		} catch (DataManagerException ex) {
 			System.out.println("ERROR: " + ex.getMessage());
 		}
+		*/
 		/** ******/
 
 		/** GUI */
