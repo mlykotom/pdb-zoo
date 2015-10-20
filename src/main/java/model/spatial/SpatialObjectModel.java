@@ -86,4 +86,8 @@ abstract public class SpatialObjectModel extends BaseModel {
 	public JGeometry getGeometry() {
 		return geometry;
 	}
+
+	public void setGeometry(JGeometry geometry) {
+		this.geometry = geometry;
+	}
 }

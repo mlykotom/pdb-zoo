@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="dataSourceStorageLocal">
-    <data-source name="Oracle - dbgort@gort.fit.vutbr.cz" uuid="08144f56-5be7-4290-9cc1-ba484fc226e7">
-      <user-name>xmlyna06</user-name>
-    </data-source>
+    <data-source name="Oracle -" uuid="66a9b5dd-b495-46c9-9c1c-fd9f3e0b0dda" />
   </component>
 </project>

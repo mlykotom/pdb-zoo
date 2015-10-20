@@ -2,6 +2,8 @@ package gui;
 
 import controller.ZooMapCanvasController;
 import model.spatial.SpatialObjectModel;
+import model.spatial.SpatialPolygonModel;
+import oracle.spatial.geometry.JGeometry;
 import utils.Utils;
 
 import javax.swing.*;
@@ -71,38 +73,46 @@ public class ZooMapCanvas extends JPanel {
 
 		private int x;
 		private int y;
-		private Shape selectedShape;
+		private SpatialObjectModel selectedObject;
 
 		public void mousePressed(MouseEvent e) {
 			x = e.getX();
 			y = e.getY();
 
-
 			for(SpatialObjectModel spatialObject : spatialObjects){
 				Shape shape = spatialObject.getShape();
 				if(shape.contains(x, y)){
-					selectedShape = shape;
+					selectedObject = spatialObject;
 					break;
 				}
 			}
 		}
 
 		public void mouseDragged(MouseEvent e) {
+			if(selectedObject == null) return;
 
 			int dx = e.getX() - x;
 			int dy = e.getY() - y;
 
-			if (selectedShape.getBounds2D().contains(x, y)) {
-				//selectedShape.x += dx;
-				//selectedShape.y += dy;
-				repaint();
+
+			JGeometry geometry = selectedObject.getGeometry();
+			try {
+				geometry = geometry.affineTransforms(true, dx, dy, 0, false, null, 0, 0, 0, false, null, null, 0, 0, false, 0, 0, 0, 0, 0, 0, false, null, null, 0, false, new double[] {}, new double[] {});
+			} catch (Exception e1) {
+				e1.printStackTrace();
 			}
+
+			selectedObject.setGeometry(geometry);
+			selectedObject.regenerateShape();
+
+			repaint();
+
 			x += dx;
 			y += dy;
 		}
 
 		public void mouseReleased(MouseEvent e) {
-
+			selectedObject = null;
 		}
 	}
 
