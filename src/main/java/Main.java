@@ -1,12 +1,11 @@
 import adapter.DataManager;
 import exception.DataManagerException;
 import gui.LoginForm;
-import model.SpatialObject;
-import model.SpatialObjectType;
+import model.SpatialObjectModel;
+import model.SpatialObjectTypeModel;
 
 import javax.swing.*;
 import java.util.ArrayList;
-import java.util.Set;
 
 /**
  * Created by mlyko on 06.10.2015.
@@ -16,14 +15,14 @@ public class Main {
 
 		/** TEST */
 		try {
-			ArrayList<SpatialObjectType> types;
-			SpatialObjectType type;
-			ArrayList<SpatialObject> objects;
+			ArrayList<SpatialObjectTypeModel> types;
+			SpatialObjectTypeModel type;
+			ArrayList<SpatialObjectModel> spatialObjectModels;
 			DataManager.getInstance().connectDatabase("XMLYNA06", "04h3xlr6");
 			types = DataManager.getInstance().getAllSpatialObjectTypes();
 			type = DataManager.getInstance().getSpatialObjectType(10L);
-			objects = DataManager.getInstance().getAllSpatialObjects();
-			DataManager.getInstance().updateSpatialObject(objects.get(0));
+			spatialObjectModels = DataManager.getInstance().getAllSpatialObjects();
+			DataManager.getInstance().updateSpatial(spatialObjectModels.get(0));
 			DataManager.getInstance().disconnectDatabase();
 		} catch (DataManagerException ex) {
 			System.out.println("ERROR: " + ex.getMessage());

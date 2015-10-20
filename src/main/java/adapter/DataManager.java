@@ -1,15 +1,14 @@
 package adapter;
 
 import exception.DataManagerException;
-import model.SpatialObject;
-import model.SpatialObjectType;
+import model.SpatialObjectModel;
+import model.SpatialObjectTypeModel;
 import oracle.jdbc.OraclePreparedStatement;
 import oracle.jdbc.pool.OracleDataSource;
 import oracle.spatial.geometry.JGeometry;
 import oracle.sql.ORAData;
 import utils.Logger;
 
-import java.awt.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -95,7 +94,7 @@ public class DataManager {
 	 * @throws DataManagerException when some mandatory field is missing or when exception
 	 * from createDatabaseUpdate() is received
 	 */
-	public void updateSpatialObject(SpatialObject spatialObject) throws DataManagerException {
+	public void updateSpatial(SpatialObjectModel spatialObject) throws DataManagerException {
 		updateOrInsertSpatialObject(spatialObject, UPDATE);
 	}
 
@@ -107,7 +106,7 @@ public class DataManager {
 	 * @throws DataManagerException when some mandatory field is missing or when exception
 	 * from createDatabaseUpdate() is received
 	 */
-	public void insertSpatialObject(SpatialObject spatialObject) throws DataManagerException {
+	public void insertSpatialObject(SpatialObjectModel spatialObject) throws DataManagerException {
 		updateOrInsertSpatialObject(spatialObject, INSERT);
 	}
 
@@ -119,8 +118,8 @@ public class DataManager {
 	 * @throws DataManagerException when exception from createDatabaseQuery() is received or
 	 * when SQLException is caught
 	 */
-	public ArrayList<SpatialObject> getAllSpatialObjects() throws DataManagerException {
-		ArrayList<SpatialObject> spatialObjects = new ArrayList<>();
+	public ArrayList<SpatialObjectModel> getAllSpatialObjects() throws DataManagerException {
+		ArrayList<SpatialObjectModel> spatialObjects = new ArrayList<>();
 
 		String sqlQuery = "SELECT ID, Type, Geometry FROM Spatial_Objects";
 		ResultSet resultSet = createDatabaseQuery(sqlQuery);
@@ -128,16 +127,11 @@ public class DataManager {
 		try {
 			while (resultSet.next()) {
 				Long id = resultSet.getLong("ID");
-
 				Long typeID = resultSet.getLong("Type");
-				SpatialObjectType type = getSpatialObjectType(typeID);
+				SpatialObjectTypeModel spacialType = getSpatialObjectType(typeID);
 
-				byte[] image = resultSet.getBytes("Geometry");
-				JGeometry jGeometry = JGeometry.load(image);
-				Shape shape = jGeometry2Shape(jGeometry);
-
-				SpatialObject spatialObject = new SpatialObject(id, type, jGeometry, shape);
-				spatialObjects.add(spatialObject);
+				byte[] rawGeometry = resultSet.getBytes("Geometry");
+				spatialObjects.add(new SpatialObjectModel(id, spacialType, rawGeometry));
 			}
 		} catch (SQLException ex) {
 			throw new DataManagerException("getAllSpatialObjects: SQLException: " + ex.getMessage());
@@ -150,47 +144,30 @@ public class DataManager {
 		return spatialObjects;
 	}
 
-	private Shape jGeometry2Shape(JGeometry jGeometry) throws DataManagerException {
-		if(jGeometry == null) throw new DataManagerException("jGeometry2Shape: Null jGeometry received!");
-
-		Shape shape;
-
-		switch (jGeometry.getType()) {
-			case JGeometry.GTYPE_POLYGON:
-				shape = jGeometry.createShape();
-				break;
-			default:
-				throw new DataManagerException("jGeometry2Shape: Can not convert jGeometry!");
-		}
-		return shape;
-	}
-
 	/**
 	 * Method returns spatial object type with specific ID. If type with this ID
 	 * does not exists, method returns null pointer.
 	 *
 	 * @param typeID ID of the type in the database
-	 * @return SpatialObjectType of the concrete type or null
+	 * @return SpatialObjectTypeModel of the concrete type or null
 	 * @throws DataManagerException when exception from createDatabaseQuery() is received
 	 */
-	public SpatialObjectType getSpatialObjectType(Long typeID) throws DataManagerException {
-		if(typeID == null) throw new DataManagerException("getSpatialObjectType: Null typeID received");
+	public SpatialObjectTypeModel getSpatialObjectType(Long typeID) throws DataManagerException {
+		if(typeID == null) throw new DataManagerException("getType: Null typeID received");
 
-		SpatialObjectType spatialObjectType = null;
+		SpatialObjectTypeModel spatialObjectType = null;
 
 		String sqlQuery = "SELECT ID, Type FROM Spatial_Object_Types WHERE ID=" + typeID.toString();
 		ResultSet resultSet = createDatabaseQuery(sqlQuery);
 
 		try {
 			if(resultSet.next()) {
-
 				Long id = resultSet.getLong("ID");
 				String type = resultSet.getString("Type");
-
-				spatialObjectType = new SpatialObjectType(id, type);
+				spatialObjectType = new SpatialObjectTypeModel(id, type);
 			}
 		} catch (SQLException ex) {
-			throw new DataManagerException("getSpatialObjectType: SQLException: " + ex.getMessage());
+			throw new DataManagerException("getType: SQLException: " + ex.getMessage());
 		}
 
 		return spatialObjectType;
@@ -202,8 +179,8 @@ public class DataManager {
 	 * @return Set of the SpacialObjectType, which contains all object types saved in the database
 	 * @throws DataManagerException when exception from createDatabaseQuery() is received
 	 */
-	public ArrayList<SpatialObjectType> getAllSpatialObjectTypes() throws DataManagerException {
-		ArrayList<SpatialObjectType> spatialObjectTypes = new ArrayList<>();
+	public ArrayList<SpatialObjectTypeModel> getAllSpatialObjectTypes() throws DataManagerException {
+		ArrayList<SpatialObjectTypeModel> spacialTypes = new ArrayList<>();
 
 		String sqlQuery = "SELECT ID, Type FROM Spatial_Object_Types";
 		ResultSet resultSet = createDatabaseQuery(sqlQuery);
@@ -212,14 +189,14 @@ public class DataManager {
 			while (resultSet.next()) {
 				Long id = resultSet.getLong("ID");
 				String type = resultSet.getString("Type");
-				SpatialObjectType spatialObjectType = new SpatialObjectType(id, type);
-				spatialObjectTypes.add(spatialObjectType);
+				// TODO is it type? or just name? rename DB?
+				spacialTypes.add(new SpatialObjectTypeModel(id, type));
 			}
 		} catch (SQLException ex) {
 			throw new DataManagerException("getAllSpatialObjectTypes: SQLException: " + ex.getMessage());
 		}
 
-		return spatialObjectTypes;
+		return spacialTypes;
 	}
 
 	/**
@@ -334,7 +311,7 @@ public class DataManager {
 	 * @throws DataManagerException when some mandatory field is missing or when exception
 	 * from createDatabaseUpdate() is received
 	 */
-	private void updateOrInsertSpatialObject(SpatialObject spatialObject, int action) throws DataManagerException {
+	private void updateOrInsertSpatialObject(SpatialObjectModel spatialObject, int action) throws DataManagerException {
 		if(spatialObject == null) throw new DataManagerException("updateOrInsertSpatialObject: Null spatialObject received!");
 
 		String id, typeId, sdoGType, sdoSrid, sdoPoint, sdoElemInfo, sdoOrdinates, sdoGeometry, sql;
@@ -376,7 +353,7 @@ public class DataManager {
 			sdoOrdinates = (ordinates == null ? "NULL" : "SDO_ORDINATE_ARRAY(" + Arrays.toString(ordinates)) + ")";
 			sdoOrdinates = sdoOrdinates.replace("[", "");
 			sdoOrdinates = sdoOrdinates.replace("]", "");
-			
+
 			sdoGeometry = "SDO_GEOMETRY("+ sdoGType +", "+ sdoSrid +", "+ sdoPoint +", "+ sdoElemInfo +", "+ sdoOrdinates +")";
 		}
 
