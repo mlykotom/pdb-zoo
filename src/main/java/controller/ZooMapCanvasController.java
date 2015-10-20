@@ -2,13 +2,11 @@ package controller;
 
 import exception.DataManagerException;
 import gui.ZooMapCanvas;
-import model.SpatialObject;
+import model.SpatialObjectModel;
 import utils.Logger;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Created by Jakub on 15.10.2015.
@@ -20,10 +18,10 @@ public class ZooMapCanvasController extends Controller {
 		super();
 		this.canvas = zooMapCanvas;
 
-		ArrayList<SpatialObject> spatialObjects;
+		ArrayList<SpatialObjectModel> spacialModels;
 
 		try {
-			spatialObjects = dataManager.getAllSpatialObjects();
+			spacialModels = dataManager.getAllSpatialObjects();
 		} catch (DataManagerException e) {
 			Logger.createLog(Logger.ERROR_LOG, e.getMessage());
 			return;
@@ -31,8 +29,8 @@ public class ZooMapCanvasController extends Controller {
 
 		ArrayList<Shape> shapes = new ArrayList<>();
 
-		for(SpatialObject object : spatialObjects) {
-			shapes.add(object.getShape());
+		for(SpatialObjectModel model : spacialModels) {
+			shapes.add(model.getShape());
 		}
 
 		canvas.setShapes(shapes);
