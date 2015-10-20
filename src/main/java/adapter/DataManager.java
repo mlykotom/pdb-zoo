@@ -1,8 +1,8 @@
 package adapter;
 
 import exception.DataManagerException;
-import model.SpatialObjectModel;
-import model.SpatialObjectTypeModel;
+import model.spatial.SpatialObjectModel;
+import model.spatial.SpatialObjectTypeModel;
 import oracle.jdbc.OraclePreparedStatement;
 import oracle.jdbc.pool.OracleDataSource;
 import oracle.spatial.geometry.JGeometry;
@@ -128,10 +128,10 @@ public class DataManager {
 			while (resultSet.next()) {
 				Long id = resultSet.getLong("ID");
 				Long typeID = resultSet.getLong("Type");
-				SpatialObjectTypeModel spacialType = getSpatialObjectType(typeID);
+				SpatialObjectTypeModel spatialType = getSpatialObjectType(typeID);
 
 				byte[] rawGeometry = resultSet.getBytes("Geometry");
-				spatialObjects.add(new SpatialObjectModel(id, spacialType, rawGeometry));
+				spatialObjects.add(SpatialObjectModel.createFromType(id, spatialType, rawGeometry));
 			}
 		} catch (SQLException ex) {
 			throw new DataManagerException("getAllSpatialObjects: SQLException: " + ex.getMessage());

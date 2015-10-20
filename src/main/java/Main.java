@@ -1,8 +1,8 @@
 import adapter.DataManager;
 import exception.DataManagerException;
 import gui.LoginForm;
-import model.SpatialObjectModel;
-import model.SpatialObjectTypeModel;
+import model.spatial.SpatialObjectModel;
+import model.spatial.SpatialObjectTypeModel;
 
 import javax.swing.*;
 import java.util.ArrayList;

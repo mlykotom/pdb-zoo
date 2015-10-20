@@ -1,6 +1,7 @@
-package model;
+package model.spatial;
 
 import exception.DataManagerException;
+import model.BaseModel;
 import oracle.spatial.geometry.JGeometry;
 
 import java.awt.*;
@@ -8,33 +9,52 @@ import java.awt.*;
 /**
  * Created by mlyko on 20.10.2015.
  */
-public class SpatialObjectModel extends BaseModel {
-	private JGeometry geometry;
-	private Shape shape;
-	private SpatialObjectTypeModel spatialObjectType;
+abstract public class SpatialObjectModel extends BaseModel {
+	protected JGeometry geometry;
+	protected Shape shape;
+	protected SpatialObjectTypeModel spatialObjectType;
 
-	public SpatialObjectModel(long id, SpatialObjectTypeModel type, byte[] rawGeometry) throws Exception {
+	protected SpatialObjectModel(long id, SpatialObjectTypeModel type, JGeometry geometry) throws Exception {
 		super(id);
 		this.spatialObjectType = type;
-		this.geometry = JGeometry.load(rawGeometry);
+		this.geometry = geometry;
 		regenerateShape();
 	}
 
 	/**
-	 * Creates new shape based on models jGeometry type
-	 * @throws DataManagerException
+	 * Creates specific SpatialObject based on type from JGeometry which is served in raw format
+	 * @param id
+	 * @param spatialType
+	 * @param rawGeometry
+	 * @return
+	 * @throws Exception
 	 */
-	public void regenerateShape() throws DataManagerException {
-		Shape shape;
-		switch (geometry.getType()) {
+	public static SpatialObjectModel createFromType(Long id, SpatialObjectTypeModel spatialType, byte[] rawGeometry) throws Exception {
+		JGeometry geometry = JGeometry.load(rawGeometry);
+		SpatialObjectModel newModel;
+		switch(geometry.getType()){
+
 			case JGeometry.GTYPE_POLYGON:
-				shape = geometry.createShape();
+				newModel = new SpatialPolygonModel(id, spatialType, geometry);
 				break;
+
+
+			case JGeometry.GTYPE_POINT:
+				newModel = new SpatialPointModel(id, spatialType, geometry);
+				break;
+
 			default:
-				throw new DataManagerException("jGeometry2Shape: Can not convert jGeometry!");
+				// TODO model exception?
+				throw new DataManagerException("Not existing type of SpatialObjectModel");
 		}
-		this.shape = shape;
+
+		return newModel;
 	}
+
+	/**
+	 * Creates new shape based on class type
+	 */
+	abstract public void regenerateShape();
 
 	@Override
 	public boolean equals(Object o) {

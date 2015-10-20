@@ -1,4 +1,6 @@
-package model;
+package model.spatial;
+
+import model.BaseModel;
 
 import java.awt.*;
 

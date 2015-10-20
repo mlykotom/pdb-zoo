@@ -1,8 +1,7 @@
 package gui;
 
 import controller.ZooMapCanvasController;
-import controller.ZooMapFormController;
-import model.SpatialObjectModel;
+import model.spatial.SpatialObjectModel;
 import utils.Utils;
 
 import javax.swing.*;
@@ -13,7 +12,6 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.Set;
 
 /**
  * Class paints spatial objects into JPanel, so user can better see

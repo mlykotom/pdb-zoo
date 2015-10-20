@@ -43,6 +43,14 @@ abstract public class BaseModel {
 		return result;
 	}
 
+	/**
+	 * Checks if model new based on Id
+	 * @return
+	 */
+	public boolean isNew(){
+		return this.id == 0;
+	}
+
 	public Long getId() {
 		return id;
 	}

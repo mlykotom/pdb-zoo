@@ -12,19 +12,19 @@ DROP TABLE Spatial_Object_Types;
 -- ----------------------------------------------------------------------------------------
 
 CREATE TABLE Spatial_Object_Types (
-	ID int NOT NULL,
-	Type varchar(255),
-	Color varchar(6) DEFAULT 000000 NOT NULL,
-	PRIMARY KEY(ID)
+  ID    INT                       NOT NULL,
+  Type  VARCHAR(255),
+  Color VARCHAR(6) DEFAULT 000000 NOT NULL,
+  PRIMARY KEY (ID)
 );
 
 CREATE TABLE Spatial_Objects (
-	ID int NOT NULL,
-	Type int NOT NULL,
-	Geometry SDO_GEOMETRY NOT NULL,
+  ID       INT          NOT NULL,
+  Type     INT          NOT NULL,
+  Geometry SDO_GEOMETRY NOT NULL,
 
-	PRIMARY KEY (ID),
-	FOREIGN KEY (Type) REFERENCES Spatial_Object_Types(ID)
+  PRIMARY KEY (ID),
+  FOREIGN KEY (Type) REFERENCES Spatial_Object_Types (ID)
 );
 
 -- ----------------------------------------------------------------------------------------
@@ -32,25 +32,25 @@ CREATE TABLE Spatial_Objects (
 -- ----------------------------------------------------------------------------------------
 
 CREATE SEQUENCE Spatial_Object_Types_seq;
-CREATE OR REPLACE TRIGGER Spatial_Object_Types_bir 
+CREATE OR REPLACE TRIGGER Spatial_Object_Types_bir
 BEFORE INSERT ON Spatial_Object_Types
 FOR EACH ROW
-BEGIN
-  SELECT Spatial_Object_Types_seq.NEXTVAL
-  INTO   :new.id
-  FROM   dual;
-END;
+  BEGIN
+    SELECT Spatial_Object_Types_seq.NEXTVAL
+    INTO :new.id
+    FROM dual;
+  END;
 /
 
 CREATE SEQUENCE Spatial_Objects_seq;
-CREATE OR REPLACE TRIGGER Spatial_Objects_bir 
+CREATE OR REPLACE TRIGGER Spatial_Objects_bir
 BEFORE INSERT ON Spatial_Objects
 FOR EACH ROW
-BEGIN
-  SELECT Spatial_Objects_seq.NEXTVAL
-  INTO   :new.id
-  FROM   dual;
-END;
+  BEGIN
+    SELECT Spatial_Objects_seq.NEXTVAL
+    INTO :new.id
+    FROM dual;
+  END;
 /
 
 -- ----------------------------------------------------------------------------------------
@@ -62,23 +62,31 @@ INSERT INTO Spatial_Object_Types (Type) VALUES ('Restaurant');
 INSERT INTO Spatial_Object_Types (Type) VALUES ('Entry');
 
 INSERT INTO Spatial_Objects (Type, Geometry) VALUES (
-	1,
-	SDO_GEOMETRY(2003, NULL, NULL,
-		SDO_ELEM_INFO_ARRAY(1, 1003, 3),
-		SDO_ORDINATE_ARRAY(50,100, 80,130)
-	));
+  1,
+  SDO_GEOMETRY(2003, NULL, NULL,
+               SDO_ELEM_INFO_ARRAY(1, 1003, 3),
+               SDO_ORDINATE_ARRAY(50, 100, 80, 130)
+  ));
 INSERT INTO Spatial_Objects (Type, Geometry) VALUES (
-	1,
-	SDO_GEOMETRY(2003, NULL, NULL,
-		SDO_ELEM_INFO_ARRAY(1, 1003, 3),
-		SDO_ORDINATE_ARRAY(20,200, 80,260)
-	));
+  1,
+  SDO_GEOMETRY(2003, NULL, NULL,
+               SDO_ELEM_INFO_ARRAY(1, 1003, 3),
+               SDO_ORDINATE_ARRAY(20, 200, 80, 260)
+  ));
 INSERT INTO Spatial_Objects (Type, Geometry) VALUES (
-	2,
-	SDO_GEOMETRY(2003, NULL, NULL,
-		SDO_ELEM_INFO_ARRAY(1, 1003, 3),
-		SDO_ORDINATE_ARRAY(20,35, 65,50)
-	));
+  2,
+  SDO_GEOMETRY(2003, NULL, NULL,
+               SDO_ELEM_INFO_ARRAY(1, 1003, 3),
+               SDO_ORDINATE_ARRAY(20, 35, 65, 50)
+  ));
+
+INSERT INTO Spatial_Objects (Type, Geometry) VALUES (
+  3,
+  SDO_GEOMETRY(2001, NULL,
+               SDO_POINT_TYPE(300, 300, NULL),
+               NULL, NULL)
+);
+
 
 -- ----------------------------------------------------------------------------------------
 -- THE END OF SCRIPT

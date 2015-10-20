@@ -2,10 +2,9 @@ package controller;
 
 import exception.DataManagerException;
 import gui.ZooMapCanvas;
-import model.SpatialObjectModel;
+import model.spatial.SpatialObjectModel;
 import utils.Logger;
 
-import java.awt.*;
 import java.util.ArrayList;
 
 /**
