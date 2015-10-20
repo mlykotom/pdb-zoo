@@ -125,12 +125,33 @@ public class ZooMapCanvas extends JPanel {
 
 			if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
 
-				if (myRect.getBounds2D().contains(x, y)) {
-					float amount = e.getWheelRotation() * 5f;
-					myRect.width += amount;
-					myRect.height += amount;
-					repaint();
+				SpatialObjectModel selectedObject = null;
+
+				for(SpatialObjectModel spatialObject : spatialObjects){
+					Shape shape = spatialObject.getShape();
+					if(shape.contains(x, y)){
+						selectedObject = spatialObject;
+						break;
+					}
 				}
+
+				if(selectedObject == null) return;
+
+				JGeometry geometry = selectedObject.getGeometry();
+				double[] firstPoint = geometry.getFirstPoint();
+				JGeometry staticPoint = new JGeometry(firstPoint[0], firstPoint[1], 0);
+				float amount = 1 + (e.getWheelRotation() * 0.05f);
+
+				try {
+					geometry = geometry.affineTransforms(false, 0, 0, 0, true, staticPoint, amount, amount, 0, false, null, null, 0, 0, false, 0, 0, 0, 0, 0, 0, false, null, null, 0, false, new double[] {}, new double[] {});
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+
+				selectedObject.setGeometry(geometry);
+				selectedObject.regenerateShape();
+
+				repaint();
 			}
 		}
 	}
