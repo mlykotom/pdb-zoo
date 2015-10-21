@@ -1,7 +1,7 @@
 package controller;
 
 import exception.DataManagerException;
-import gui.ZooMapCanvas;
+import gui.map.ZooMapCanvas;
 import model.spatial.SpatialObjectModel;
 import utils.Logger;
 

@@ -1,8 +1,8 @@
-package gui;
+package gui.map;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import controller.ZooMapFormController;
+import controller.ZooMapPanelController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,16 +10,18 @@ import java.awt.*;
 /**
  * Created by Jakub on 14.10.2015.
  */
-public class ZooMapForm extends JPanel {
-	private final ZooMapFormController controller;
+public class ZooMapPanel extends JPanel {
+	private final ZooMapPanelController controller;
 	private JPanel rootPanel;
 	private JPanel mapPanel;
 	private JButton button1;
 
-	public ZooMapForm() {
-		this.controller = new ZooMapFormController(this);
+	public ZooMapPanel() {
+		this.controller = new ZooMapPanelController(this);
 		initUI();
 	}
+
+
 
 	public void initUI() {
 		mapPanel.add(new ZooMapCanvas(), new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));

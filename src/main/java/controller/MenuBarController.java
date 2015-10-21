@@ -2,7 +2,7 @@ package controller;
 
 import gui.LoginForm;
 import gui.MainFrame;
-import gui.ZooMapForm;
+import gui.map.ZooMapPanel;
 
 import javax.swing.*;
 
@@ -47,7 +47,7 @@ public class MenuBarController extends Controller {
 		JPanel contentPane = (JPanel) mainFrame.getContentPane();
 
 		contentPane.removeAll();
-		contentPane.add(new ZooMapForm());
+		contentPane.add(new ZooMapPanel());
 		contentPane.revalidate();
 		contentPane.repaint();
 	}

@@ -4,6 +4,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import gui.detail.AnimalsPanel;
 import gui.detail.EmployeesPanel;
+import gui.map.ZooMapPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,6 +24,7 @@ public class ContentPanel extends JPanel {
 		detailTabsPane.addTab("Animals", new AnimalsPanel());
 		detailTabsPane.addTab("Employees", new EmployeesPanel());
 
+		mapPanel.add(new ZooMapPanel());
 		detailPanel.add(detailTabsPane);
 	}
 
@@ -52,7 +54,7 @@ public class ContentPanel extends JPanel {
 		rootPanel.add(mapPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		detailPanel = new JPanel();
 		detailPanel.setLayout(new BorderLayout(0, 0));
-		rootPanel.add(detailPanel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(400, -1), null, 0, false));
+		rootPanel.add(detailPanel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(300, -1), null, null, 0, false));
 	}
 
 	/**

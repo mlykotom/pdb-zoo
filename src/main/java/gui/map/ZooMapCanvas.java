@@ -1,4 +1,4 @@
-package gui;
+package gui.map;
 
 import controller.ZooMapCanvasController;
 import model.spatial.SpatialObjectModel;
@@ -39,7 +39,7 @@ public class ZooMapCanvas extends JPanel {
 		addMouseListener(ma);
 		addMouseWheelListener(new ScaleHandler());
 
-		Utils.setComponentFixSize(this, 800, 600);
+		Utils.setComponentFixSize(this, 640, 480);
 		setBackground(CANVAS_DEFAULT_COLOR);
 	}
 

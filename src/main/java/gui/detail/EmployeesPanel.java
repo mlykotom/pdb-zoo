@@ -35,6 +35,7 @@ public class EmployeesPanel extends JPanel {
 	private void $$$setupUI$$$() {
 		rootPanel = new JPanel();
 		rootPanel.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+		rootPanel.setBackground(new Color(-1));
 		spinner1 = new JSpinner();
 		rootPanel.add(spinner1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final Spacer spacer1 = new Spacer();
