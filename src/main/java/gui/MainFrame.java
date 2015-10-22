@@ -47,6 +47,7 @@ public class MainFrame extends JFrame {
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.add(Box.createHorizontalGlue());
 		menuBar.add(createLogoutButton());
+		setJMenuBar(menuBar);
 
 		// ------ content
 		switchContent(new ContentPanel());
