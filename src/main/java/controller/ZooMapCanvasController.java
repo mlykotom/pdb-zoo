@@ -30,4 +30,8 @@ public class ZooMapCanvasController extends Controller {
 	public ArrayList<SpatialObjectModel> getSpacialObjects() {
 		return spacialObjects;
 	}
+
+	public void updateSpatialObject(SpatialObjectModel model) throws DataManagerException {
+		dataManager.updateSpatial(model);
+	}
 }

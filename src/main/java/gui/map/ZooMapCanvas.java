@@ -1,19 +1,15 @@
 package gui.map;
 
 import controller.ZooMapCanvasController;
+import exception.DataManagerException;
 import model.spatial.SpatialObjectModel;
-import model.spatial.SpatialPolygonModel;
-import oracle.spatial.geometry.JGeometry;
 import utils.Utils;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
+import java.awt.event.*;
+import java.util.*;
 
 /**
  * Class paints spatial objects into JPanel, so user can better see
@@ -24,9 +20,12 @@ import java.util.ArrayList;
  */
 public class ZooMapCanvas extends JPanel {
 	private static final Color CANVAS_DEFAULT_COLOR = new Color(115, 239, 97);
+	private static final int MOUSE_RELEASE_ACTION_DELAY_MILLIS = 500;
 
 	private final ZooMapCanvasController controller;
 	private ArrayList<SpatialObjectModel> spatialObjects;
+	private HashSet<SpatialObjectModel> spatialObjectsToUpdate = new HashSet<>();
+
 
 	public ZooMapCanvas() {
 		this.controller = new ZooMapCanvasController(this);
@@ -34,125 +33,136 @@ public class ZooMapCanvas extends JPanel {
 		initUI();
 	}
 
+	/**
+	 * Initialize UI windows, elements and action listeners (mouse,..)
+	 */
 	public void initUI() {
-		addMouseMotionListener(ma);
-		addMouseListener(ma);
+		addMouseMotionListener(movingAdapter);
+		addMouseListener(movingAdapter);
 		addMouseWheelListener(new ScaleHandler());
 
 		Utils.setComponentFixSize(this, 640, 480);
 		setBackground(CANVAS_DEFAULT_COLOR);
 	}
 
+	/**
+	 * Renders window with low level graphics
+	 *
+	 * @param g
+	 */
 	public void paint(Graphics g) {
-		if(controller.getSpacialObjects().isEmpty()) return;
-
+		// TODO should return some error??
+		if (controller.getSpacialObjects().isEmpty()) return;
 		super.paint(g);
 
-		Graphics2D g2d = (Graphics2D) g;
+		Graphics2D g2D = (Graphics2D) g;
+		g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-
-		for(SpatialObjectModel model : this.spatialObjects) {
-			Shape shape = model.getShape();
-			g2d.setPaint(model.getType().getColor());
-			g2d.fill(shape);
-			g2d.draw(shape);
+		for (SpatialObjectModel model : this.spatialObjects) {
+			model.render(g2D);
 		}
-		g2d.setPaint(CANVAS_DEFAULT_COLOR);
+		g2D.setPaint(CANVAS_DEFAULT_COLOR);
 	}
 
-
-	private Rectangle2D.Float myRect = new Rectangle2D.Float(50, 50, 50, 50);
-
-	public MovingAdapter ma = new MovingAdapter();
-
-	class MovingAdapter extends MouseAdapter {
-
-		private int x;
-		private int y;
+	public MouseAdapter movingAdapter = new MouseAdapter() {
+		private int pressedX;
+		private int pressedY;
 		private SpatialObjectModel selectedObject;
+		private Timer MouseReleasedTimer;
 
+		/**
+		 * Choose object from canvas
+		 *
+		 * @param e
+		 */
 		public void mousePressed(MouseEvent e) {
-			x = e.getX();
-			y = e.getY();
-
-			for(SpatialObjectModel spatialObject : spatialObjects){
-				Shape shape = spatialObject.getShape();
-				if(shape.contains(x, y)){
-					selectedObject = spatialObject;
-					break;
-				}
-			}
+			pressedX = e.getX();
+			pressedY = e.getY();
+			selectedObject = SpatialObjectModel.selectObjectFromCanvas(spatialObjects, pressedX, pressedY);
 		}
 
+		/**
+		 * Can drag objects on canvas
+		 *
+		 * @param e
+		 */
 		public void mouseDragged(MouseEvent e) {
-			if(selectedObject == null) return;
+			if (selectedObject == null) return;
 
-			int dx = e.getX() - x;
-			int dy = e.getY() - y;
+			int deltaX = e.getX() - pressedX;
+			int deltaY = e.getY() - pressedY;
 
+			selectedObject.moveOnCanvas(deltaX, deltaY);
 
-			JGeometry geometry = selectedObject.getGeometry();
-			try {
-				geometry = geometry.affineTransforms(true, dx, dy, 0, false, null, 0, 0, 0, false, null, null, 0, 0, false, 0, 0, 0, 0, 0, 0, false, null, null, 0, false, new double[] {}, new double[] {});
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
-
-			selectedObject.setGeometry(geometry);
-			selectedObject.regenerateShape();
+			pressedX += deltaX;
+			pressedY += deltaY;
 
 			repaint();
-
-			x += dx;
-			y += dy;
 		}
 
+		/**
+		 * Drops object on canvas & saves changes to spatialObject
+		 * TODO should check if is it really reliable (maybe can be situation when something breaks :( )
+		 * @param e
+		 */
 		public void mouseReleased(MouseEvent e) {
+			spatialObjectsToUpdate.add(selectedObject);
 			selectedObject = null;
-		}
-	}
 
-	class ScaleHandler implements MouseWheelListener {
+			// restarts timer
+			if (MouseReleasedTimer != null && MouseReleasedTimer.isRunning()) {
+				MouseReleasedTimer.stop();
+			}
 
-		public void mouseWheelMoved(MouseWheelEvent e) {
-
-			int x = e.getX();
-			int y = e.getY();
-
-			if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
-
-				SpatialObjectModel selectedObject = null;
-
-				for(SpatialObjectModel spatialObject : spatialObjects){
-					Shape shape = spatialObject.getShape();
-					if(shape.contains(x, y)){
-						selectedObject = spatialObject;
-						break;
+			// creates new timer which means that it will update object(s) after while
+			MouseReleasedTimer = new Timer(MOUSE_RELEASE_ACTION_DELAY_MILLIS, new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent actionEvent) {
+					try {
+						// needs to be as iterator + cycle, cause we are removing items in cycle!
+						Iterator<SpatialObjectModel> iterator = spatialObjectsToUpdate.iterator();
+						while (iterator.hasNext()) {
+							controller.updateSpatialObject(iterator.next());
+							System.out.println("Updated succesfully");
+							iterator.remove();
+						}
+					} catch (DataManagerException e1) {
+						e1.printStackTrace();
+						System.out.println("Unsuccesfull :(");
 					}
 				}
+			});
+			MouseReleasedTimer.setRepeats(false);
+			MouseReleasedTimer.start();
+		}
+	};
 
-				if(selectedObject == null) return;
+	class ScaleHandler implements MouseWheelListener {
+		private SpatialObjectModel selectedObject;
 
-				JGeometry geometry = selectedObject.getGeometry();
-				double[] firstPoint = geometry.getFirstPoint();
-				JGeometry staticPoint = new JGeometry(firstPoint[0], firstPoint[1], 0);
-				float amount = 1 + (e.getWheelRotation() * 0.05f);
-
-				try {
-					geometry = geometry.affineTransforms(false, 0, 0, 0, true, staticPoint, amount, amount, 0, false, null, null, 0, 0, false, 0, 0, 0, 0, 0, 0, false, null, null, 0, false, new double[] {}, new double[] {});
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-
-				selectedObject.setGeometry(geometry);
-				selectedObject.regenerateShape();
-
-				repaint();
+		public void mouseWheelMoved(MouseWheelEvent e) {
+			if (e.getScrollType() != MouseWheelEvent.WHEEL_UNIT_SCROLL) {
+				return;
 			}
+
+			int pointX = e.getX();
+			int pointY = e.getY();
+
+			// this allows to scale only objects within mouse pointer
+			if (selectedObject != null && !selectedObject.isWithin(pointX, pointY)) {
+				selectedObject = null;
+			}
+
+			// check if selected object to reduce operations
+			if (selectedObject == null) {
+				selectedObject = SpatialObjectModel.selectObjectFromCanvas(spatialObjects, pointX, pointY);
+				// second check - if we still didn't select any
+				if (selectedObject == null) return;
+			}
+
+			selectedObject.scaleOnCanvas(e.getWheelRotation());
+			repaint();
 		}
 	}
 }
