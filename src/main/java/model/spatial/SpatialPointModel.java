@@ -21,4 +21,13 @@ public class SpatialPointModel extends SpatialObjectModel {
 		double[] ordinates = geometry.getPoint();
 		shape = new Ellipse2D.Double(ordinates[0], ordinates[1], SPATIAL_POINT_SIZE, SPATIAL_POINT_SIZE);
 	}
+
+	/**
+	 * Point is not mentioned to scale!
+	 *
+	 * @param mouseWheelRotation specifies amount of scale
+	 */
+	@Override
+	public void scaleOnCanvas(int mouseWheelRotation) {
+	}
 }

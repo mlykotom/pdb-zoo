@@ -17,6 +17,11 @@ abstract public class BaseModel {
 		this.name = name;
 	}
 
+//	abstract public boolean insert();
+
+//	abstract public boolean update();
+
+
 	/**
 	 * Compares id && name for
 	 *

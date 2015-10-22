@@ -5,6 +5,7 @@ import model.BaseModel;
 import oracle.spatial.geometry.JGeometry;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Abstract representation of object in spatial DB.
@@ -65,6 +66,87 @@ abstract public class SpatialObjectModel extends BaseModel {
 	 * Creates new shape based on class type
 	 */
 	abstract public void regenerateShape();
+
+	/**
+	 * Renders spatial object into canvas
+	 *
+	 * @param g2D reference to canvas object
+	 */
+	public void render(Graphics2D g2D) {
+		Shape shape = getShape();
+		g2D.setPaint(getType().getColor());
+		g2D.fill(shape);
+		g2D.draw(shape);
+	}
+
+	/**
+	 * Determines if spatial object is selected based on his shape in canvas
+	 *
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public boolean isWithin(int x, int y) {
+		return getShape().contains(x, y);
+	}
+
+	/**
+	 * Moves object some pixels defined by parameters
+	 *
+	 * @param deltaX
+	 * @param deltaY
+	 */
+	public void moveOnCanvas(int deltaX, int deltaY) {
+		try {
+			geometry = geometry.affineTransforms(true, deltaX, deltaY, 0, false, null, 0, 0, 0, false, null, null, 0, 0, false, 0, 0, 0, 0, 0, 0, false, null, null, 0, false, new double[]{}, new double[]{});
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			return;
+		}
+
+		regenerateShape();
+	}
+
+	/**
+	 * Scales object on canvas
+	 *
+	 * @param mouseWheelRotation specifies amount of scale
+	 */
+	public void scaleOnCanvas(int mouseWheelRotation) {
+		double[] firstPoint = geometry.getFirstPoint();
+		JGeometry staticPoint = new JGeometry(firstPoint[0], firstPoint[1], 0);
+		float amount = 1 + (mouseWheelRotation * 0.05f);
+
+		try {
+			geometry = geometry.affineTransforms(false, 0, 0, 0, true, staticPoint, amount, amount, 0, false, null, null, 0, 0, false, 0, 0, 0, 0, 0, 0, false, null, null, 0, false, new double[]{}, new double[]{});
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			return;
+		}
+
+		regenerateShape();
+	}
+
+	/**
+	 * Iterates through whole list and checks if any of spatial objects is in point specified by ordinates
+	 *
+	 * @param spatialObjects list of spatial objects where will be searched
+	 * @param pointedX
+	 * @param pointedY
+	 * @return
+	 */
+	public static SpatialObjectModel selectObjectFromCanvas(ArrayList<SpatialObjectModel> spatialObjects, int pointedX, int pointedY) {
+		for (SpatialObjectModel spatialObject : spatialObjects) {
+			if (!spatialObject.isWithin(pointedX, pointedY)) {
+				continue;
+			}
+
+			return spatialObject;
+		}
+
+		return null;
+	}
+
 
 	@Override
 	public boolean equals(Object o) {
