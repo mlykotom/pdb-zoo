@@ -127,27 +127,6 @@ abstract public class SpatialObjectModel extends BaseModel {
 		regenerateShape();
 	}
 
-	/**
-	 * Iterates through whole list and checks if any of spatial objects is in point specified by ordinates
-	 *
-	 * @param spatialObjects list of spatial objects where will be searched
-	 * @param pointedX
-	 * @param pointedY
-	 * @return
-	 */
-	public static SpatialObjectModel selectObjectFromCanvas(ArrayList<SpatialObjectModel> spatialObjects, int pointedX, int pointedY) {
-		for (SpatialObjectModel spatialObject : spatialObjects) {
-			if (!spatialObject.isWithin(pointedX, pointedY)) {
-				continue;
-			}
-
-			return spatialObject;
-		}
-
-		return null;
-	}
-
-
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -166,6 +145,12 @@ abstract public class SpatialObjectModel extends BaseModel {
 	}
 
 	// ---- GETTERS && SETTERS ---- //
+
+
+	@Override
+	public String getTableName() {
+		return "Spatial_Objects";
+	}
 
 	public Shape getShape() {
 		return shape;

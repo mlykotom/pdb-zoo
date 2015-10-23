@@ -4,6 +4,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import cz.vutbr.fit.pdb.ateam.controller.ZooMapController;
+import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.gui.ContentPanel;
 
 import javax.swing.*;
@@ -38,7 +39,12 @@ public class ZooMapPanel extends JPanel {
 		saveButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent actionEvent) {
-				controller.saveChangedObjectsAction();
+				try {
+					controller.saveChangedSpatialObjectsAction();
+				} catch (DataManagerException e) {
+					// TODO should show error dialog
+					e.printStackTrace();
+				}
 			}
 		});
 	}

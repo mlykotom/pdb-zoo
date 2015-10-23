@@ -1,12 +1,13 @@
 package cz.vutbr.fit.pdb.ateam.model;
 
 /**
- * Generic cz.vutbr.fit.pdb.ateam.model containing data which should be in any cz.vutbr.fit.pdb.ateam.model in system
+ * Generic model containing data which should be in any model in system
  * Created by Tomas Mlynaric on 20.10.2015.
  */
 abstract public class BaseModel {
 	private long id;
 	protected String name;
+	protected boolean isChanged = false;
 
 	public BaseModel(long id) {
 		this.id = id;
@@ -17,9 +18,14 @@ abstract public class BaseModel {
 		this.name = name;
 	}
 
-//	abstract public boolean insert();
+//	abstract public boolean save();
 
-//	abstract public boolean update();
+
+	/**
+	 * Serves for manipulating with any model in DataManager
+	 * @return
+	 */
+	abstract public String getTableName();
 
 
 	/**
@@ -38,7 +44,7 @@ abstract public class BaseModel {
 	}
 
 	/**
-	 * Creates hash from cz.vutbr.fit.pdb.ateam.model based on id && name
+	 * Creates hash from model based on id && name
 	 *
 	 * @return
 	 */
@@ -50,12 +56,20 @@ abstract public class BaseModel {
 	}
 
 	/**
-	 * Checks if cz.vutbr.fit.pdb.ateam.model new based on Id
+	 * Checks if model new based on Id
 	 *
 	 * @return
 	 */
 	public boolean isNew() {
 		return this.id == 0;
+	}
+
+	public void setIsChanged(boolean isChanged) {
+		this.isChanged = isChanged;
+	}
+
+	public boolean isChanged() {
+		return isChanged;
 	}
 
 	public Long getId() {

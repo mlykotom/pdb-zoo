@@ -18,6 +18,8 @@ public class ZooMapController extends Controller{
 	private ZooMapCanvas canvas;
 	private ArrayList<SpatialObjectModel> spatialObjects = new ArrayList<>();
 
+	//public HashMap<Long, SpatialObjectModel> spatialObjectsToUpdate = new HashMap<Long, SpatialObjectModel>();
+
 	/**
 	 * Constructor saves instance of the ZooMapForm as local
 	 * variable. This form is than used for all changes made
@@ -41,7 +43,7 @@ public class ZooMapController extends Controller{
 	}
 
 	/**
-	 * Reloads data into the cz.vutbr.fit.pdb.ateam.controller
+	 * Reloads data into the controller
 	 * SHOULD BE ASYNC !!
 	 * @return success flag
 	 */
@@ -55,12 +57,46 @@ public class ZooMapController extends Controller{
 		}
 	}
 
-	public void updateSpatialObject(SpatialObjectModel model) throws DataManagerException {
-		dataManager.updateSpatial(model);
+	/**
+	 * Save one spatial object to DB
+	 * @param model spatial object must be changed, otherwise skipped
+	 * @throws DataManagerException
+	 */
+	public void saveSpatialObject(SpatialObjectModel model) throws DataManagerException {
+		if(!model.isChanged()){
+			Logger.createLog(Logger.DEBUG_LOG, String.format("Skipping updating model %d (not changed)", model.getId()));
+			return;
+		}
+		dataManager.saveSpatial(model);
 	}
 
-	public void saveChangedObjectsAction(){
+	/**
+	 * Action when clicked on save button
+	 * @throws DataManagerException
+	 */
+	public void saveChangedSpatialObjectsAction() throws DataManagerException {
+		for(SpatialObjectModel spatialObject : spatialObjects){
+			saveSpatialObject(spatialObject);
+		}
+	}
 
+	/**
+	 * Iterates through whole list and checks if any of spatial objects is in point specified by ordinates
+	 *
+	 * @param pointedX
+	 * @param pointedY
+	 * @return
+	 */
+	public SpatialObjectModel selectObjectFromCanvas(int pointedX, int pointedY) {
+		for (SpatialObjectModel spatialObject : spatialObjects) {
+			if (!spatialObject.isWithin(pointedX, pointedY)) {
+				continue;
+			}
+
+			return spatialObject;
+		}
+
+		return null;
 	}
 
 

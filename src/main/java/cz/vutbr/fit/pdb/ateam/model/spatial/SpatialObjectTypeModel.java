@@ -28,4 +28,9 @@ public class SpatialObjectTypeModel extends BaseModel {
 	public void setColor(String colorHex) {
 		this.color = Color.decode(String.format("#%s", colorHex));
 	}
+
+	@Override
+	public String getTableName() {
+		return "Spatial_Object_Types";
+	}
 }
