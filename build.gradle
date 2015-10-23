@@ -5,7 +5,7 @@ apply plugin: 'java'
 // allows running app (gradlew run)
 apply plugin: 'application'
 // entry point to the app
-mainClassName = 'Main'
+mainClassName = 'cz.vutbr.fit.pdb.ateam.Main'
 
 repositories {
     mavenCentral()
@@ -25,7 +25,7 @@ jar {
     version = version
 
     manifest {
-        attributes  'Main-Class': 'Main',
+        attributes  'Main-Class': 'cz.vutbr.fit.pdb.ateam.Main',
                     'Class-Path': configurations.runtime.files.collect { "$it.name" }.join(' ')
     }
 }
