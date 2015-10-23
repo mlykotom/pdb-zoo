@@ -3,6 +3,7 @@ package gui.map;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import controller.ZooMapPanelController;
+import gui.ContentPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,12 +12,14 @@ import java.awt.*;
  * Created by Jakub on 14.10.2015.
  */
 public class ZooMapPanel extends JPanel {
+	private final JPanel mainPanel;
 	private final ZooMapPanelController controller;
 	private JPanel rootPanel;
 	private JPanel mapPanel;
 	private JButton button1;
 
-	public ZooMapPanel() {
+	public ZooMapPanel(ContentPanel mainPanel) {
+		this.mainPanel = mainPanel;
 		this.controller = new ZooMapPanelController(this);
 		initUI();
 	}

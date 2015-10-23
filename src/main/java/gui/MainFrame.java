@@ -21,6 +21,8 @@ public class MainFrame extends JFrame {
 
 	private MenuBarController menuBarController;
 
+	public ContentPanel contentPanel;
+
 	JTabbedPane tabbedPane;
 
 	/**
@@ -29,6 +31,7 @@ public class MainFrame extends JFrame {
 	 */
 	public MainFrame() {
 		this.menuBarController = new MenuBarController(this);
+		contentPanel = new ContentPanel();
 		initUI();
 	}
 
@@ -50,7 +53,7 @@ public class MainFrame extends JFrame {
 		setJMenuBar(menuBar);
 
 		// ------ content
-		switchContent(new ContentPanel());
+		switchContent(contentPanel);
 	}
 
 

@@ -20,7 +20,7 @@ import java.util.*;
  */
 public class ZooMapCanvas extends JPanel {
 	private static final Color CANVAS_DEFAULT_COLOR = new Color(115, 239, 97);
-	private static final int MOUSE_RELEASE_ACTION_DELAY_MILLIS = 500;
+	private static final int UPDATE_AFTER_ACTION_DELAY_MILLIS = 500;
 
 	private final ZooMapCanvasController controller;
 	private ArrayList<SpatialObjectModel> spatialObjects;
@@ -116,7 +116,7 @@ public class ZooMapCanvas extends JPanel {
 			}
 
 			// creates new timer which means that it will update object(s) after while
-			MouseReleasedTimer = new Timer(MOUSE_RELEASE_ACTION_DELAY_MILLIS, new ActionListener() {
+			MouseReleasedTimer = new Timer(UPDATE_AFTER_ACTION_DELAY_MILLIS, new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent actionEvent) {
 					try {
@@ -141,10 +141,15 @@ public class ZooMapCanvas extends JPanel {
 	class ScaleHandler implements MouseWheelListener {
 		private SpatialObjectModel selectedObject;
 
+		private Timer wheelMovementTimer;
+
 		public void mouseWheelMoved(MouseWheelEvent e) {
 			if (e.getScrollType() != MouseWheelEvent.WHEEL_UNIT_SCROLL) {
 				return;
 			}
+
+			// reset timer
+			if(wheelMovementTimer != null && wheelMovementTimer.isRunning()) wheelMovementTimer.stop();
 
 			int pointX = e.getX();
 			int pointY = e.getY();

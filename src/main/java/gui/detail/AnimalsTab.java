@@ -2,7 +2,7 @@ package gui.detail;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.intellij.uiDesigner.core.Spacer;
+import gui.ContentPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,11 +10,13 @@ import java.awt.*;
 /**
  * Created by Tomas Mlynaric on 21.10.2015.
  */
-public class EmployeesPanel extends JPanel {
-	private JSpinner spinner1;
+public class AnimalsTab extends JPanel {
+	private final ContentPanel mainPanel;
+	private JButton button1;
 	private JPanel rootPanel;
 
-	public EmployeesPanel() {
+	public AnimalsTab(ContentPanel mainPanel) {
+		this.mainPanel = mainPanel;
 		add(rootPanel);
 	}
 
@@ -34,12 +36,11 @@ public class EmployeesPanel extends JPanel {
 	 */
 	private void $$$setupUI$$$() {
 		rootPanel = new JPanel();
-		rootPanel.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+		rootPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
 		rootPanel.setBackground(new Color(-1));
-		spinner1 = new JSpinner();
-		rootPanel.add(spinner1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-		final Spacer spacer1 = new Spacer();
-		rootPanel.add(spacer1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+		button1 = new JButton();
+		button1.setText("Button");
+		rootPanel.add(button1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 	}
 
 	/**

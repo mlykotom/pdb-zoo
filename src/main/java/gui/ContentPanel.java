@@ -2,9 +2,11 @@ package gui;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import gui.detail.AnimalsPanel;
-import gui.detail.EmployeesPanel;
+import gui.detail.AnimalsTab;
+import gui.detail.EmployeesTab;
+import gui.detail.SpatialObjectsTab;
 import gui.map.ZooMapPanel;
+import javafx.scene.input.ZoomEvent;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,18 +16,29 @@ import java.awt.*;
  */
 public class ContentPanel extends JPanel {
 	private JPanel rootPanel;
-	private JPanel mapPanel;
-	private JPanel detailPanel;
+	public JPanel detailWrapper;
+	public JPanel mapWrapper;
+
+	public ZooMapPanel mapPanelContent;
+	public SpatialObjectsTab spatialObjectsTab;
+	public AnimalsTab animalsTab;
+	public EmployeesTab employeesTab;
 
 	public ContentPanel() {
 		add(rootPanel);
 
-		JTabbedPane detailTabsPane = new JTabbedPane();
-		detailTabsPane.addTab("Animals", new AnimalsPanel());
-		detailTabsPane.addTab("Employees", new EmployeesPanel());
+		mapPanelContent = new ZooMapPanel(this);
+		spatialObjectsTab = new SpatialObjectsTab(this);
+		animalsTab = new AnimalsTab(this);
+		employeesTab = new EmployeesTab(this);
 
-		mapPanel.add(new ZooMapPanel());
-		detailPanel.add(detailTabsPane);
+		JTabbedPane detailTabsPane = new JTabbedPane();
+		detailTabsPane.addTab("Objects", spatialObjectsTab);
+		detailTabsPane.addTab("Animals", animalsTab);
+		detailTabsPane.addTab("Employees", employeesTab);
+
+		mapWrapper.add(mapPanelContent);
+		detailWrapper.add(detailTabsPane);
 	}
 
 	private void createUIComponents() {
@@ -49,12 +62,12 @@ public class ContentPanel extends JPanel {
 	private void $$$setupUI$$$() {
 		rootPanel = new JPanel();
 		rootPanel.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
-		mapPanel = new JPanel();
-		mapPanel.setLayout(new BorderLayout(0, 0));
-		rootPanel.add(mapPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-		detailPanel = new JPanel();
-		detailPanel.setLayout(new BorderLayout(0, 0));
-		rootPanel.add(detailPanel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(300, -1), null, null, 0, false));
+		mapWrapper = new JPanel();
+		mapWrapper.setLayout(new BorderLayout(0, 0));
+		rootPanel.add(mapWrapper, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		detailWrapper = new JPanel();
+		detailWrapper.setLayout(new BorderLayout(0, 0));
+		rootPanel.add(detailWrapper, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(300, -1), null, null, 0, false));
 	}
 
 	/**

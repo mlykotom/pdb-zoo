@@ -39,16 +39,4 @@ public class MenuBarController extends Controller {
 		mainFrame.dispose();
 		new LoginForm().setVisible(true);
 	}
-
-	/**
-	 * ZooMapMenu in MenuBar opens JPanel with zooMapForm in MainFrame.
-	 */
-	public void zooMapMenuAction() {
-		JPanel contentPane = (JPanel) mainFrame.getContentPane();
-
-		contentPane.removeAll();
-		contentPane.add(new ZooMapPanel());
-		contentPane.revalidate();
-		contentPane.repaint();
-	}
 }
