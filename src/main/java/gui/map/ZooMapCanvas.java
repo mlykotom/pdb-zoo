@@ -1,6 +1,6 @@
 package gui.map;
 
-import controller.ZooMapCanvasController;
+import controller.ZooMapPanelController;
 import exception.DataManagerException;
 import model.spatial.SpatialObjectModel;
 import utils.Utils;
@@ -22,14 +22,11 @@ public class ZooMapCanvas extends JPanel {
 	private static final Color CANVAS_DEFAULT_COLOR = new Color(115, 239, 97);
 	private static final int UPDATE_AFTER_ACTION_DELAY_MILLIS = 500;
 
-	private final ZooMapCanvasController controller;
-	private ArrayList<SpatialObjectModel> spatialObjects;
+	private final ZooMapPanelController controller;
 	private HashSet<SpatialObjectModel> spatialObjectsToUpdate = new HashSet<>();
 
-
-	public ZooMapCanvas() {
-		this.controller = new ZooMapCanvasController(this);
-		this.spatialObjects = controller.getSpacialObjects();
+	public ZooMapCanvas(ZooMapPanelController controller) {
+		this.controller = controller;
 		initUI();
 	}
 
@@ -43,6 +40,9 @@ public class ZooMapCanvas extends JPanel {
 
 		Utils.setComponentFixSize(this, 640, 480);
 		setBackground(CANVAS_DEFAULT_COLOR);
+
+		// should be async task
+		controller.reloadSpatialObjects();
 	}
 
 	/**
@@ -52,14 +52,14 @@ public class ZooMapCanvas extends JPanel {
 	 */
 	public void paint(Graphics g) {
 		// TODO should return some error??
-		if (controller.getSpacialObjects().isEmpty()) return;
+		if (controller.getSpatialObjects().isEmpty()) return;
 		super.paint(g);
 
 		Graphics2D g2D = (Graphics2D) g;
 		g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-		for (SpatialObjectModel model : this.spatialObjects) {
+		for (SpatialObjectModel model : controller.getSpatialObjects()) {
 			model.render(g2D);
 		}
 		g2D.setPaint(CANVAS_DEFAULT_COLOR);
@@ -79,7 +79,7 @@ public class ZooMapCanvas extends JPanel {
 		public void mousePressed(MouseEvent e) {
 			pressedX = e.getX();
 			pressedY = e.getY();
-			selectedObject = SpatialObjectModel.selectObjectFromCanvas(spatialObjects, pressedX, pressedY);
+			selectedObject = SpatialObjectModel.selectObjectFromCanvas(controller.getSpatialObjects(), pressedX, pressedY);
 		}
 
 		/**
@@ -161,7 +161,7 @@ public class ZooMapCanvas extends JPanel {
 
 			// check if selected object to reduce operations
 			if (selectedObject == null) {
-				selectedObject = SpatialObjectModel.selectObjectFromCanvas(spatialObjects, pointX, pointY);
+				selectedObject = SpatialObjectModel.selectObjectFromCanvas(controller.getSpatialObjects(), pointX, pointY);
 				// second check - if we still didn't select any
 				if (selectedObject == null) return;
 			}

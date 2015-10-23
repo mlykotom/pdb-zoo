@@ -20,10 +20,7 @@ public class MainFrame extends JFrame {
 	private static final int WINDOW_DEFAULT_HEIGHT = 768;
 
 	private MenuBarController menuBarController;
-
 	public ContentPanel contentPanel;
-
-	JTabbedPane tabbedPane;
 
 	/**
 	 * Constructor creates instance of the MenuBarController for
@@ -60,7 +57,7 @@ public class MainFrame extends JFrame {
 	/**
 	 * Switch content of content panel
 	 *
-	 * @param panelToShow  instanciated component to show
+	 * @param panelToShow instanciated component to show
 	 */
 	public JPanel switchContent(JPanel panelToShow) {
 		Container contentPane = getContentPane();
@@ -75,9 +72,9 @@ public class MainFrame extends JFrame {
 
 
 	/**
-	 * Factory for login button
+	 * Factory for logout button
 	 *
-	 * @return
+	 * @return created logout button
 	 */
 	private Component createLogoutButton() {
 		JButton logoutButton = new JButton("Logout");

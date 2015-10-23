@@ -6,19 +6,20 @@ import gui.detail.AnimalsTab;
 import gui.detail.EmployeesTab;
 import gui.detail.SpatialObjectsTab;
 import gui.map.ZooMapPanel;
-import javafx.scene.input.ZoomEvent;
 
 import javax.swing.*;
 import java.awt.*;
 
 /**
- * Created by mlyko on 20.10.2015.
+ * Main panel with GUI form containing left panel (MAP) and right panel (TABS - Detail)
+ * Created by Tomas Mlynaric on 20.10.2015.
  */
 public class ContentPanel extends JPanel {
 	private JPanel rootPanel;
-	public JPanel detailWrapper;
-	public JPanel mapWrapper;
+	private JPanel detailWrapper;
+	private JPanel mapWrapper;
 
+	// TODO private + getters?
 	public ZooMapPanel mapPanelContent;
 	public SpatialObjectsTab spatialObjectsTab;
 	public AnimalsTab animalsTab;
@@ -26,8 +27,19 @@ public class ContentPanel extends JPanel {
 
 	public ContentPanel() {
 		add(rootPanel);
+		initUI();
+	}
 
+	/**
+	 * Instantiates all panels and tabs
+	 * (pointer to this is because it's possible they will have to communicate with each other)
+	 */
+	private void initUI() {
+		// map panel (left)
 		mapPanelContent = new ZooMapPanel(this);
+		mapWrapper.add(mapPanelContent);
+
+		// tab panels (right)
 		spatialObjectsTab = new SpatialObjectsTab(this);
 		animalsTab = new AnimalsTab(this);
 		employeesTab = new EmployeesTab(this);
@@ -36,13 +48,7 @@ public class ContentPanel extends JPanel {
 		detailTabsPane.addTab("Objects", spatialObjectsTab);
 		detailTabsPane.addTab("Animals", animalsTab);
 		detailTabsPane.addTab("Employees", employeesTab);
-
-		mapWrapper.add(mapPanelContent);
 		detailWrapper.add(detailTabsPane);
-	}
-
-	private void createUIComponents() {
-		// TODO: place custom component creation code here
 	}
 
 	{
