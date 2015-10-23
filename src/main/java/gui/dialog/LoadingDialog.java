@@ -19,17 +19,6 @@ public class LoadingDialog extends JDialog {
 	public LoadingDialog(final LoadingDialogController loadingDialogController) {
 		this.loadingDialogController = loadingDialogController;
 		initUI();
-		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-		addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
-				loadingDialogController.cancelProcessAction();
-			}
-		});
-		contentPane.registerKeyboardAction(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				loadingDialogController.cancelProcessAction();
-			}
-		}, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 	}
 
 	private void initUI() {
@@ -50,6 +39,17 @@ public class LoadingDialog extends JDialog {
 				loadingDialogController.cancelProcessAction();
 			}
 		});
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				loadingDialogController.cancelProcessAction();
+			}
+		});
+		contentPane.registerKeyboardAction(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				loadingDialogController.cancelProcessAction();
+			}
+		}, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 	}
 
 	{

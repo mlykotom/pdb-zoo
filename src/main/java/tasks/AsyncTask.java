@@ -23,12 +23,15 @@ public abstract class AsyncTask extends SwingWorker<Boolean, String>{
 		loadingDialogController.showDialog(true);
 	}
 
+	/**
+	 * It's called after the process of doItBackground method is finished.
+	 * It also closes the Loading dialog.
+	 */
 	@Override
 	protected void done() {
 		super.done();
 		this.loadingDialogController.disposeDialog();
 	}
-
 
 	/**
 	 * It should be used when you want to find out if your async task was successful.
