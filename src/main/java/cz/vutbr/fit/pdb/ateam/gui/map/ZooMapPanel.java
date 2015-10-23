@@ -47,6 +47,14 @@ public class ZooMapPanel extends JPanel {
 				}
 			}
 		});
+
+		cancelButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent actionEvent) {
+				controller.cancelChangedSpatialObjectsAction();
+				ZooMapCanvas.repaint();
+			}
+		});
 	}
 
 	{

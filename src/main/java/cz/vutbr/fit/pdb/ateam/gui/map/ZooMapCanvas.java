@@ -67,8 +67,9 @@ public class ZooMapCanvas extends JPanel {
 	public MouseAdapter movingAdapter = new MouseAdapter() {
 		private int pressedX;
 		private int pressedY;
+		private int wholeDeltaX;
+		private int wholeDeltaY;
 		private SpatialObjectModel selectedObject;
-		private Timer MouseReleasedTimer;
 
 		/**
 		 * Choose object from canvas
@@ -79,6 +80,8 @@ public class ZooMapCanvas extends JPanel {
 			pressedX = e.getX();
 			pressedY = e.getY();
 			selectedObject = controller.selectObjectFromCanvas(pressedX, pressedY);
+			wholeDeltaX = 0;
+			wholeDeltaY = 0;
 		}
 
 		/**
@@ -91,6 +94,9 @@ public class ZooMapCanvas extends JPanel {
 
 			int deltaX = e.getX() - pressedX;
 			int deltaY = e.getY() - pressedY;
+
+			wholeDeltaX += deltaX;
+			wholeDeltaY += deltaY;
 
 			selectedObject.moveOnCanvas(deltaX, deltaY);
 
@@ -106,7 +112,7 @@ public class ZooMapCanvas extends JPanel {
 		 */
 		public void mouseReleased(MouseEvent e) {
 			if(selectedObject == null) return; // TODO this shouldn't happen
-
+			selectedObject.rememberOrdinates(wholeDeltaX, wholeDeltaY);
 			selectedObject.setIsChanged(true);
 			selectedObject = null;
 		}
@@ -115,15 +121,10 @@ public class ZooMapCanvas extends JPanel {
 	class ScaleHandler implements MouseWheelListener {
 		private SpatialObjectModel selectedObject;
 
-		private Timer wheelMovementTimer;
-
 		public void mouseWheelMoved(MouseWheelEvent e) {
 			if (e.getScrollType() != MouseWheelEvent.WHEEL_UNIT_SCROLL) {
 				return;
 			}
-
-			// reset timer
-			if(wheelMovementTimer != null && wheelMovementTimer.isRunning()) wheelMovementTimer.stop();
 
 			int pointX = e.getX();
 			int pointY = e.getY();

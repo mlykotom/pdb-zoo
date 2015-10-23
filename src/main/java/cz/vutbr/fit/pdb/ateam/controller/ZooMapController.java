@@ -80,6 +80,13 @@ public class ZooMapController extends Controller{
 		}
 	}
 
+	public void cancelChangedSpatialObjectsAction() {
+		for(SpatialObjectModel spatialObject : spatialObjects){
+			spatialObject.moveBackOnCanvas();
+			spatialObject.setIsChanged(false);
+		}
+	}
+
 	/**
 	 * Iterates through whole list and checks if any of spatial objects is in point specified by ordinates
 	 *

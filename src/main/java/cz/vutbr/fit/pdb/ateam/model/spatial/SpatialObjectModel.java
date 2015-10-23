@@ -16,6 +16,10 @@ abstract public class SpatialObjectModel extends BaseModel {
 	protected Shape shape;
 	protected SpatialObjectTypeModel spatialObjectType;
 
+	protected int translationDeltaX = 0;
+	protected int translationDeltaY = 0;
+
+
 	/**
 	 * Setups object and creates shape for graphic representation from jGeometry.
 	 * It's protected so that it's not possible to instantiate the class
@@ -105,6 +109,26 @@ abstract public class SpatialObjectModel extends BaseModel {
 		}
 
 		regenerateShape();
+	}
+
+	/**
+	 * When stops moving, remembers ordinates how much it was moved
+	 * @param deltaX
+	 * @param deltaY
+	 */
+	public void rememberOrdinates(int deltaX, int deltaY) {
+		translationDeltaX = deltaX;
+		translationDeltaY = deltaY;
+	}
+
+	/**
+	 * Moves object back to position it started to move
+	 */
+	public void moveBackOnCanvas() {
+		if(!isChanged()) return;
+		moveOnCanvas(-translationDeltaX, -translationDeltaY);
+		translationDeltaX = 0;
+		translationDeltaY = 0;
 	}
 
 	/**
