@@ -13,7 +13,7 @@ import java.util.ArrayList;
  *
  * @author Jakub Tutko
  */
-public class ZooMapPanelController extends Controller{
+public class ZooMapController extends Controller{
 	private ZooMapPanel form;
 	private ZooMapCanvas canvas;
 	private ArrayList<SpatialObjectModel> spatialObjects = new ArrayList<>();
@@ -25,21 +25,20 @@ public class ZooMapPanelController extends Controller{
 	 *
 	 * @param zooMapPanel instance of the ZooMapForm
 	 */
-	public ZooMapPanelController(ZooMapPanel zooMapPanel) {
+	public ZooMapController(ZooMapPanel zooMapPanel) {
 		super();
 		this.form = zooMapPanel;
 	}
 
-
-	public void prepareCanvas(ZooMapCanvas canvas){
-		this.canvas = canvas;
+	/**
+	 * Assigns canvas and repaints it
+	 * @return instantiated repainted canvas
+	 */
+	public ZooMapCanvas prepareCanvas(){
+		this.canvas = new ZooMapCanvas(this);
 		canvas.repaint();
+		return canvas;
 	}
-
-	public void saveChangedObjectsAction(){
-
-	}
-
 
 	/**
 	 * Reloads data into the cz.vutbr.fit.pdb.ateam.controller
@@ -59,6 +58,11 @@ public class ZooMapPanelController extends Controller{
 	public void updateSpatialObject(SpatialObjectModel model) throws DataManagerException {
 		dataManager.updateSpatial(model);
 	}
+
+	public void saveChangedObjectsAction(){
+
+	}
+
 
 	public ArrayList<SpatialObjectModel> getSpatialObjects() {
 		return spatialObjects;

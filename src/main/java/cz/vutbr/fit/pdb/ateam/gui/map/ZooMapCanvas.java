@@ -1,6 +1,6 @@
 package cz.vutbr.fit.pdb.ateam.gui.map;
 
-import cz.vutbr.fit.pdb.ateam.controller.ZooMapPanelController;
+import cz.vutbr.fit.pdb.ateam.controller.ZooMapController;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
@@ -19,13 +19,15 @@ import java.util.*;
  * @author Tomas Mlynaric
  */
 public class ZooMapCanvas extends JPanel {
-	private static final Color CANVAS_DEFAULT_COLOR = new Color(115, 239, 97);
-	private static final int UPDATE_AFTER_ACTION_DELAY_MILLIS = 500;
+	public static final Color CANVAS_DEFAULT_COLOR = new Color(115, 239, 97);
+	public static final int CANVAS_DEFAULT_WIDTH = 640;
+	public static final int CANVAS_DEFAULT_HEIGHT = 480;
+	public static final int UPDATE_AFTER_ACTION_DELAY_MILLIS = 500;
 
-	private final ZooMapPanelController controller;
+	private final ZooMapController controller;
 	private HashSet<SpatialObjectModel> spatialObjectsToUpdate = new HashSet<>();
 
-	public ZooMapCanvas(ZooMapPanelController controller) {
+	public ZooMapCanvas(ZooMapController controller) {
 		this.controller = controller;
 		initUI();
 	}
@@ -38,7 +40,7 @@ public class ZooMapCanvas extends JPanel {
 		addMouseListener(movingAdapter);
 		addMouseWheelListener(new ScaleHandler());
 
-		Utils.setComponentFixSize(this, 640, 480);
+		Utils.setComponentFixSize(this, CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT);
 		setBackground(CANVAS_DEFAULT_COLOR);
 
 		// should be async task

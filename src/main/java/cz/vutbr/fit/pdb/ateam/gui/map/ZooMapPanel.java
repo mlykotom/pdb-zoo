@@ -3,7 +3,7 @@ package cz.vutbr.fit.pdb.ateam.gui.map;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import cz.vutbr.fit.pdb.ateam.controller.ZooMapPanelController;
+import cz.vutbr.fit.pdb.ateam.controller.ZooMapController;
 import cz.vutbr.fit.pdb.ateam.gui.ContentPanel;
 
 import javax.swing.*;
@@ -16,7 +16,7 @@ import java.awt.event.ActionListener;
  */
 public class ZooMapPanel extends JPanel {
 	private final JPanel mainPanel;
-	private final ZooMapPanelController controller;
+	private final ZooMapController controller;
 	private JPanel rootPanel;
 	private JPanel mapPanel;
 	private JButton saveButton;
@@ -26,14 +26,13 @@ public class ZooMapPanel extends JPanel {
 
 	public ZooMapPanel(ContentPanel mainPanel) {
 		this.mainPanel = mainPanel;
-		this.controller = new ZooMapPanelController(this);
-		this.ZooMapCanvas = new ZooMapCanvas(this.controller);
+		this.controller = new ZooMapController(this);
 		initUI();
 	}
 
 	public void initUI() {
 		add(rootPanel);
-		controller.prepareCanvas(ZooMapCanvas);
+		this.ZooMapCanvas = controller.prepareCanvas();
 		mapPanel.add(ZooMapCanvas, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 
 		saveButton.addActionListener(new ActionListener() {
