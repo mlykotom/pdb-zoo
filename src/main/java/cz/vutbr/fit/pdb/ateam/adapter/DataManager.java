@@ -230,10 +230,16 @@ public class DataManager {
 	 * @throws DataManagerException when some mandatory field is missing or when exception
 	 *                              from createDatabaseUpdate() is received
 	 */
-	public void saveSpatial(SpatialObjectModel spatialObject) throws DataManagerException {
+	public boolean saveSpatial(SpatialObjectModel spatialObject) throws DataManagerException {
 		if (spatialObject == null) {
 			throw new DataManagerException("saveSpatial: Null spatialObject received!");
 		}
+
+		if (!spatialObject.isChanged()) {
+			Logger.createLog(Logger.DEBUG_LOG, String.format("Skipping updating model %d (not changed)", spatialObject.getId()));
+			return false;
+		}
+
 		if (spatialObject.getType() == null) {
 			throw new DataManagerException("saveSpatial: Null spatialObject's Type!");
 		}
@@ -267,8 +273,10 @@ public class DataManager {
 //				long last_inserted_id = rs.getLong(1);
 //			}
 			spatialObject.setIsChanged(false);
+			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
+			return false;
 		}
 	}
 

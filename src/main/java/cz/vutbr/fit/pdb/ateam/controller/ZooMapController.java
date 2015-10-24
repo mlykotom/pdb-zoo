@@ -6,7 +6,6 @@ import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapPanel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
 
-import javax.swing.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 
@@ -14,13 +13,13 @@ import java.util.ArrayList;
  * Class controls all events occurred in ZooMapForm.
  *
  * @author Jakub Tutko
+ * @author Tomas Mlynaric
  */
 public class ZooMapController extends Controller {
 	private ZooMapPanel form;
 	private ZooMapCanvas canvas;
 	private ArrayList<SpatialObjectModel> spatialObjects = new ArrayList<>();
-
-	//public HashMap<Long, SpatialObjectModel> spatialObjectsToUpdate = new HashMap<Long, SpatialObjectModel>();
+	private SpatialObjectModel selectedObjectOnCanvas;
 
 	/**
 	 * Constructor saves instance of the ZooMapForm as local
@@ -68,10 +67,6 @@ public class ZooMapController extends Controller {
 	 * @throws DataManagerException
 	 */
 	public void saveSpatialObject(SpatialObjectModel model) throws DataManagerException {
-		if (!model.isChanged()) {
-			Logger.createLog(Logger.DEBUG_LOG, String.format("Skipping updating model %d (not changed)", model.getId()));
-			return;
-		}
 		dataManager.saveSpatial(model);
 	}
 
@@ -86,6 +81,9 @@ public class ZooMapController extends Controller {
 		}
 	}
 
+	/**
+	 * Cancel any changes made to spatial objects by reloading all objects from DB
+	 */
 	public void cancelChangedSpatialObjectsAction() {
 		reloadSpatialObjects();
 	}
@@ -97,7 +95,7 @@ public class ZooMapController extends Controller {
 	 * @param pointedY
 	 * @return
 	 */
-	public SpatialObjectModel selectObjectFromCanvas(int pointedX, int pointedY) {
+	public SpatialObjectModel getObjectFromCanvas(int pointedX, int pointedY) {
 		for (SpatialObjectModel spatialObject : spatialObjects) {
 			if (!spatialObject.isWithin(pointedX, pointedY)) {
 				continue;
@@ -109,11 +107,35 @@ public class ZooMapController extends Controller {
 		return null;
 	}
 
-
-	public ArrayList<SpatialObjectModel> getSpatialObjects() {
-		return spatialObjects;
+	/**
+	 * Unselect any spatial object
+	 */
+	public void unselectSpatialObject() {
+		for (SpatialObjectModel object : getSpatialObjects()) {
+			object.selectOnCanvas(false);
+		}
+		form.getSelectedObjectWrapper().setVisible(false);
+		form.getObjectName().setText("");
+		this.selectedObjectOnCanvas = null;
 	}
 
+	/**
+	 * Unselects any spatial objects and select specified one
+	 *
+	 * @param objectToSelect this object will be selected and notified that was selected to all listeners
+	 */
+	public void selectSpatialObject(SpatialObjectModel objectToSelect) {
+		if(objectToSelect.equals(this.selectedObjectOnCanvas)) return;
+
+		unselectSpatialObject();
+		objectToSelect.selectOnCanvas(true);
+		form.getObjectName().setText(objectToSelect.getId().toString());
+		form.getSelectedObjectWrapper().setVisible(true);
+
+		this.selectedObjectOnCanvas = objectToSelect;
+
+		// todo notify !!
+	}
 
 	/**
 	 * Handler for mouse movement in canvas - handles moving objects
@@ -123,27 +145,41 @@ public class ZooMapController extends Controller {
 		private int pressedY;
 		private SpatialObjectModel selectedObject;
 
+		@Override
+		public void mouseClicked(MouseEvent mouseEvent) {
+			pressedX = mouseEvent.getX();
+			pressedY = mouseEvent.getY();
+			selectedObject = getObjectFromCanvas(pressedX, pressedY);
+			if (selectedObject == null){
+				unselectSpatialObject();
+			}
+			else {
+				selectSpatialObject(selectedObject);
+			}
+			canvas.repaint();
+		}
+
 		/**
 		 * Choose object from canvas
 		 *
-		 * @param e
+		 * @param mouseEvent
 		 */
-		public void mousePressed(MouseEvent e) {
-			pressedX = e.getX();
-			pressedY = e.getY();
-			selectedObject = selectObjectFromCanvas(pressedX, pressedY);
+		public void mousePressed(MouseEvent mouseEvent) {
+			pressedX = mouseEvent.getX();
+			pressedY = mouseEvent.getY();
+			selectedObject = getObjectFromCanvas(pressedX, pressedY);
 		}
 
 		/**
 		 * Can drag objects on canvas
 		 *
-		 * @param e
+		 * @param mouseEvent
 		 */
-		public void mouseDragged(MouseEvent e) {
+		public void mouseDragged(MouseEvent mouseEvent) {
 			if (selectedObject == null) return;
 
-			int deltaX = e.getX() - pressedX;
-			int deltaY = e.getY() - pressedY;
+			int deltaX = mouseEvent.getX() - pressedX;
+			int deltaY = mouseEvent.getY() - pressedY;
 
 			selectedObject.moveOnCanvas(deltaX, deltaY);
 
@@ -156,9 +192,9 @@ public class ZooMapController extends Controller {
 		/**
 		 * Drops object on canvas & saves changes to spatialObject
 		 *
-		 * @param e
+		 * @param mouseEvent
 		 */
-		public void mouseReleased(MouseEvent e) {
+		public void mouseReleased(MouseEvent mouseEvent) {
 			if (selectedObject == null) return; // TODO this shouldn't happen
 			selectedObject = null;
 		}
@@ -171,13 +207,13 @@ public class ZooMapController extends Controller {
 		private static final int MOUSE_WHEEL_TIMER_DELAY = 500;
 		private SpatialObjectModel selectedObject;
 
-		public void mouseWheelMoved(MouseWheelEvent e) {
-			if (e.getScrollType() != MouseWheelEvent.WHEEL_UNIT_SCROLL) {
+		public void mouseWheelMoved(MouseWheelEvent mouseEvent) {
+			if (mouseEvent.getScrollType() != MouseWheelEvent.WHEEL_UNIT_SCROLL) {
 				return;
 			}
 
-			int pointX = e.getX();
-			int pointY = e.getY();
+			int pointX = mouseEvent.getX();
+			int pointY = mouseEvent.getY();
 
 			// this allows to scale only objects within mouse pointer
 			if (selectedObject != null && !selectedObject.isWithin(pointX, pointY)) {
@@ -186,14 +222,18 @@ public class ZooMapController extends Controller {
 
 			// check if selected object to reduce operations
 			if (selectedObject == null) {
-				selectedObject = selectObjectFromCanvas(pointX, pointY);
+				selectedObject = getObjectFromCanvas(pointX, pointY);
 				// second check - if we still didn't select any
 				if (selectedObject == null) return;
 			}
 
-			int scaleDelta = e.getWheelRotation();
+			int scaleDelta = mouseEvent.getWheelRotation();
 			selectedObject.scaleOnCanvas(scaleDelta);
 			canvas.repaint();
 		}
 	};
+
+	public ArrayList<SpatialObjectModel> getSpatialObjects() {
+		return spatialObjects;
+	}
 }

@@ -20,7 +20,6 @@ public class ZooMapCanvas extends BasePanel {
 	public static final Color CANVAS_DEFAULT_COLOR = new Color(115, 239, 97);
 	public static final int CANVAS_DEFAULT_WIDTH = 640;
 	public static final int CANVAS_DEFAULT_HEIGHT = 480;
-	public static final int UPDATE_AFTER_ACTION_DELAY_MILLIS = 500;
 
 	private final ZooMapController controller;
 
