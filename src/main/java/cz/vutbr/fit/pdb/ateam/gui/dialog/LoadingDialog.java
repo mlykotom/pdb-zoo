@@ -1,9 +1,9 @@
-package gui.dialog;
+package cz.vutbr.fit.pdb.ateam.gui.dialog;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import controller.LoadingDialogController;
+import cz.vutbr.fit.pdb.ateam.controller.LoadingDialogController;
 
 import javax.swing.*;
 import java.awt.*;

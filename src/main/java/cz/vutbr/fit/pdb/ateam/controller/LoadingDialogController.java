@@ -1,7 +1,7 @@
-package controller;
+package cz.vutbr.fit.pdb.ateam.controller;
 
-import gui.dialog.LoadingDialog;
-import tasks.AsyncTask;
+import cz.vutbr.fit.pdb.ateam.gui.dialog.LoadingDialog;
+import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 
 /**
  * Controller for LoadingDialog of AsyncTask

@@ -1,9 +1,9 @@
-package gui;
+package cz.vutbr.fit.pdb.ateam.gui;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import controller.MainPanelController;
+import cz.vutbr.fit.pdb.ateam.controller.MainPanelController;
 
 import javax.swing.*;
 import java.awt.*;

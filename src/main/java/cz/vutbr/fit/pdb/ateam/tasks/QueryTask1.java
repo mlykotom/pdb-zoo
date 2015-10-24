@@ -1,4 +1,4 @@
-package tasks;
+package cz.vutbr.fit.pdb.ateam.tasks;
 
 /**
  * An example how to use an AsyncTask.

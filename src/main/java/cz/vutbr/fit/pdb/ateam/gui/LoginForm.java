@@ -32,7 +32,7 @@ public class LoginForm extends JFrame {
 	private JButton quitButton;
 
 	/**
-	 * Constructor creates cz.vutbr.fit.pdb.ateam.controller and initialize form content.
+	 * Constructor creates cz.vutbr.fit.pdb.ateam.cz.vutbr.fit.pdb.ateam.controller and initialize form content.
 	 */
 	public LoginForm() {
 		controller = new LoginFormController(this);

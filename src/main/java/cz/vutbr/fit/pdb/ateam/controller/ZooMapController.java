@@ -46,7 +46,7 @@ public class ZooMapController extends Controller {
 	}
 
 	/**
-	 * Reloads data into the controller
+	 * Reloads data into the cz.vutbr.fit.pdb.ateam.controller
 	 * SHOULD BE ASYNC !!
 	 *
 	 * @return success flag

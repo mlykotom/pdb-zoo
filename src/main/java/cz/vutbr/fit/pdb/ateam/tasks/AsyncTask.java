@@ -1,6 +1,6 @@
-package tasks;
+package cz.vutbr.fit.pdb.ateam.tasks;
 
-import controller.LoadingDialogController;
+import cz.vutbr.fit.pdb.ateam.controller.LoadingDialogController;
 
 import javax.swing.*;
 

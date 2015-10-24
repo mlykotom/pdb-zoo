@@ -1,8 +1,8 @@
-package controller;
+package cz.vutbr.fit.pdb.ateam.controller;
 
-import gui.MainFrame;
-import tasks.AsyncTask;
-import tasks.QueryTask1;
+import cz.vutbr.fit.pdb.ateam.gui.MainFrame;
+import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
+import cz.vutbr.fit.pdb.ateam.tasks.QueryTask1;
 
 /**
  * Controller for Main screen of the application.
