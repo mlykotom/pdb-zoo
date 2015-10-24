@@ -17,7 +17,7 @@ Spuštění je možné pomocí CMD: **java -jar ateam-pdb-0.1.jar**
 ## Z konzole ##
 V rootu projektu je pomocí konzole možné použít **gradlew**:
 
- * tasks - zobrazí všechny možné příkazy z gradlem (asi nepotřebné)
+ * cz.vutbr.fit.pdb.ateam.tasks - zobrazí všechny možné příkazy z gradlem (asi nepotřebné)
 
  * **run** - to stejné co (1)
 

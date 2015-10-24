@@ -5,6 +5,7 @@ import cz.vutbr.fit.pdb.ateam.gui.LoginForm;
 import cz.vutbr.fit.pdb.ateam.gui.MainFrame;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
+import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 
 import javax.swing.*;
 
@@ -35,22 +36,34 @@ public class LoginFormController extends Controller {
 	 * is displayed.
 	 */
 	public void loginButtonAction() {
-		try {
-			dataManager.connectDatabase(form.getUserNameTextField().getText(), String.valueOf(form.getPasswordPasswordField().getPassword()));
+		AsyncTask connectToDB = new AsyncTask() {
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				try {
+					dataManager.connectDatabase(form.getUserNameTextField().getText(), String.valueOf(form.getPasswordPasswordField().getPassword()));
+					return true;
+				} catch (DataManagerException ex) {
+					Logger.createLog(Logger.DEBUG_LOG, ex.getMessage());
+					return false;
+				}
+			}
 
-			form.dispose();
-			new MainFrame().setVisible(true);
+			@Override
+			protected void whenDone(boolean success) {
+				if (success){
+					new MainFrame().setVisible(true);
+					Logger.createLog(Logger.DEBUG_LOG, "Database connected successfully.");
+					form.dispose();
+				} else {
+					JOptionPane.showMessageDialog(form,
+							"Invalid username or password!",
+							"Login failed",
+							JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		};
 
-			Logger.createLog(Logger.DEBUG_LOG, "Database connected successfully.");
-
-		} catch (DataManagerException ex) {
-			Logger.createLog(Logger.DEBUG_LOG, ex.getMessage());
-
-			JOptionPane.showMessageDialog(form,
-					"Invalid username or password!",
-					"Login failed",
-					JOptionPane.ERROR_MESSAGE);
-		}
+		connectToDB.start();
 	}
 
 	/**

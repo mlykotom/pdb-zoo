@@ -5,7 +5,7 @@ import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
 /**
  * Class for managing all view events.
  * <p>
- * Every frame or panel should have its own cz.vutbr.fit.pdb.ateam.controller class, which
+ * Every frame or panel should have its own cz.vutbr.fit.pdb.ateam.cz.vutbr.fit.pdb.ateam.controller class, which
  * extends this class.
  * It's forbidden to instance this class from classes, which do not
  * extend this class.
