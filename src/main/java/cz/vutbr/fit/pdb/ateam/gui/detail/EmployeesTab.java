@@ -3,6 +3,9 @@ package cz.vutbr.fit.pdb.ateam.gui.detail;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import cz.vutbr.fit.pdb.ateam.controller.Controller;
+import cz.vutbr.fit.pdb.ateam.controller.EmployeesTabController;
+import cz.vutbr.fit.pdb.ateam.gui.BasePanel;
 import cz.vutbr.fit.pdb.ateam.gui.ContentPanel;
 
 import javax.swing.*;
@@ -11,14 +14,21 @@ import java.awt.*;
 /**
  * Created by Tomas Mlynaric on 21.10.2015.
  */
-public class EmployeesTab extends JPanel {
+public class EmployeesTab extends BasePanel {
 	private final ContentPanel mainPanel;
+	private final EmployeesTabController controller;
 	private JSpinner spinner1;
 	private JPanel rootPanel;
 
 	public EmployeesTab(ContentPanel mainPanel) {
 		this.mainPanel = mainPanel;
 		add(rootPanel);
+		this.controller = new EmployeesTabController(this);
+	}  
+
+	@Override
+	protected Controller getController() {
+		return this.controller;
 	}
 
 	{
@@ -51,4 +61,5 @@ public class EmployeesTab extends JPanel {
 	public JComponent $$$getRootComponent$$$() {
 		return rootPanel;
 	}
+
 }
