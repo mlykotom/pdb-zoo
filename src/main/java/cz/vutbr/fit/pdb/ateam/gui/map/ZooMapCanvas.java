@@ -1,13 +1,16 @@
 package cz.vutbr.fit.pdb.ateam.gui.map;
 
+import cz.vutbr.fit.pdb.ateam.controller.Controller;
 import cz.vutbr.fit.pdb.ateam.controller.ZooMapController;
+import cz.vutbr.fit.pdb.ateam.gui.BasePanel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
 
-import javax.swing.*;
-import javax.swing.Timer;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
 /**
  * Class paints spatial objects into JPanel, so user can better see
@@ -16,7 +19,7 @@ import java.awt.event.*;
  * @author Jakub Tutko
  * @author Tomas Mlynaric
  */
-public class ZooMapCanvas extends JPanel {
+public class ZooMapCanvas extends BasePanel {
 	public static final Color CANVAS_DEFAULT_COLOR = new Color(115, 239, 97);
 	public static final int CANVAS_DEFAULT_WIDTH = 640;
 	public static final int CANVAS_DEFAULT_HEIGHT = 480;
@@ -117,6 +120,11 @@ public class ZooMapCanvas extends JPanel {
 			selectedObject = null;
 		}
 	};
+
+	@Override
+	protected Controller getController() {
+		return this.controller;
+	}
 
 	class ScaleHandler implements MouseWheelListener {
 		private SpatialObjectModel selectedObject;
