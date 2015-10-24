@@ -72,13 +72,13 @@ public class ContentPanel extends JPanel {
 	 */
 	private void $$$setupUI$$$() {
 		rootPanel = new JPanel();
-		rootPanel.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+		rootPanel.setLayout(new BorderLayout(0, 0));
 		mapWrapper = new JPanel();
 		mapWrapper.setLayout(new BorderLayout(0, 0));
-		rootPanel.add(mapWrapper, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		rootPanel.add(mapWrapper, BorderLayout.WEST);
 		detailWrapper = new JPanel();
 		detailWrapper.setLayout(new BorderLayout(0, 0));
-		rootPanel.add(detailWrapper, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(300, -1), null, null, 0, false));
+		rootPanel.add(detailWrapper, BorderLayout.CENTER);
 	}
 
 	/**
