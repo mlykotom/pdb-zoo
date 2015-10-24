@@ -64,7 +64,7 @@ public class ZooMapCanvas extends BasePanel {
 	}
 
 	@Override
-	protected Controller getController() {
+	public Controller getController() {
 		return controller;
 	}
 }

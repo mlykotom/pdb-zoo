@@ -1,24 +1,34 @@
-package cz.vutbr.fit.pdb.ateam.gui.detail;
+package cz.vutbr.fit.pdb.ateam.gui.tabs;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import cz.vutbr.fit.pdb.ateam.controller.Controller;
+import cz.vutbr.fit.pdb.ateam.controller.EmployeesTabController;
+import cz.vutbr.fit.pdb.ateam.gui.BasePanel;
 import cz.vutbr.fit.pdb.ateam.gui.ContentPanel;
 
 import javax.swing.*;
 import java.awt.*;
 
 /**
- * Created by Tomas Mlynaric on 22.10.2015.
+ * Created by Tomas Mlynaric on 21.10.2015.
  */
-public class SpatialObjectsTab extends JPanel {
-	private final JPanel mainPanel;
+public class EmployeesTab extends BasePanel {
+	private final ContentPanel mainPanel;
+	private final EmployeesTabController controller;
+	private JSpinner spinner1;
 	private JPanel rootPanel;
-	private JRadioButton radioButton1;
 
-	public SpatialObjectsTab(ContentPanel mainPanel) {
+	public EmployeesTab(ContentPanel mainPanel) {
 		this.mainPanel = mainPanel;
 		add(rootPanel);
+		this.controller = new EmployeesTabController(this);
+	}  
+
+	@Override
+	public Controller getController() {
+		return this.controller;
 	}
 
 	{
@@ -37,14 +47,12 @@ public class SpatialObjectsTab extends JPanel {
 	 */
 	private void $$$setupUI$$$() {
 		rootPanel = new JPanel();
-		rootPanel.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
-		radioButton1 = new JRadioButton();
-		radioButton1.setText("RadioButton");
-		rootPanel.add(radioButton1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		rootPanel.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+		rootPanel.setBackground(new Color(-1));
+		spinner1 = new JSpinner();
+		rootPanel.add(spinner1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final Spacer spacer1 = new Spacer();
 		rootPanel.add(spacer1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-		final Spacer spacer2 = new Spacer();
-		rootPanel.add(spacer2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
 	}
 
 	/**
@@ -53,4 +61,5 @@ public class SpatialObjectsTab extends JPanel {
 	public JComponent $$$getRootComponent$$$() {
 		return rootPanel;
 	}
+
 }

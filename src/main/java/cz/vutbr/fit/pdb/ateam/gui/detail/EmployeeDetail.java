@@ -32,7 +32,7 @@ public class EmployeeDetail extends BasePanel {
 	}
 
 	@Override
-	protected Controller getController() {
+	public Controller getController() {
 		return null;
 	}
 

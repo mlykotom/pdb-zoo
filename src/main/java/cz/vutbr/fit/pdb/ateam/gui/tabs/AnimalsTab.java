@@ -1,4 +1,4 @@
-package cz.vutbr.fit.pdb.ateam.gui.detail;
+package cz.vutbr.fit.pdb.ateam.gui.tabs;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;

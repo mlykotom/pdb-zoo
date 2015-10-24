@@ -2,9 +2,10 @@ package cz.vutbr.fit.pdb.ateam.gui;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import cz.vutbr.fit.pdb.ateam.gui.detail.AnimalsTab;
-import cz.vutbr.fit.pdb.ateam.gui.detail.EmployeesTab;
-import cz.vutbr.fit.pdb.ateam.gui.detail.SpatialObjectsTab;
+import cz.vutbr.fit.pdb.ateam.controller.Controller;
+import cz.vutbr.fit.pdb.ateam.gui.tabs.AnimalsTab;
+import cz.vutbr.fit.pdb.ateam.gui.tabs.EmployeesTab;
+import cz.vutbr.fit.pdb.ateam.gui.tabs.SpatialObjectsTab;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapPanel;
 
 import javax.swing.*;
@@ -49,6 +50,10 @@ public class ContentPanel extends JPanel {
 		detailTabsPane.addTab("Animals", animalsTab);
 		detailTabsPane.addTab("Employees", employeesTab);
 		detailWrapper.add(detailTabsPane);
+	}
+
+	public ZooMapPanel getMapPanelContent() {
+		return mapPanelContent;
 	}
 
 	{
