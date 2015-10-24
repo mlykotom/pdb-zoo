@@ -33,4 +33,15 @@ public class Utils {
 		component.setMaximumSize(new Dimension(width, height));
 		component.setPreferredSize(new Dimension(width, height));
 	}
+
+	/**
+	 * Static method for changing whole content of the JPanel
+	 *
+	 * @param panel content will be changed in this panel
+	 * @param content content, which will replace old content
+	 */
+	public static void changePanelContent(JPanel panel, JComponent content) {
+		panel.removeAll();
+		panel.add(content);
+	}
 }
