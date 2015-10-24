@@ -4,6 +4,7 @@ import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapPanel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
+import cz.vutbr.fit.pdb.ateam.observer.ContentPanelObserverSubject;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
 
 import java.awt.event.*;
@@ -108,33 +109,31 @@ public class ZooMapController extends Controller {
 	}
 
 	/**
-	 * Unselect any spatial object
-	 */
-	public void unselectSpatialObject() {
-		for (SpatialObjectModel object : getSpatialObjects()) {
-			object.selectOnCanvas(false);
-		}
-		form.getSelectedObjectWrapper().setVisible(false);
-		form.getObjectName().setText("");
-		this.selectedObjectOnCanvas = null;
-	}
-
-	/**
 	 * Unselects any spatial objects and select specified one
 	 *
 	 * @param objectToSelect this object will be selected and notified that was selected to all listeners
 	 */
 	public void selectSpatialObject(SpatialObjectModel objectToSelect) {
-		if(objectToSelect.equals(this.selectedObjectOnCanvas)) return;
+		//if(objectToSelect.equals(this.selectedObjectOnCanvas)) return;
 
-		unselectSpatialObject();
-		objectToSelect.selectOnCanvas(true);
-		form.getObjectName().setText(objectToSelect.getId().toString());
-		form.getSelectedObjectWrapper().setVisible(true);
+		// unselects all objects
+		for (SpatialObjectModel object : getSpatialObjects()) {
+			object.selectOnCanvas(false);
+		}
 
-		this.selectedObjectOnCanvas = objectToSelect;
-
-		// todo notify !!
+		if(objectToSelect == null){
+			form.getSelectedObjectWrapper().setVisible(false);
+			form.getObjectName().setText("");
+			this.selectedObjectOnCanvas = null;
+			ContentPanelObserverSubject.getInstance().notifyAllObjectSelectionChangedListeners(null);
+		}
+		else {
+			objectToSelect.selectOnCanvas(true);
+			form.getObjectName().setText(objectToSelect.getId().toString());
+			form.getSelectedObjectWrapper().setVisible(true);
+			this.selectedObjectOnCanvas = objectToSelect;
+			ContentPanelObserverSubject.getInstance().notifyAllObjectSelectionChangedListeners(objectToSelect);
+		}
 	}
 
 	/**
@@ -150,12 +149,8 @@ public class ZooMapController extends Controller {
 			pressedX = mouseEvent.getX();
 			pressedY = mouseEvent.getY();
 			selectedObject = getObjectFromCanvas(pressedX, pressedY);
-			if (selectedObject == null){
-				unselectSpatialObject();
-			}
-			else {
-				selectSpatialObject(selectedObject);
-			}
+			// selected object may be null, in this case every object is unselected
+			selectSpatialObject(selectedObject);
 			canvas.repaint();
 		}
 

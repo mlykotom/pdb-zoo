@@ -62,4 +62,9 @@ public class ZooMapCanvas extends BasePanel {
 		}
 		g2D.setPaint(CANVAS_DEFAULT_COLOR);
 	}
+
+	@Override
+	protected Controller getController() {
+		return controller;
+	}
 }
