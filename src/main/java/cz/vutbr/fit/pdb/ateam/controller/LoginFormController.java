@@ -47,19 +47,23 @@ public class LoginFormController extends Controller {
 					return false;
 				}
 			}
+
+			@Override
+			protected void whenDone(boolean success) {
+				if (success){
+					new MainFrame().setVisible(true);
+					Logger.createLog(Logger.DEBUG_LOG, "Database connected successfully.");
+					form.dispose();
+				} else {
+					JOptionPane.showMessageDialog(form,
+							"Invalid username or password!",
+							"Login failed",
+							JOptionPane.ERROR_MESSAGE);
+				}
+			}
 		};
 
-		if (connectToDB.isComplete()){
-			form.dispose();
-			new MainFrame().setVisible(true);
-			Logger.createLog(Logger.DEBUG_LOG, "Database connected successfully.");
-		} else {
-			JOptionPane.showMessageDialog(form,
-					"Invalid username or password!",
-					"Login failed",
-					JOptionPane.ERROR_MESSAGE);
-		}
-
+		connectToDB.start();
 	}
 
 	/**

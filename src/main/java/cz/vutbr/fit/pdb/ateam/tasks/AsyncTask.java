@@ -17,10 +17,31 @@ import javax.swing.*;
 public abstract class AsyncTask extends SwingWorker<Boolean, String>{
 	private LoadingDialogController loadingDialogController;
 
+	/**
+	 * Allowed ways of creating async task
+	 */
+	private enum ProgressType{
+		TYPE_DIALOG,
+		TYPE_PROGRESSBAR,
+	}
+
+	private ProgressType type;
+	private JProgressBar progressBar;
+
+	/**
+	 * Creates async task with dialog type
+	 */
 	public AsyncTask() {
-		this.loadingDialogController = new LoadingDialogController(this); //TODO Decide whether to add the frame to anchor created Loading dialog to
-		this.execute();
-		loadingDialogController.showDialog(true);
+		this.type = ProgressType.TYPE_DIALOG;
+	}
+
+	/**
+	 * Creates async task with progressbar type
+	 * @param progressPanel progress bar in GUI
+	 */
+	public AsyncTask(JProgressBar progressPanel){
+		this.type = ProgressType.TYPE_PROGRESSBAR;
+		this.progressBar = progressPanel;
 	}
 
 	/**
@@ -30,7 +51,16 @@ public abstract class AsyncTask extends SwingWorker<Boolean, String>{
 	@Override
 	protected void done() {
 		super.done();
-		this.loadingDialogController.disposeDialog();
+		switch (this.type){
+			case TYPE_DIALOG:
+				this.loadingDialogController.disposeDialog();
+				break;
+			case TYPE_PROGRESSBAR:
+				this.progressBar.setVisible(false);
+				break;
+		}
+
+		whenDone(isComplete());
 	}
 
 	/**
@@ -38,7 +68,7 @@ public abstract class AsyncTask extends SwingWorker<Boolean, String>{
 	 *
 	 * @return Returns True if process of asyncTask was completed, False if not.
 	 */
-	public Boolean isComplete(){
+	private boolean isComplete(){
 		try {
 			return get();
 		} catch (Exception e) {
@@ -47,4 +77,26 @@ public abstract class AsyncTask extends SwingWorker<Boolean, String>{
 	}
 
 
+	/**
+	 * Correctly handles start of async task based on type
+	 */
+	public void start(){
+		this.execute();
+		switch (this.type){
+			case TYPE_DIALOG:
+				this.loadingDialogController = new LoadingDialogController(this);
+				loadingDialogController.showDialog(true);
+				break;
+
+			case TYPE_PROGRESSBAR:
+				this.progressBar.setVisible(true);
+				break;
+		}
+	}
+
+	/**
+	 * Correctly handles when async task ends
+	 * @param success checks what doInBackground returns
+	 */
+	abstract protected void whenDone(boolean success);
 }

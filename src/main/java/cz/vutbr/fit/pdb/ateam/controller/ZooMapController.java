@@ -5,6 +5,7 @@ import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapPanel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.observer.ContentPanelObserverSubject;
+import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
 
 import java.awt.event.*;
@@ -57,8 +58,8 @@ public class ZooMapController extends Controller {
 			return true;
 		} catch (DataManagerException e) {
 			Logger.createLog(Logger.ERROR_LOG, e.getMessage());
-			return false;
 		}
+		return false;
 	}
 
 	/**
@@ -86,7 +87,18 @@ public class ZooMapController extends Controller {
 	 * Cancel any changes made to spatial objects by reloading all objects from DB
 	 */
 	public void cancelChangedSpatialObjectsAction() {
-		reloadSpatialObjects();
+		AsyncTask reloadTask = new AsyncTask() {
+			@Override
+			protected void whenDone(boolean success) {
+				// nothing
+			}
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				return reloadSpatialObjects();
+			}
+		};
+		reloadTask.start();
 	}
 
 	/**
