@@ -1,4 +1,4 @@
-package exception;
+package cz.vutbr.fit.pdb.ateam.exception;
 
 /**
  * Exception used by DataManager class.

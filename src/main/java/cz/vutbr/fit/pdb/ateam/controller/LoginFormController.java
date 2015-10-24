@@ -1,10 +1,10 @@
-package controller;
+package cz.vutbr.fit.pdb.ateam.controller;
 
-import exception.DataManagerException;
-import gui.LoginForm;
-import gui.MainFrame;
-import utils.Logger;
-import utils.Utils;
+import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
+import cz.vutbr.fit.pdb.ateam.gui.LoginForm;
+import cz.vutbr.fit.pdb.ateam.gui.MainFrame;
+import cz.vutbr.fit.pdb.ateam.utils.Logger;
+import cz.vutbr.fit.pdb.ateam.utils.Utils;
 
 import javax.swing.*;
 

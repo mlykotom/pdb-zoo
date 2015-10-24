@@ -1,7 +1,7 @@
-package controller;
+package cz.vutbr.fit.pdb.ateam.controller;
 
-import gui.LoginForm;
-import gui.MainFrame;
+import cz.vutbr.fit.pdb.ateam.gui.LoginForm;
+import cz.vutbr.fit.pdb.ateam.gui.MainFrame;
 
 /**
  * Class controls all events occurred in MainFrame's MenuBar.
@@ -35,12 +35,5 @@ public class MenuBarController extends Controller {
 		dataManager.disconnectDatabase();
 		mainFrame.dispose();
 		new LoginForm().setVisible(true);
-	}
-
-	/**
-	 * ZooMapMenu in MenuBar opens JPanel with zooMapForm.
-	 */
-	public void zooMapMenuAction() {
-		// TODO: opens zoo map JPanel in mainframe
 	}
 }

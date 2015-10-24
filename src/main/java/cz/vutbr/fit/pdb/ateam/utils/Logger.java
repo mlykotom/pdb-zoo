@@ -1,4 +1,4 @@
-package utils;
+package cz.vutbr.fit.pdb.ateam.utils;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;

@@ -1,9 +1,9 @@
-package gui;
+package cz.vutbr.fit.pdb.ateam.gui;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import controller.LoginFormController;
+import cz.vutbr.fit.pdb.ateam.controller.LoginFormController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,7 +12,7 @@ import java.awt.event.ActionListener;
 
 /**
  * Form for Log In form.
- * <p>
+ * <p/>
  * This form is shown at the start of the application. Form
  * includes form, which is used to connect with the database
  * server. User can set there his UserName and Password. If connection
@@ -32,7 +32,7 @@ public class LoginForm extends JFrame {
 	private JButton quitButton;
 
 	/**
-	 * Constructor creates controller and initialize form content.
+	 * Constructor creates cz.vutbr.fit.pdb.ateam.controller and initialize form content.
 	 */
 	public LoginForm() {
 		controller = new LoginFormController(this);
@@ -94,6 +94,7 @@ public class LoginForm extends JFrame {
 	private void $$$setupUI$$$() {
 		rootPanel = new JPanel();
 		rootPanel.setLayout(new GridLayoutManager(4, 4, new Insets(20, 20, 20, 20), -1, -1));
+		rootPanel.setFont(new Font(rootPanel.getFont().getName(), rootPanel.getFont().getStyle(), rootPanel.getFont().getSize()));
 		final JLabel label1 = new JLabel();
 		label1.setFont(new Font(label1.getFont().getName(), Font.BOLD, 22));
 		label1.setHorizontalAlignment(0);
@@ -118,6 +119,7 @@ public class LoginForm extends JFrame {
 		panel1.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
 		rootPanel.add(panel1, new GridConstraints(3, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		loginButton = new JButton();
+		loginButton.setHideActionText(false);
 		loginButton.setText("Login");
 		panel1.add(loginButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		quitButton = new JButton();

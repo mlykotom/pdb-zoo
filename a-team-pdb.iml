@@ -30,5 +30,23 @@
     <orderEntry type="library" exported="" name="Gradle: jdom:jdom:1.0" level="project" />
     <orderEntry type="library" exported="" name="Gradle: asm:asm-tree:3.0" level="project" />
     <orderEntry type="library" exported="" name="Gradle: asm:asm:3.0" level="project" />
+    <orderEntry type="module-library" exported="">
+      <library name="Gradle: sdoapi">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/libs/sdoapi.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="Gradle: sdoutl">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/libs/sdoutl.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
