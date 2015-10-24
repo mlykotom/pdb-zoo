@@ -17,7 +17,7 @@ import java.awt.event.ActionListener;
  */
 public class ZooMapPanel extends JPanel {
 	private final JPanel mainPanel;
-	private final ZooMapController controller;
+	public final ZooMapController controller;
 	private JPanel rootPanel;
 	private JPanel mapPanel;
 	private JButton saveButton;

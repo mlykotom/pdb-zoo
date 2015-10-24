@@ -5,7 +5,6 @@ import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import oracle.spatial.geometry.JGeometry;
 
 import java.awt.*;
-import java.util.ArrayList;
 
 /**
  * Abstract representation of object in spatial DB.
@@ -15,10 +14,6 @@ abstract public class SpatialObjectModel extends BaseModel {
 	protected JGeometry geometry;
 	protected Shape shape;
 	protected SpatialObjectTypeModel spatialObjectType;
-
-	protected int translationDeltaX = 0;
-	protected int translationDeltaY = 0;
-
 
 	/**
 	 * Setups object and creates shape for graphic representation from jGeometry.
@@ -80,6 +75,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 		Shape shape = getShape();
 		g2D.setPaint(getType().getColor());
 		g2D.fill(shape);
+		g2D.setPaint(Color.BLACK);
 		g2D.draw(shape);
 	}
 
@@ -108,27 +104,8 @@ abstract public class SpatialObjectModel extends BaseModel {
 			return;
 		}
 
+		setIsChanged(true);
 		regenerateShape();
-	}
-
-	/**
-	 * When stops moving, remembers ordinates how much it was moved
-	 * @param deltaX
-	 * @param deltaY
-	 */
-	public void rememberOrdinates(int deltaX, int deltaY) {
-		translationDeltaX = deltaX;
-		translationDeltaY = deltaY;
-	}
-
-	/**
-	 * Moves object back to position it started to move
-	 */
-	public void moveBackOnCanvas() {
-		if(!isChanged()) return;
-		moveOnCanvas(-translationDeltaX, -translationDeltaY);
-		translationDeltaX = 0;
-		translationDeltaY = 0;
 	}
 
 	/**
@@ -148,6 +125,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 			return;
 		}
 
+		setIsChanged(true);
 		regenerateShape();
 	}
 
