@@ -5,20 +5,20 @@ import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import oracle.spatial.geometry.JGeometry;
 
 import java.awt.*;
-import java.util.ArrayList;
 
 /**
  * Abstract representation of object in spatial DB.
  * Created by Tomas Mlynaric on 20.10.2015.
  */
 abstract public class SpatialObjectModel extends BaseModel {
+	private static final Paint DEFAULT_BORDER_COLOR = Color.BLACK;
+	private static final BasicStroke DEFAULT_STROKE_SIZE = new BasicStroke(1);
+
 	protected JGeometry geometry;
 	protected Shape shape;
 	protected SpatialObjectTypeModel spatialObjectType;
-
-	protected int translationDeltaX = 0;
-	protected int translationDeltaY = 0;
-
+	protected Paint borderColor = DEFAULT_BORDER_COLOR;
+	protected BasicStroke strokeSize = DEFAULT_STROKE_SIZE;
 
 	/**
 	 * Setups object and creates shape for graphic representation from jGeometry.
@@ -80,6 +80,8 @@ abstract public class SpatialObjectModel extends BaseModel {
 		Shape shape = getShape();
 		g2D.setPaint(getType().getColor());
 		g2D.fill(shape);
+		g2D.setStroke(strokeSize);
+		g2D.setPaint(borderColor);
 		g2D.draw(shape);
 	}
 
@@ -95,6 +97,21 @@ abstract public class SpatialObjectModel extends BaseModel {
 	}
 
 	/**
+	 * Determines graphics while is selected or not
+	 *
+	 * @param isSelected
+	 */
+	public void selectOnCanvas(boolean isSelected) {
+		if (isSelected) {
+			borderColor = Color.decode("#4F6CB2");
+			strokeSize = new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+		} else {
+			borderColor = DEFAULT_BORDER_COLOR;
+			strokeSize = DEFAULT_STROKE_SIZE;
+		}
+	}
+
+	/**
 	 * Moves object some pixels defined by parameters
 	 *
 	 * @param deltaX
@@ -103,32 +120,15 @@ abstract public class SpatialObjectModel extends BaseModel {
 	public void moveOnCanvas(int deltaX, int deltaY) {
 		try {
 			geometry = geometry.affineTransforms(true, deltaX, deltaY, 0, false, null, 0, 0, 0, false, null, null, 0, 0, false, 0, 0, 0, 0, 0, 0, false, null, null, 0, false, new double[]{}, new double[]{});
+			//double[] x = geometry.getOrdinatesArray();
+			//Object[] w = geometry.getOrdinatesOfElements();
 		} catch (Exception e1) {
 			e1.printStackTrace();
 			return;
 		}
 
+		setIsChanged(true);
 		regenerateShape();
-	}
-
-	/**
-	 * When stops moving, remembers ordinates how much it was moved
-	 * @param deltaX
-	 * @param deltaY
-	 */
-	public void rememberOrdinates(int deltaX, int deltaY) {
-		translationDeltaX = deltaX;
-		translationDeltaY = deltaY;
-	}
-
-	/**
-	 * Moves object back to position it started to move
-	 */
-	public void moveBackOnCanvas() {
-		if(!isChanged()) return;
-		moveOnCanvas(-translationDeltaX, -translationDeltaY);
-		translationDeltaX = 0;
-		translationDeltaY = 0;
 	}
 
 	/**
@@ -148,6 +148,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 			return;
 		}
 
+		setIsChanged(true);
 		regenerateShape();
 	}
 

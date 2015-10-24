@@ -22,6 +22,7 @@ Thumbs.db
 **/.idea/dictionaries/
 **/.idea/datasources.xml
 **/.idea/dataSources.ids
+**/.idea/dataSources.local.ids
 
 # Don't ignore the iml, ipr project files, ignore the *.iws specifics
 !*.iml

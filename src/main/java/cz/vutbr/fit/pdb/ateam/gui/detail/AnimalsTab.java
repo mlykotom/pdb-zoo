@@ -4,6 +4,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import cz.vutbr.fit.pdb.ateam.gui.ContentPanel;
 
+import javax.naming.ldap.Control;
 import javax.swing.*;
 import java.awt.*;
 
@@ -12,8 +13,9 @@ import java.awt.*;
  */
 public class AnimalsTab extends JPanel {
 	private final ContentPanel mainPanel;
-	private JButton button1;
+	public JButton button1;
 	private JPanel rootPanel;
+
 
 	public AnimalsTab(ContentPanel mainPanel) {
 		this.mainPanel = mainPanel;
