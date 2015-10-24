@@ -12,9 +12,9 @@ public class ContentPanelObserverSubject {
 	private static ContentPanelObserverSubject instance = new ContentPanelObserverSubject();
 	private List<ObjectSelectionChangedListener> objectSelectionChangedListeners = new ArrayList<ObjectSelectionChangedListener>();
 
-	public void notifyAllObjectSelectionChangedListeners(){
+	public void notifyAllObjectSelectionChangedListeners(SpatialObjectModel spatialObjectModel){
 		for (ObjectSelectionChangedListener listener :  this.objectSelectionChangedListeners){
-			listener.notifyObjectSelectionChanged();
+			listener.notifyObjectSelectionChanged(spatialObjectModel);
 		}
 	}
 
