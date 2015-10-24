@@ -16,5 +16,5 @@ public abstract class BasePanel extends JPanel {
 	 *
 	 * @return Controller for specific Panel
 	 */
-	protected abstract Controller getController();
+	public abstract Controller getController();
 }
