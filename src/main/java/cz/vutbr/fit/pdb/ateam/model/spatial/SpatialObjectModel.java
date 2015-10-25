@@ -31,14 +31,15 @@ abstract public class SpatialObjectModel extends BaseModel {
 	/**
 	 * Setups object and creates shape for graphic representation from jGeometry.
 	 * It's protected so that it's not possible to instantiate the class
-	 * otherwise than by {@link #createFromType(Long, SpatialObjectTypeModel, byte[])}
-	 *
-	 * @param id
+	 * otherwise than by {@link #createFromType(Long, String, SpatialObjectTypeModel, byte[])}
+	 *  @param id
+	 * @param name
 	 * @param type     association to object type (basket, house, path, ...)
 	 * @param geometry spatial data
 	 */
-	protected SpatialObjectModel(long id, SpatialObjectTypeModel type, JGeometry geometry) {
+	protected SpatialObjectModel(long id, String name, SpatialObjectTypeModel type, JGeometry geometry) {
 		super(id);
+		this.name = name;
 		this.spatialObjectType = type;
 		this.geometry = geometry;
 		regenerateShape();
@@ -48,23 +49,24 @@ abstract public class SpatialObjectModel extends BaseModel {
 	 * Creates specific SpatialObject based on type from JGeometry which is served in raw format
 	 *
 	 * @param id
+	 * @param name
 	 * @param spatialType association to object type (basket, house, path, ...)
 	 * @param rawGeometry data from DB query result
 	 * @return
 	 * @throws Exception
 	 */
-	public static SpatialObjectModel createFromType(Long id, SpatialObjectTypeModel spatialType, byte[] rawGeometry) throws Exception {
+	public static SpatialObjectModel createFromType(Long id, String name, SpatialObjectTypeModel spatialType, byte[] rawGeometry) throws Exception {
 		JGeometry geometry = JGeometry.load(rawGeometry);
 		SpatialObjectModel newModel;
 		switch (geometry.getType()) {
 
 			case JGeometry.GTYPE_POLYGON:
-				newModel = new SpatialPolygonModel(id, spatialType, geometry);
+				newModel = new SpatialPolygonModel(id, name, spatialType, geometry);
 				break;
 
 
 			case JGeometry.GTYPE_POINT:
-				newModel = new SpatialPointModel(id, spatialType, geometry);
+				newModel = new SpatialPointModel(id, name, spatialType, geometry);
 				break;
 
 			default:

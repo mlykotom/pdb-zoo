@@ -55,7 +55,7 @@
               <text value="Selected object:"/>
             </properties>
           </component>
-          <component id="ef57f" class="javax.swing.JLabel" binding="objectName">
+          <component id="ef57f" class="javax.swing.JLabel" binding="selectedObjectName">
             <constraints/>
             <properties>
               <text value=""/>

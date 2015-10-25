@@ -13,8 +13,8 @@ public class SpatialPointModel extends SpatialObjectModel {
 
 	private static final double SPATIAL_POINT_SIZE = 10;
 
-	public SpatialPointModel(long id, SpatialObjectTypeModel type, JGeometry geometry) {
-		super(id, type, geometry);
+	public SpatialPointModel(long id, String name, SpatialObjectTypeModel type, JGeometry geometry) {
+		super(id, name, type, geometry);
 	}
 
 	@Override

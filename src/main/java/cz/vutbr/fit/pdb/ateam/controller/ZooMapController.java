@@ -126,7 +126,7 @@ public class ZooMapController extends Controller {
 	 * @param objectToSelect this object will be selected and notified that was selected to all listeners
 	 */
 	public void selectSpatialObject(SpatialObjectModel objectToSelect) {
-		//if(objectToSelect.equals(this.selectedObjectOnCanvas)) return;
+		//if(objectToSelect.equals(this.selectedObjectOnCanvas)) return; // TODO
 
 		// unselects all objects
 		for (SpatialObjectModel object : getSpatialObjects()) {
@@ -134,15 +134,13 @@ public class ZooMapController extends Controller {
 		}
 
 		if(objectToSelect == null){
-			form.getSelectedObjectWrapper().setVisible(false);
-			form.getObjectName().setText("");
+			form.setUnselectedObject();
 			this.selectedObjectOnCanvas = null;
 			ContentPanelObserverSubject.getInstance().notifyAllObjectSelectionChangedListeners(null);
 		}
 		else {
 			objectToSelect.selectOnCanvas(true);
-			form.getObjectName().setText(objectToSelect.getId().toString());
-			form.getSelectedObjectWrapper().setVisible(true);
+			form.setSelecteObject(objectToSelect.getName());
 			this.selectedObjectOnCanvas = objectToSelect;
 			ContentPanelObserverSubject.getInstance().notifyAllObjectSelectionChangedListeners(objectToSelect);
 		}

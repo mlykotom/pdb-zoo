@@ -22,7 +22,7 @@ public class ZooMapPanel extends JPanel {
 	private JPanel mapPanel;
 	private JButton saveButton;
 	private JButton cancelButton;
-	private JLabel objectName;
+	private JLabel selectedObjectName;
 	private JPanel selectedObjectWrapper;
 
 	private ZooMapCanvas ZooMapCanvas;
@@ -31,14 +31,6 @@ public class ZooMapPanel extends JPanel {
 		this.mainPanel = mainPanel;
 		this.controller = new ZooMapController(this);
 		initUI();
-	}
-
-	public JPanel getSelectedObjectWrapper() {
-		return selectedObjectWrapper;
-	}
-
-	public JLabel getObjectName() {
-		return objectName;
 	}
 
 	public void initUI() {
@@ -70,8 +62,21 @@ public class ZooMapPanel extends JPanel {
 		});
 	}
 
-	private void createUIComponents() {
-		// TODO: place custom component creation code here
+	/**
+	 * Shows selected object name on the bottom of the panel & shows wrapper
+	 * @param name
+	 */
+	public void setSelecteObject(String name){
+		selectedObjectName.setText(name);
+		selectedObjectWrapper.setVisible(true);
+	}
+
+	/**
+	 * Hides selected object name on the bottom of the panel & hides wrapper
+	 */
+	public void setUnselectedObject(){
+		selectedObjectName.setText("");
+		selectedObjectWrapper.setVisible(false);
 	}
 
 	{
@@ -110,9 +115,9 @@ public class ZooMapPanel extends JPanel {
 		final JLabel label1 = new JLabel();
 		label1.setText("Selected object:");
 		selectedObjectWrapper.add(label1);
-		objectName = new JLabel();
-		objectName.setText("");
-		selectedObjectWrapper.add(objectName);
+		selectedObjectName = new JLabel();
+		selectedObjectName.setText("");
+		selectedObjectWrapper.add(selectedObjectName);
 	}
 
 	/**
