@@ -3,8 +3,8 @@ package cz.vutbr.fit.pdb.ateam.model.spatial;
 import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
+import cz.vutbr.fit.pdb.ateam.utils.Logger;
 import oracle.spatial.geometry.JGeometry;
-import org.w3c.dom.css.Rect;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -22,6 +22,11 @@ abstract public class SpatialObjectModel extends BaseModel {
 	protected SpatialObjectTypeModel spatialObjectType;
 	protected Paint borderColor = DEFAULT_BORDER_COLOR;
 	protected BasicStroke strokeSize = DEFAULT_STROKE_SIZE;
+
+	private enum IsInMapAxis {
+		AXIS_Y,
+		AXIS_X
+	}
 
 	/**
 	 * Setups object and creates shape for graphic representation from jGeometry.
@@ -74,7 +79,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 	 */
 	abstract public Shape createShape();
 
-	public void regenerateShape(){
+	public void regenerateShape() {
 		shape = createShape();
 	}
 
@@ -127,19 +132,13 @@ abstract public class SpatialObjectModel extends BaseModel {
 	public void moveOnCanvas(int deltaX, int deltaY) {
 		try {
 			Rectangle2D boundRect = shape.getBounds2D();
-
-			if(boundRect.getY() + deltaY < 0) deltaY = (int) (-1 * boundRect.getY());
-			if(boundRect.getY() + boundRect.getHeight() + deltaY > ZooMapCanvas.CANVAS_DEFAULT_HEIGHT) deltaY = (int) (ZooMapCanvas.CANVAS_DEFAULT_HEIGHT - boundRect.getY() - boundRect.getHeight());
-
-			if(boundRect.getX() + deltaX < 0) deltaX = (int) (-1 * boundRect.getX());
-			if(boundRect.getX() + boundRect.getWidth() + deltaX > ZooMapCanvas.CANVAS_DEFAULT_WIDTH) deltaX = (int) (ZooMapCanvas.CANVAS_DEFAULT_WIDTH - boundRect.getX() - boundRect.getWidth());
-
+			deltaX = isMovedInMap(boundRect, deltaX, IsInMapAxis.AXIS_X);
+			deltaY = isMovedInMap(boundRect, deltaY, IsInMapAxis.AXIS_Y);
 			geometry = geometry.affineTransforms(true, deltaX, deltaY, 0, false, null, 0, 0, 0, false, null, null, 0, 0, false, 0, 0, 0, 0, 0, 0, false, null, null, 0, false, new double[]{}, new double[]{});
 			regenerateShape();
 			setIsChanged(true);
-		} catch (Exception e1) {
-			e1.printStackTrace();
-			// TODO should show some kind of error!!
+		} catch (Exception e) {
+			Logger.createLog(Logger.ERROR_LOG, "moveOnCanvas exception" + e.getMessage());
 		}
 	}
 
@@ -149,12 +148,12 @@ abstract public class SpatialObjectModel extends BaseModel {
 	 * @param mouseWheelRotation specifies amount of scale
 	 */
 	public void scaleOnCanvas(int mouseWheelRotation) {
-		double[] firstPoint = geometry.getFirstPoint();
-		JGeometry staticPoint = new JGeometry(firstPoint[0], firstPoint[1], 0);
-		float amount = 1 + (mouseWheelRotation * 0.05f);
-
 		try {
-			geometry = geometry.affineTransforms(false, 0, 0, 0, true, staticPoint, amount, amount, 0, false, null, null, 0, 0, false, 0, 0, 0, 0, 0, 0, false, null, null, 0, false, new double[]{}, new double[]{});
+			Rectangle2D boundRect = shape.getBounds2D();
+			double delta = 1 + (mouseWheelRotation * 0.05f);
+			delta = isScaledInMape(boundRect, delta);
+			JGeometry staticPoint = new JGeometry(boundRect.getCenterX(), boundRect.getCenterY(), 0);
+			geometry = geometry.affineTransforms(false, 0, 0, 0, true, staticPoint, delta, delta, 0, false, null, null, 0, 0, false, 0, 0, 0, 0, 0, 0, false, null, null, 0, false, new double[]{}, new double[]{});
 		} catch (Exception e1) {
 			e1.printStackTrace();
 			return;
@@ -162,6 +161,82 @@ abstract public class SpatialObjectModel extends BaseModel {
 
 		setIsChanged(true);
 		regenerateShape();
+	}
+
+	/**
+	 * Checks boundaries of shape if is in map base on which axis calculates
+	 *
+	 * @param boundRect
+	 * @param delta     delta X or Y
+	 * @param axisType
+	 * @return changed delta based on if is in map
+	 */
+	private int isMovedInMap(Rectangle2D boundRect, double delta, IsInMapAxis axisType) {
+		double getOrd;
+		double getDimen;
+		int maxDimen;
+		switch (axisType) {
+			case AXIS_Y:
+				getOrd = boundRect.getY();
+				getDimen = boundRect.getHeight();
+				maxDimen = ZooMapCanvas.CANVAS_DEFAULT_HEIGHT;
+				break;
+
+			case AXIS_X:
+				getOrd = boundRect.getX();
+				getDimen = boundRect.getWidth();
+				maxDimen = ZooMapCanvas.CANVAS_DEFAULT_WIDTH;
+				break;
+
+			default:
+				return (int) delta;
+		}
+
+		// cares about left or top canvas boundary
+		if (getOrd + delta < 0) {
+			delta = (int) (-1 * getOrd);
+		}
+
+		// cares about right or bottom canvas boundary
+		if (getOrd + getDimen + delta > maxDimen) {
+			delta = (int) (maxDimen - getOrd - getDimen);
+		}
+
+		// needs to return int because canvas ordinates are discrete!
+		return (int) delta;
+	}
+
+	/**
+	 * Recalculates scale amount by objects' boundary rentangle's ordinates and size
+	 *
+	 * @param boundRect
+	 * @param delta     amount which will be scaled
+	 * @return changed delta amount
+	 */
+	private double isScaledInMape(Rectangle2D boundRect, double delta) {
+		double centerX = boundRect.getCenterX();
+		double halfWidth = boundRect.getWidth() / 2.0;
+		double centerY = boundRect.getCenterY();
+		double halfHeight = boundRect.getHeight() / 2.0;
+
+		// cares about X-axis (left canvas boundary)
+		if ((centerX - halfWidth * delta) < 0) {
+			delta = boundRect.getX() / halfWidth + 1;
+		}
+		// cares about X-axis (right canvas boundary)
+		if ((centerX + halfWidth * delta) > ZooMapCanvas.CANVAS_DEFAULT_WIDTH) {
+			delta = (ZooMapCanvas.CANVAS_DEFAULT_WIDTH - boundRect.getX() - boundRect.getWidth()) / halfWidth + 1;
+		}
+		// cares about Y-axis (top canvas boundary)
+		if ((centerY - halfHeight * delta) < 0) {
+			delta = boundRect.getY() / halfHeight + 1;
+		}
+		// cares about Y-axis (bottom canvas boundary)
+		if ((centerY + halfHeight * delta) > ZooMapCanvas.CANVAS_DEFAULT_HEIGHT) {
+			delta = (ZooMapCanvas.CANVAS_DEFAULT_HEIGHT - boundRect.getY() - boundRect.getHeight()) / halfHeight + 1;
+		}
+
+		return delta;
 	}
 
 	@Override
