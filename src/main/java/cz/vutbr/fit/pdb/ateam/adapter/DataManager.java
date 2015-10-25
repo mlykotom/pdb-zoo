@@ -10,7 +10,6 @@ import oracle.spatial.geometry.JGeometry;
 import oracle.sql.ORAData;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
 
-import javax.xml.transform.Result;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -291,17 +290,18 @@ public class DataManager {
 	public ArrayList<SpatialObjectModel> getAllSpatialObjects() throws DataManagerException {
 		ArrayList<SpatialObjectModel> spatialObjects = new ArrayList<>();
 
-		String sqlQuery = "SELECT ID, Type, Geometry FROM Spatial_Objects";
+		String sqlQuery = "SELECT * FROM Spatial_Objects";
 		ResultSet resultSet = createDatabaseQuery(sqlQuery);
 
 		try {
 			while (resultSet.next()) {
 				Long id = resultSet.getLong("ID");
 				Long typeID = resultSet.getLong("Type");
+				String name = resultSet.getString("Name");
 				SpatialObjectTypeModel spatialType = getSpatialObjectType(typeID);
 
 				byte[] rawGeometry = resultSet.getBytes("Geometry");
-				spatialObjects.add(SpatialObjectModel.createFromType(id, spatialType, rawGeometry));
+				spatialObjects.add(SpatialObjectModel.createFromType(id, name, spatialType, rawGeometry));
 			}
 		} catch (SQLException ex) {
 			throw new DataManagerException("getAllSpatialObjects: SQLException: " + ex.getMessage());
@@ -327,15 +327,15 @@ public class DataManager {
 
 		SpatialObjectTypeModel spatialObjectType = null;
 
-		String sqlQuery = "SELECT ID, Type, Color FROM Spatial_Object_Types WHERE ID=" + typeID.toString();
+		String sqlQuery = "SELECT * FROM Spatial_Object_Types WHERE ID=" + typeID.toString();
 		ResultSet resultSet = createDatabaseQuery(sqlQuery);
 
 		try {
 			if (resultSet.next()) {
 				Long id = resultSet.getLong("ID");
-				String type = resultSet.getString("Type");
+				String name = resultSet.getString("Name");
 				String colorHexString = resultSet.getString("Color");
-				spatialObjectType = new SpatialObjectTypeModel(id, type, colorHexString);
+				spatialObjectType = new SpatialObjectTypeModel(id, name, colorHexString);
 			}
 		} catch (SQLException ex) {
 			throw new DataManagerException("getType: SQLException: " + ex.getMessage());
@@ -353,16 +353,15 @@ public class DataManager {
 	public ArrayList<SpatialObjectTypeModel> getAllSpatialObjectTypes() throws DataManagerException {
 		ArrayList<SpatialObjectTypeModel> spacialTypes = new ArrayList<>();
 
-		String sqlQuery = "SELECT ID, Type, Color FROM Spatial_Object_Types";
+		String sqlQuery = "SELECT * FROM Spatial_Object_Types";
 		ResultSet resultSet = createDatabaseQuery(sqlQuery);
 
 		try {
 			while (resultSet.next()) {
 				Long id = resultSet.getLong("ID");
-				String type = resultSet.getString("Type");
-				// TODO is it type? or just name? rename DB?
+				String name = resultSet.getString("Name");
 				String colorHexString = resultSet.getString("Color");
-				spacialTypes.add(new SpatialObjectTypeModel(id, type, colorHexString));
+				spacialTypes.add(new SpatialObjectTypeModel(id, name, colorHexString));
 			}
 		} catch (SQLException ex) {
 			throw new DataManagerException("getAllSpatialObjectTypes: SQLException: " + ex.getMessage());

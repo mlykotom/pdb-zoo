@@ -13,13 +13,14 @@ DROP TABLE Spatial_Object_Types;
 
 CREATE TABLE Spatial_Object_Types (
   ID    INT                       NOT NULL,
-  Type  VARCHAR(255),
+  Name  VARCHAR(255)              NOT NULL,
   Color VARCHAR(6) DEFAULT 000000 NOT NULL,
   PRIMARY KEY (ID)
 );
 
 CREATE TABLE Spatial_Objects (
   ID       INT          NOT NULL,
+  Name     VARCHAR(255) NOT NULL,
   Type     INT          NOT NULL,
   Geometry SDO_GEOMETRY NOT NULL,
 
@@ -57,9 +58,9 @@ FOR EACH ROW
 -- INSERING DATA
 -- ----------------------------------------------------------------------------------------
 
-INSERT INTO Spatial_Object_Types (Type) VALUES ('Cage');
-INSERT INTO Spatial_Object_Types (Type) VALUES ('Restaurant');
-INSERT INTO Spatial_Object_Types (Type) VALUES ('Entry');
+INSERT INTO Spatial_Object_Types (Name) VALUES ('Cage');
+INSERT INTO Spatial_Object_Types (Name) VALUES ('Restaurant');
+INSERT INTO Spatial_Object_Types (Name) VALUES ('Entry');
 
 INSERT INTO Spatial_Objects (Type, Geometry) VALUES (
   1,

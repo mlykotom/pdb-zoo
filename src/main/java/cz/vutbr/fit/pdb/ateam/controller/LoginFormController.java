@@ -51,9 +51,9 @@ public class LoginFormController extends Controller {
 			@Override
 			protected void whenDone(boolean success) {
 				if (success){
+					form.dispose();
 					new MainFrame().setVisible(true);
 					Logger.createLog(Logger.DEBUG_LOG, "Database connected successfully.");
-					form.dispose();
 				} else {
 					JOptionPane.showMessageDialog(form,
 							"Invalid username or password!",

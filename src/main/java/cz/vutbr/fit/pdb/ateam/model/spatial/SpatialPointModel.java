@@ -2,6 +2,7 @@ package cz.vutbr.fit.pdb.ateam.model.spatial;
 
 import oracle.spatial.geometry.JGeometry;
 
+import java.awt.*;
 import java.awt.geom.Ellipse2D;
 
 /**
@@ -12,14 +13,14 @@ public class SpatialPointModel extends SpatialObjectModel {
 
 	private static final double SPATIAL_POINT_SIZE = 10;
 
-	public SpatialPointModel(long id, SpatialObjectTypeModel type, JGeometry geometry) {
-		super(id, type, geometry);
+	public SpatialPointModel(long id, String name, SpatialObjectTypeModel type, JGeometry geometry) {
+		super(id, name, type, geometry);
 	}
 
 	@Override
-	public void regenerateShape() {
+	public Shape createShape() {
 		double[] ordinates = geometry.getPoint();
-		shape = new Ellipse2D.Double(ordinates[0], ordinates[1], SPATIAL_POINT_SIZE, SPATIAL_POINT_SIZE);
+		return new Ellipse2D.Double(ordinates[0], ordinates[1], SPATIAL_POINT_SIZE, SPATIAL_POINT_SIZE);
 	}
 
 	/**
