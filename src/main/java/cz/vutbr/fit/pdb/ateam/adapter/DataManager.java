@@ -1,6 +1,7 @@
 package cz.vutbr.fit.pdb.ateam.adapter;
 
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
+import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
@@ -295,20 +296,25 @@ public class DataManager {
 
 		try {
 			while (resultSet.next()) {
-				Long id = resultSet.getLong("ID");
-				Long typeID = resultSet.getLong("Type");
-				String name = resultSet.getString("Name");
-				SpatialObjectTypeModel spatialType = getSpatialObjectType(typeID);
+				try {
+					Long id = resultSet.getLong("ID");
+					Long typeID = resultSet.getLong("Type");
+					String name = resultSet.getString("Name");
+					SpatialObjectTypeModel spatialType = getSpatialObjectType(typeID);
 
-				byte[] rawGeometry = resultSet.getBytes("Geometry");
-				spatialObjects.add(SpatialObjectModel.createFromType(id, name, spatialType, rawGeometry));
+					byte[] rawGeometry = resultSet.getBytes("Geometry");
+					spatialObjects.add(SpatialObjectModel.createFromType(id, name, spatialType, rawGeometry));
+				}
+				catch(ModelException mE){
+					Logger.createLog(Logger.ERROR_LOG, mE.getMessage());
+				}
 			}
 		} catch (SQLException ex) {
 			throw new DataManagerException("getAllSpatialObjects: SQLException: " + ex.getMessage());
 		} catch (DataManagerException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new DataManagerException("getAllSpatialObjects: JGeometry cz.vutbr.fit.pdb.ateam.exception: " + ex.getMessage());
+			throw new DataManagerException("getAllSpatialObjects: JGeometry exception: " + ex.getMessage());
 		}
 
 		return spatialObjects;
