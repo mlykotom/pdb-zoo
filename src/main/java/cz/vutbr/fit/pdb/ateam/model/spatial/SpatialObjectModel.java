@@ -1,10 +1,13 @@
 package cz.vutbr.fit.pdb.ateam.model.spatial;
 
 import cz.vutbr.fit.pdb.ateam.exception.ModelException;
+import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import oracle.spatial.geometry.JGeometry;
+import org.w3c.dom.css.Rect;
 
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 
 /**
  * Abstract representation of object in spatial DB.
@@ -69,7 +72,11 @@ abstract public class SpatialObjectModel extends BaseModel {
 	/**
 	 * Creates new shape based on class type
 	 */
-	abstract public void regenerateShape();
+	abstract public Shape createShape();
+
+	public void regenerateShape(){
+		shape = createShape();
+	}
 
 	/**
 	 * Renders spatial object into canvas
@@ -119,16 +126,21 @@ abstract public class SpatialObjectModel extends BaseModel {
 	 */
 	public void moveOnCanvas(int deltaX, int deltaY) {
 		try {
+			Rectangle2D boundRect = shape.getBounds2D();
+
+			if(boundRect.getY() + deltaY < 0) deltaY = (int) (-1 * boundRect.getY());
+			if(boundRect.getY() + boundRect.getHeight() + deltaY > ZooMapCanvas.CANVAS_DEFAULT_HEIGHT) deltaY = (int) (ZooMapCanvas.CANVAS_DEFAULT_HEIGHT - boundRect.getY() - boundRect.getHeight());
+
+			if(boundRect.getX() + deltaX < 0) deltaX = (int) (-1 * boundRect.getX());
+			if(boundRect.getX() + boundRect.getWidth() + deltaX > ZooMapCanvas.CANVAS_DEFAULT_WIDTH) deltaX = (int) (ZooMapCanvas.CANVAS_DEFAULT_WIDTH - boundRect.getX() - boundRect.getWidth());
+
 			geometry = geometry.affineTransforms(true, deltaX, deltaY, 0, false, null, 0, 0, 0, false, null, null, 0, 0, false, 0, 0, 0, 0, 0, 0, false, null, null, 0, false, new double[]{}, new double[]{});
-			//double[] x = geometry.getOrdinatesArray();
-			//Object[] w = geometry.getOrdinatesOfElements();
+			regenerateShape();
+			setIsChanged(true);
 		} catch (Exception e1) {
 			e1.printStackTrace();
-			return;
+			// TODO should show some kind of error!!
 		}
-
-		setIsChanged(true);
-		regenerateShape();
 	}
 
 	/**
