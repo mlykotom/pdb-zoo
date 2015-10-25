@@ -14,7 +14,14 @@ import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectSelectionChangeObservable;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
-import java.util.Vector;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Jakub on 24.10.2015.
@@ -31,104 +38,152 @@ public class SpatialObjectTabController extends Controller implements ISpatialOb
 
 		Utils.changePanelContent(spatialObjectsTab, spatialObjectList);
 
-		createTable();
+		fillUpSpatialObjectsTable();
 
 		SpatialObjectSelectionChangeObservable.getInstance().subscribe(this);
 	}
 
-	private void createTable() {
-		String [] columnNames = {
-				"ID", "NAME", "TYPE", ""
-		};
-
-		JTable table = new JTable(new SpatialObjectsTableModel(columnNames));
+	private void fillUpSpatialObjectsTable() {
+		SpatialObjectsTableModel tableModel = new SpatialObjectsTableModel();
+		List<SpatialObjectModel> models;
 
 		try {
-			SpatialObjectModel model = DataManager.getInstance().getAllSpatialObjects().get(0);
+			models = DataManager.getInstance().getAllSpatialObjects();
 		} catch (DataManagerException e) {
-			e.printStackTrace();
+			Logger.createLog(Logger.ERROR_LOG, e.getMessage());
+			return;
 		}
 
-		Utils.changePanelContent(spatialObjectList, table);
+		for(SpatialObjectModel model : models) {
+			tableModel.addSpatialObjectModel(model);
+		}
+
+		JTable table = new JTable(tableModel);
+
+		spatialObjectList.setSpatialObjectsTable(table);
 	}
 
+	class ButtonRenderer extends JButton implements TableCellRenderer {
+
+		public ButtonRenderer() {
+			setOpaque(true);
+		}
+
+		public Component getTableCellRendererComponent(JTable table, Object value,
+		                                               boolean isSelected, boolean hasFocus, int row, int column) {
+			if (isSelected) {
+				setForeground(table.getSelectionForeground());
+				setBackground(table.getSelectionBackground());
+			} else {
+				setForeground(table.getForeground());
+				setBackground(UIManager.getColor("Button.background"));
+			}
+			setText((value == null) ? "" : value.toString());
+			return this;
+		}
+	}
+
+	class ButtonEditor extends DefaultCellEditor {
+		protected JButton button;
+
+		private String label;
+
+		private boolean isPushed;
+
+		public ButtonEditor(JCheckBox checkBox) {
+			super(checkBox);
+			button = new JButton();
+			button.setOpaque(true);
+			button.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					fireEditingStopped();
+				}
+			});
+		}
+
+		public Component getTableCellEditorComponent(JTable table, Object value,
+		                                             boolean isSelected, int row, int column) {
+			if (isSelected) {
+				button.setForeground(table.getSelectionForeground());
+				button.setBackground(table.getSelectionBackground());
+			} else {
+				button.setForeground(table.getForeground());
+				button.setBackground(table.getBackground());
+			}
+			label = (value == null) ? "" : value.toString();
+			button.setText(label);
+			isPushed = true;
+			return button;
+		}
+
+		public Object getCellEditorValue() {
+			if (isPushed) {
+				//
+				//
+				JOptionPane.showMessageDialog(button, label + ": Ouch!");
+				// System.out.println(label + ": Ouch!");
+			}
+			isPushed = false;
+			return new String(label);
+		}
+
+		public boolean stopCellEditing() {
+			isPushed = false;
+			return super.stopCellEditing();
+		}
+
+		protected void fireEditingStopped() {
+			super.fireEditingStopped();
+		}
+	}
+
+
 	public class SpatialObjectsTableModel extends AbstractTableModel {
-		public static final int ID_INDEX = 0;
-		public static final int NAME_INDEX = 1;
-		public static final int TYPE_INDEX = 2;
+		private String[] columnNames;
+		private ArrayList<SpatialObjectModel> objectsList;
 
-		protected String[] columnNames;
-		protected Vector dataVector;
-
-		public SpatialObjectsTableModel(String[] columnNames) {
-			this.columnNames = columnNames;
-			dataVector = new Vector();
+		public SpatialObjectsTableModel() {
+			columnNames = new String[] {"ID", "NAME", "TYPE", ""};
+			objectsList = new ArrayList<>();
 		}
 
-		public String getColumnName(int column) {
-			return columnNames[column];
+		public void addSpatialObjectModel(SpatialObjectModel spatialObjectModel) {
+			objectsList.add(spatialObjectModel);
+			fireTableRowsInserted(objectsList.size() - 1, objectsList.size() - 1);
 		}
 
-		public boolean isCellEditable(int row, int column) {
-			return false;
-		}
-
-		public Class getColumnClass(int column) {
-			switch (column) {
-				case ID_INDEX:
-					return Long.class;
-				case NAME_INDEX:
-				case TYPE_INDEX:
-					return String.class;
-				default:
-					return Object.class;
-			}
-		}
-
-		public Object getValueAt(int row, int column) {
-			SpatialObjectModel spatialObjectModel = (SpatialObjectModel)dataVector.get(row);
-			switch (column) {
-				case ID_INDEX:
-					spatialObjectModel.getId();
-				case NAME_INDEX:
-					return spatialObjectModel.getName();
-				case TYPE_INDEX:
-					return spatialObjectModel.getType().getName();
-				default:
-					return new Object();
-			}
-		}
-
-		public void setValueAt(Object value, int row, int column) {
-			SpatialObjectModel spatialObjectModel = (SpatialObjectModel)dataVector.get(row);
-			switch (column) {
-				case ID_INDEX:
-					return;
-				case NAME_INDEX:
-					spatialObjectModel.setName((String) value);
-					break;
-				case TYPE_INDEX:
-					spatialObjectModel.getType().setName((String) value);
-					break;
-				default:
-					Logger.createLog(Logger.ERROR_LOG, "Out of index!");
-			}
-			fireTableCellUpdated(row, column);
-		}
-
+		@Override
 		public int getRowCount() {
-			return dataVector.size();
+			return objectsList.size();
 		}
 
+		@Override
 		public int getColumnCount() {
 			return columnNames.length;
 		}
 
-		public boolean hasEmptyRow() {
-			return false;
+		@Override
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			SpatialObjectModel spatialObjectModel = objectsList.get(rowIndex);
+
+			switch (columnIndex) {
+				case 0:
+					return spatialObjectModel.getId();
+				case 1:
+					return spatialObjectModel.getName();
+				case 2:
+					return spatialObjectModel.getType().getName();
+				default:
+					return "";
+			}
 		}
 
-		public void addEmptyRow() {
+		@Override
+		public String getColumnName(int columnIndex) {
+			if(columnIndex >= columnNames.length)
+				return "";
+
+			return columnNames[columnIndex];
 		}
 	}
 

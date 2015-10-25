@@ -11,6 +11,7 @@ import cz.vutbr.fit.pdb.ateam.utils.Utils;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 import java.awt.*;
 
 /**
@@ -20,6 +21,7 @@ public class SpatialObjectsList extends BasePanel {
 	private JPanel rootPanel;
 	private JPanel filterPanel;
 	private JPanel tablePanel;
+	private JTable spatialObjectsTable;
 	private SpatialObjectTabController controller;
 
 	public SpatialObjectsList(SpatialObjectTabController controller) {
@@ -29,22 +31,14 @@ public class SpatialObjectsList extends BasePanel {
 	}
 
 	private void initUI() {
-		String[] columnNames = {"First Name", "Last Name", ""};
-		Object[][] data =
-				{
-						{"Homer", "Simpson", "delete Homer"},
-						{"Madge", "Simpson", "delete Madge"},
-						{"Bart", "Simpson", "delete Bart"},
-						{"Lisa", "Simpson", "delete Lisa"},
-				};
 
-		DefaultTableModel model = new DefaultTableModel(data, columnNames);
-		JTable table = new JTable(model);
-
-		Utils.setComponentFixSize(table, 500, 300);
-
-		tablePanel.add(table);
 	}
+
+	public void setSpatialObjectsTable(JTable table) {
+		spatialObjectsTable = table;
+		tablePanel.add(new JScrollPane(spatialObjectsTable));
+	}
+
 
 	@Override
 	public Controller getController() {

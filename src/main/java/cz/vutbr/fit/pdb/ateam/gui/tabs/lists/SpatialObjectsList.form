@@ -37,7 +37,7 @@
           </hspacer>
         </children>
       </grid>
-      <grid id="a3b6e" binding="tablePanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+      <grid id="91e19" binding="tablePanel" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
