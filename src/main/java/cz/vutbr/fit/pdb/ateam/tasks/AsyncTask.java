@@ -27,6 +27,7 @@ public abstract class AsyncTask extends SwingWorker<Boolean, String>{
 
 	private ProgressType type;
 	private JProgressBar progressBar;
+	private int errorCode;
 
 	/**
 	 * Creates async task with dialog type
@@ -99,4 +100,8 @@ public abstract class AsyncTask extends SwingWorker<Boolean, String>{
 	 * @param success checks what doInBackground returns
 	 */
 	abstract protected void whenDone(boolean success);
+
+	protected void setErrorCode(int errorCode){ this.errorCode = errorCode; }
+
+	protected int getErrorCode(){ return this.errorCode; }
 }

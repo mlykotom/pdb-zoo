@@ -67,7 +67,7 @@ public class DataManager {
 			this.connection = ods.getConnection();
 
 		} catch (SQLException sqlEx) {
-			throw new DataManagerException("connectDatabase: SQLException: " + sqlEx.getMessage());
+			throw new DataManagerException("connectDatabase: SQLException: " + sqlEx.getMessage(), sqlEx.getErrorCode());
 		}
 	}
 

@@ -3,9 +3,9 @@ package cz.vutbr.fit.pdb.ateam.controller;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.gui.LoginForm;
 import cz.vutbr.fit.pdb.ateam.gui.MainFrame;
+import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
-import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 
 import javax.swing.*;
 
@@ -44,6 +44,7 @@ public class LoginFormController extends Controller {
 					dal.LoadDataFromDB();
 					return true;
 				} catch (DataManagerException ex) {
+					this.setErrorCode(ex.getErrorCode());
 					Logger.createLog(Logger.DEBUG_LOG, ex.getMessage());
 					return false;
 				}
@@ -56,9 +57,29 @@ public class LoginFormController extends Controller {
 					new MainFrame().setVisible(true);
 					Logger.createLog(Logger.DEBUG_LOG, "Database connected successfully.");
 				} else {
+					String errorTitle;
+					String errorMessage;
+
+					switch(this.getErrorCode()){
+						case DataManagerException.ERROR_CODE_INVALID_LOGIN:
+							errorTitle = "Login failed";
+							errorMessage = "Invalid username or password!";
+							break;
+
+						case DataManagerException.ERROR_CODE_MAX_SESSION:
+							errorTitle = "Max user per session";
+							errorMessage = "Maximum users on database per session reached!";
+							break;
+
+						default:
+							errorTitle = "Unknown error";
+							errorMessage = "Error type " + this.getErrorCode() + "happened";
+							break;
+					}
+
 					JOptionPane.showMessageDialog(form,
-							"Invalid username or password!",
-							"Login failed",
+							errorMessage,
+							errorTitle,
 							JOptionPane.ERROR_MESSAGE);
 				}
 			}
