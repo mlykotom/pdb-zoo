@@ -58,6 +58,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 	public static SpatialObjectModel createFromType(Long id, String name, SpatialObjectTypeModel spatialType, byte[] rawGeometry) throws Exception {
 		JGeometry geometry = JGeometry.load(rawGeometry);
 		SpatialObjectModel newModel;
+
 		switch (geometry.getType()) {
 
 			case JGeometry.GTYPE_POLYGON:
@@ -67,6 +68,10 @@ abstract public class SpatialObjectModel extends BaseModel {
 
 			case JGeometry.GTYPE_POINT:
 				newModel = new SpatialPointModel(id, name, spatialType, geometry);
+				break;
+
+			case JGeometry.GTYPE_CURVE:
+				newModel = new SpatialLineStringModel(id, name, spatialType, geometry);
 				break;
 
 			default:
@@ -127,11 +132,10 @@ abstract public class SpatialObjectModel extends BaseModel {
 
 	/**
 	 * Moves object some pixels defined by parameters
-	 *
-	 * @param deltaX
+	 *  @param deltaX
 	 * @param deltaY
 	 */
-	public void moveOnCanvas(int deltaX, int deltaY) {
+	public boolean moveOnCanvas(int deltaX, int deltaY) {
 		try {
 			Rectangle2D boundRect = shape.getBounds2D();
 			deltaX = isMovedInMap(boundRect, deltaX, IsInMapAxis.AXIS_X);
@@ -139,8 +143,10 @@ abstract public class SpatialObjectModel extends BaseModel {
 			geometry = geometry.affineTransforms(true, deltaX, deltaY, 0, false, null, 0, 0, 0, false, null, null, 0, 0, false, 0, 0, 0, 0, 0, 0, false, null, null, 0, false, new double[]{}, new double[]{});
 			regenerateShape();
 			setIsChanged(true);
+			return true;
 		} catch (Exception e) {
 			Logger.createLog(Logger.ERROR_LOG, "moveOnCanvas exception" + e.getMessage());
+			return false;
 		}
 	}
 
@@ -149,20 +155,20 @@ abstract public class SpatialObjectModel extends BaseModel {
 	 *
 	 * @param mouseWheelRotation specifies amount of scale
 	 */
-	public void scaleOnCanvas(int mouseWheelRotation) {
+	public boolean scaleOnCanvas(int mouseWheelRotation) {
 		try {
 			Rectangle2D boundRect = shape.getBounds2D();
 			double delta = 1 + (mouseWheelRotation * 0.05f);
 			delta = isScaledInMape(boundRect, delta);
 			JGeometry staticPoint = new JGeometry(boundRect.getCenterX(), boundRect.getCenterY(), 0);
 			geometry = geometry.affineTransforms(false, 0, 0, 0, true, staticPoint, delta, delta, 0, false, null, null, 0, 0, false, 0, 0, 0, 0, 0, 0, false, null, null, 0, false, new double[]{}, new double[]{});
+			setIsChanged(true);
+			regenerateShape();
+			return true;
 		} catch (Exception e1) {
 			e1.printStackTrace();
-			return;
+			return false;
 		}
-
-		setIsChanged(true);
-		regenerateShape();
 	}
 
 	/**

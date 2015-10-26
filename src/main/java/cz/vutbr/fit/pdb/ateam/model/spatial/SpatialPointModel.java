@@ -29,6 +29,7 @@ public class SpatialPointModel extends SpatialObjectModel {
 	 * @param mouseWheelRotation specifies amount of scale
 	 */
 	@Override
-	public void scaleOnCanvas(int mouseWheelRotation) {
+	public boolean scaleOnCanvas(int mouseWheelRotation) {
+		return false;
 	}
 }

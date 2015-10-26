@@ -101,6 +101,35 @@ INSERT INTO Spatial_Objects (Name, Type, Geometry) VALUES(
   )
 );
 
+INSERT INTO Spatial_Objects (Name, Type, Geometry) VALUES(
+  'curve_object',
+  3,
+  SDO_GEOMETRY(2002, NULL, NULL,
+               SDO_ELEM_INFO_ARRAY(1, 2, 2),
+               SDO_ORDINATE_ARRAY(400, 400, 250,250, 300, 50)
+  )
+);
+
+
+INSERT INTO Spatial_Objects (Name, Type, Geometry) VALUES(
+  'curve_object_2',
+  3,
+  SDO_GEOMETRY(2002, NULL, NULL,
+               SDO_ELEM_INFO_ARRAY(1, 2, 2),
+               SDO_ORDINATE_ARRAY(400, 400, 250,250, 300, 50)
+  )
+);
+
+INSERT INTO Spatial_Objects (Name, Type, Geometry) VALUES (
+  'circle',
+    2,
+    SDO_GEOMETRY(2003, NULL, NULL,
+        SDO_ELEM_INFO_ARRAY(1, 1003, 4),
+        SDO_ORDINATE_ARRAY(75,15, 75,95, 115,55)
+  )
+);
+
+COMMIT;
 
 -- ----------------------------------------------------------------------------------------
 -- THE END OF SCRIPT
