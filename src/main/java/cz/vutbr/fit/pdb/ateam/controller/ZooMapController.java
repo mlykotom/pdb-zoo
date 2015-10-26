@@ -40,7 +40,7 @@ public class ZooMapController extends Controller {
 	 *
 	 * @return instantiated repainted canvas
 	 */
-	public ZooMapCanvas prepareCanvas() {
+	public ZooMapCanvas prepareAndRepaintCanvas() {
 		this.canvas = new ZooMapCanvas(this);
 		canvas.repaint();
 		return canvas;
@@ -48,18 +48,29 @@ public class ZooMapController extends Controller {
 
 	/**
 	 * Reloads data into the cz.vutbr.fit.pdb.ateam.controller
-	 * SHOULD BE ASYNC !!
+	 * !!! IS ASYNC !!!
 	 *
-	 * @return success flag
 	 */
-	public boolean reloadSpatialObjects() {
-		try {
-			spatialObjects = dataManager.getAllSpatialObjects();
-			return true;
-		} catch (DataManagerException e) {
-			Logger.createLog(Logger.ERROR_LOG, e.getMessage());
-		}
-		return false;
+	public void reloadSpatialObjects() {
+		AsyncTask reloadTask = new AsyncTask() {
+			@Override
+			protected void whenDone(boolean success) {
+				if(canvas == null) return;
+				canvas.repaint();
+			}
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				try {
+					spatialObjects = dataManager.getAllSpatialObjects();
+					return true;
+				} catch (DataManagerException e) {
+					Logger.createLog(Logger.ERROR_LOG, e.getMessage());
+					return false;
+				}
+			}
+		};
+		reloadTask.start();
 	}
 
 	/**
@@ -74,7 +85,7 @@ public class ZooMapController extends Controller {
 
 	/**
 	 * Action when clicked on save button
-	 *
+	 * TODO should be ASYNC !!
 	 * @throws DataManagerException
 	 */
 	public void saveChangedSpatialObjectsAction() throws DataManagerException {
@@ -87,18 +98,7 @@ public class ZooMapController extends Controller {
 	 * Cancel any changes made to spatial objects by reloading all objects from DB
 	 */
 	public void cancelChangedSpatialObjectsAction() {
-		AsyncTask reloadTask = new AsyncTask() {
-			@Override
-			protected void whenDone(boolean success) {
-				// nothing
-			}
-
-			@Override
-			protected Boolean doInBackground() throws Exception {
-				return reloadSpatialObjects();
-			}
-		};
-		reloadTask.start();
+		reloadSpatialObjects();
 	}
 
 	/**
@@ -126,7 +126,10 @@ public class ZooMapController extends Controller {
 	 * @param objectToSelect this object will be selected and notified that was selected to all listeners
 	 */
 	public void selectSpatialObject(SpatialObjectModel objectToSelect) {
-		//if(objectToSelect.equals(this.selectedObjectOnCanvas)) return; // TODO
+		// twice clicked on map (no object selected)
+		if(objectToSelect == null && this.selectedObjectOnCanvas == null) return;
+		// twice clicked on the same object
+		if(objectToSelect != null && objectToSelect.equals(this.selectedObjectOnCanvas)) return;
 
 		// unselects all objects
 		for (SpatialObjectModel object : getSpatialObjects()) {

@@ -12,6 +12,7 @@ import javax.swing.*;
  * Content of this method is executed on a separate thread. While executing
  * doInBackground method a dialog with cancel btn is shown.
  *
+ * // TODO make adapter on this class so that cannot be called execute()
  * @author Tomas Hanus
  */
 public abstract class AsyncTask extends SwingWorker<Boolean, String>{

@@ -26,6 +26,8 @@ public class ZooMapCanvas extends BasePanel {
 	public ZooMapCanvas(ZooMapController controller) {
 		this.controller = controller;
 		initUI();
+		// asynchronously loads data
+		controller.reloadSpatialObjects();
 	}
 
 	/**
@@ -38,9 +40,6 @@ public class ZooMapCanvas extends BasePanel {
 
 		Utils.setComponentFixSize(this, CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT);
 		setBackground(CANVAS_DEFAULT_COLOR);
-
-		// should be async task
-		controller.reloadSpatialObjects();
 	}
 
 	/**
@@ -49,18 +48,18 @@ public class ZooMapCanvas extends BasePanel {
 	 * @param g
 	 */
 	public void paint(Graphics g) {
-		// TODO should return some error??
-		if (controller.getSpatialObjects().isEmpty()) return;
 		super.paint(g);
 
 		Graphics2D g2D = (Graphics2D) g;
 		g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-		for (SpatialObjectModel model : controller.getSpatialObjects()) {
-			model.render(g2D);
+		if(!controller.getSpatialObjects().isEmpty()) {
+			for (SpatialObjectModel model : controller.getSpatialObjects()) {
+				model.render(g2D);
+			}
+			g2D.setPaint(CANVAS_DEFAULT_COLOR);
 		}
-		g2D.setPaint(CANVAS_DEFAULT_COLOR);
 	}
 
 	@Override
