@@ -15,17 +15,25 @@ import java.awt.geom.Rectangle2D;
  */
 abstract public class SpatialObjectModel extends BaseModel {
 	private static final Paint DEFAULT_BORDER_COLOR = Color.BLACK;
-	private static final BasicStroke DEFAULT_STROKE_SIZE = new BasicStroke(1);
+	private static final BasicStroke DEFAULT_STROKE = new BasicStroke(1);
 
 	protected JGeometry geometry;
 	protected Shape shape;
 	protected SpatialObjectTypeModel spatialObjectType;
-	protected Paint borderColor = DEFAULT_BORDER_COLOR;
-	protected BasicStroke strokeSize = DEFAULT_STROKE_SIZE;
+	protected Paint borderColor;
+	protected BasicStroke stroke;
 
 	private enum IsInMapAxis {
 		AXIS_Y,
 		AXIS_X
+	}
+
+	protected BasicStroke getDefaultStroke(){
+		return DEFAULT_STROKE;
+	}
+
+	protected Paint getDefaultBorderColor(){
+		return DEFAULT_BORDER_COLOR;
 	}
 
 	/**
@@ -42,6 +50,9 @@ abstract public class SpatialObjectModel extends BaseModel {
 		this.name = name;
 		this.spatialObjectType = type;
 		this.geometry = geometry;
+		// children models may override color or width of border
+		this.stroke = getDefaultStroke();
+		this.borderColor = getDefaultBorderColor();
 		regenerateShape();
 	}
 
@@ -99,7 +110,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 		Shape shape = getShape();
 		g2D.setPaint(getType().getColor());
 		g2D.fill(shape);
-		g2D.setStroke(strokeSize);
+		g2D.setStroke(stroke);
 		g2D.setPaint(borderColor);
 		g2D.draw(shape);
 	}
@@ -123,10 +134,10 @@ abstract public class SpatialObjectModel extends BaseModel {
 	public void selectOnCanvas(boolean isSelected) {
 		if (isSelected) {
 			borderColor = Color.decode("#4F6CB2");
-			strokeSize = new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+			stroke = new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 		} else {
-			borderColor = DEFAULT_BORDER_COLOR;
-			strokeSize = DEFAULT_STROKE_SIZE;
+			borderColor = getDefaultBorderColor();
+			stroke = getDefaultStroke();
 		}
 	}
 

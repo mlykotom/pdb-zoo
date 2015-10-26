@@ -3,7 +3,6 @@ package cz.vutbr.fit.pdb.ateam.model.spatial;
 import oracle.spatial.geometry.JGeometry;
 
 import java.awt.*;
-import java.awt.geom.Line2D;
 
 /**
  * Created by Tomas Mlynaric on 25.10.2015.
@@ -24,11 +23,26 @@ public class SpatialLineStringModel extends SpatialObjectModel {
 	}
 
 	@Override
+	protected BasicStroke getDefaultStroke() {
+		return new BasicStroke(4);
+	}
+
+	@Override
+	protected Paint getDefaultBorderColor() {
+		return getType().getColor();
+	}
+
+	@Override
 	public Shape createShape() {
+		return geometry.createShape();
+	}
 
-		//geometry = JGeometry.createLinearLineString(geometry.getOrdinatesArray(), 0, 0);
-
-		Shape x = geometry.createShape();
-		return x;
+	@Override
+	public void render(Graphics2D g2D) {
+		Shape shape = getShape();
+		g2D.setPaint(getType().getColor());
+		g2D.setStroke(stroke);
+		g2D.setPaint(borderColor);
+		g2D.draw(shape);
 	}
 }
