@@ -129,6 +129,19 @@ INSERT INTO Spatial_Objects (Name, Type, Geometry) VALUES (
   )
 );
 
+INSERT INTO Spatial_Objects (Name, Type, Geometry) VALUES (
+  'kolekce test',
+  2,
+  SDO_GEOMETRY(2004, NULL, NULL, -- 2D collection
+               SDO_ELEM_INFO_ARRAY(1,1003,4, 7,1003,4, 13,1003,4), -- 3x exterior circle (center-bottom, right-middle, center-top)
+               SDO_ORDINATE_ARRAY(
+                   85,102.5, 87.5,105, 85,107.5, -- exterior circle, start=1
+                   85,112.5, 87.5,115, 85,117.5, -- exterior circle, start=7
+                   85,122.5, 87.5,125, 85,127.5 -- exterior circle, start=13
+               )
+  )
+);
+
 COMMIT;
 
 -- ----------------------------------------------------------------------------------------

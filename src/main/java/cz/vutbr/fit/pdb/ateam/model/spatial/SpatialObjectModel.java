@@ -72,10 +72,15 @@ abstract public class SpatialObjectModel extends BaseModel {
 
 		switch (geometry.getType()) {
 
+			case JGeometry.GTYPE_MULTIPOLYGON:
+				// TODO should be different!
+			case JGeometry.GTYPE_COLLECTION:
+				newModel = new SpatialMultiPolygonModel(id, name, spatialType, geometry);
+				break;
+
 			case JGeometry.GTYPE_POLYGON:
 				newModel = new SpatialPolygonModel(id, name, spatialType, geometry);
 				break;
-
 
 			case JGeometry.GTYPE_POINT:
 				newModel = new SpatialPointModel(id, name, spatialType, geometry);
