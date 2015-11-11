@@ -41,6 +41,7 @@ public class LoginFormController extends Controller {
 			protected Boolean doInBackground() throws Exception {
 				try {
 					dataManager.connectDatabase(form.getUserNameTextField().getText(), String.valueOf(form.getPasswordPasswordField().getPassword()));
+					dal.LoadDataFromDB();
 					return true;
 				} catch (DataManagerException ex) {
 					Logger.createLog(Logger.DEBUG_LOG, ex.getMessage());

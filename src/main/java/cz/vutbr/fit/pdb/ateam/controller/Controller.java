@@ -1,5 +1,6 @@
 package cz.vutbr.fit.pdb.ateam.controller;
 
+import cz.vutbr.fit.pdb.ateam.adapter.DAL;
 import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
 
 /**
@@ -14,11 +15,13 @@ import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
  */
 public class Controller {
 	protected DataManager dataManager;
+	protected DAL dal;
 
 	/**
 	 * Saves static DataManager instance into local variable.
 	 */
 	protected Controller() {
 		dataManager = DataManager.getInstance();
+		dal = DAL.getInstance();
 	}
 }
