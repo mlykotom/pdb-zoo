@@ -22,17 +22,18 @@ abstract public class SpatialObjectModel extends BaseModel {
 	protected SpatialObjectTypeModel spatialObjectType;
 	protected Paint borderColor;
 	protected BasicStroke stroke;
+	private boolean isSelected = false;
 
 	private enum IsInMapAxis {
 		AXIS_Y,
 		AXIS_X
 	}
 
-	protected BasicStroke getDefaultStroke(){
+	protected BasicStroke getDefaultStroke() {
 		return DEFAULT_STROKE;
 	}
 
-	protected Paint getDefaultBorderColor(){
+	protected Paint getDefaultBorderColor() {
 		return DEFAULT_BORDER_COLOR;
 	}
 
@@ -40,7 +41,8 @@ abstract public class SpatialObjectModel extends BaseModel {
 	 * Setups object and creates shape for graphic representation from jGeometry.
 	 * It's protected so that it's not possible to instantiate the class
 	 * otherwise than by {@link #createFromType(Long, String, SpatialObjectTypeModel, byte[])}
-	 *  @param id
+	 *
+	 * @param id
 	 * @param name
 	 * @param type     association to object type (basket, house, path, ...)
 	 * @param geometry spatial data
@@ -134,13 +136,15 @@ abstract public class SpatialObjectModel extends BaseModel {
 	/**
 	 * Determines graphics while is selected or not
 	 *
-	 * @param isSelected
+	 * @param selected
 	 */
-	public void selectOnCanvas(boolean isSelected) {
-		if (isSelected) {
+	public void selectOnCanvas(boolean selected) {
+		if (selected) {
+			this.isSelected = true;
 			borderColor = Color.decode("#4F6CB2");
-			stroke = new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+			stroke = new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 		} else {
+			this.isSelected = false;
 			borderColor = getDefaultBorderColor();
 			stroke = getDefaultStroke();
 		}
@@ -148,7 +152,8 @@ abstract public class SpatialObjectModel extends BaseModel {
 
 	/**
 	 * Moves object some pixels defined by parameters
-	 *  @param deltaX
+	 *
+	 * @param deltaX
 	 * @param deltaY
 	 */
 	public boolean moveOnCanvas(int deltaX, int deltaY) {
@@ -282,10 +287,17 @@ abstract public class SpatialObjectModel extends BaseModel {
 
 	// ---- GETTERS && SETTERS ---- //
 
-
 	@Override
 	public String getTableName() {
 		return "Spatial_Objects";
+	}
+
+	public boolean isSelected() {
+		return isSelected;
+	}
+
+	public void setSelected(boolean selected) {
+		isSelected = selected;
 	}
 
 	public Shape getShape() {

@@ -70,9 +70,17 @@ public class ZooMapCanvas extends BasePanel {
 		if(!controller.getSpatialObjects().isEmpty()) {
 			SpatialObjectModel renderLatest = null;
 			for (SpatialObjectModel model : controller.getSpatialObjects()) {
-//				if(model)renderLatest
+				if(model.isSelected()){
+					renderLatest = model;
+					continue;
+				}
 				model.render(g2D);
 			}
+
+			if(renderLatest != null){
+				renderLatest.render(g2D);
+			}
+
 			g2D.setPaint(CANVAS_DEFAULT_COLOR);
 		}
 	}
