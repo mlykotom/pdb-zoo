@@ -69,7 +69,7 @@ abstract public class BaseModel {
 	}
 
 	public boolean isChanged() {
-		return isChanged;
+		return isNew() || isChanged;
 	}
 
 	public Long getId() {

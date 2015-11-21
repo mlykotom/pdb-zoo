@@ -60,9 +60,10 @@ public class ZooMapPanel extends JPanel {
 
 	/**
 	 * Shows selected object name on the bottom of the panel & shows wrapper
+	 *
 	 * @param name
 	 */
-	public void setSelecteObject(String name){
+	public void setSelecteObject(String name) {
 		selectedObjectName.setText(name);
 		selectedObjectWrapper.setVisible(true);
 	}
@@ -70,7 +71,7 @@ public class ZooMapPanel extends JPanel {
 	/**
 	 * Hides selected object name on the bottom of the panel & hides wrapper
 	 */
-	public void setUnselectedObject(){
+	public void setUnselectedObject() {
 		selectedObjectName.setText("");
 		selectedObjectWrapper.setVisible(false);
 	}

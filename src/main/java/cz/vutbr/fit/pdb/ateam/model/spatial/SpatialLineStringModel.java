@@ -18,7 +18,7 @@ public class SpatialLineStringModel extends SpatialObjectModel {
 	 * @param type     association to object type (basket, house, path, ...)
 	 * @param geometry spatial data
 	 */
-	protected SpatialLineStringModel(long id, String name, SpatialObjectTypeModel type, JGeometry geometry) {
+	public SpatialLineStringModel(long id, String name, SpatialObjectTypeModel type, JGeometry geometry) {
 		super(id, name, type, geometry);
 	}
 

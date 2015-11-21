@@ -1,13 +1,23 @@
 package cz.vutbr.fit.pdb.ateam.gui.map;
 
+import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
 import cz.vutbr.fit.pdb.ateam.controller.Controller;
 import cz.vutbr.fit.pdb.ateam.controller.ZooMapController;
+import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.gui.BasePanel;
+import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialLineStringModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
+import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
+import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
+import cz.vutbr.fit.pdb.ateam.utils.Logger;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
+import javafx.util.Pair;
+import oracle.spatial.geometry.JGeometry;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.*;
+import java.util.ArrayList;
 
 /**
  * Class paints spatial objects into JPanel, so user can better see
@@ -23,10 +33,11 @@ public class ZooMapCanvas extends BasePanel {
 
 	private final ZooMapController controller;
 
-	public ZooMapCanvas(ZooMapController controller) {
+	public ZooMapCanvas(final ZooMapController controller) {
 		this.controller = controller;
 		initUI();
-		// asynchronously loads data
+
+		// async reload spatial objects
 		controller.reloadSpatialObjects();
 	}
 
