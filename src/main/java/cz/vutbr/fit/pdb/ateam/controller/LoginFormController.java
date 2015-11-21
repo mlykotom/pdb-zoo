@@ -41,7 +41,7 @@ public class LoginFormController extends Controller {
 			protected Boolean doInBackground() throws Exception {
 				try {
 					dataManager.connectDatabase(form.getUserNameTextField().getText(), String.valueOf(form.getPasswordPasswordField().getPassword()));
-					dal.LoadDataFromDB();
+					reloadAllData();
 					return true;
 				} catch (DataManagerException ex) {
 					this.setErrorCode(ex.getErrorCode());

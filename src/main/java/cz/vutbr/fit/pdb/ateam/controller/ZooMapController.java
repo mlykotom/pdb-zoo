@@ -4,12 +4,13 @@ import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapPanel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
-import cz.vutbr.fit.pdb.ateam.observer.ContentPanelObserverSubject;
-import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
-import cz.vutbr.fit.pdb.ateam.utils.Logger;
+import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectSelectionChangeObservable;
+import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectsReloadObservable;
 
-import java.awt.event.*;
-import java.util.ArrayList;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
 /**
  * Class controls all events occurred in ZooMapForm.
@@ -17,10 +18,9 @@ import java.util.ArrayList;
  * @author Jakub Tutko
  * @author Tomas Mlynaric
  */
-public class ZooMapController extends Controller {
+public class ZooMapController extends Controller implements SpatialObjectsReloadObservable.SpatialObjectsReloadListener {
 	private ZooMapPanel form;
 	private ZooMapCanvas canvas;
-	private ArrayList<SpatialObjectModel> spatialObjects = new ArrayList<>();
 	private SpatialObjectModel selectedObjectOnCanvas;
 
 	/**
@@ -32,6 +32,7 @@ public class ZooMapController extends Controller {
 	 */
 	public ZooMapController(ZooMapPanel zooMapPanel) {
 		super();
+		SpatialObjectsReloadObservable.getInstance().subscribe(this);
 		this.form = zooMapPanel;
 	}
 
@@ -47,33 +48,6 @@ public class ZooMapController extends Controller {
 	}
 
 	/**
-	 * Reloads data into the cz.vutbr.fit.pdb.ateam.controller
-	 * !!! IS ASYNC !!!
-	 *
-	 */
-	public void reloadSpatialObjects() {
-		AsyncTask reloadTask = new AsyncTask() {
-			@Override
-			protected void whenDone(boolean success) {
-				if(canvas == null) return;
-				canvas.repaint();
-			}
-
-			@Override
-			protected Boolean doInBackground() throws Exception {
-				try {
-					spatialObjects = dataManager.getAllSpatialObjects();
-					return true;
-				} catch (DataManagerException e) {
-					Logger.createLog(Logger.ERROR_LOG, e.getMessage());
-					return false;
-				}
-			}
-		};
-		reloadTask.start();
-	}
-
-	/**
 	 * Save one spatial object to DB
 	 *
 	 * @param model spatial object must be changed, otherwise skipped
@@ -86,10 +60,11 @@ public class ZooMapController extends Controller {
 	/**
 	 * Action when clicked on save button
 	 * TODO should be ASYNC !!
+	 *
 	 * @throws DataManagerException
 	 */
 	public void saveChangedSpatialObjectsAction() throws DataManagerException {
-		for (SpatialObjectModel spatialObject : spatialObjects) {
+		for (SpatialObjectModel spatialObject : getSpatialObjects()) {
 			saveSpatialObject(spatialObject);
 		}
 	}
@@ -102,6 +77,15 @@ public class ZooMapController extends Controller {
 	}
 
 	/**
+	 * Fires when spatial objects are reloaded
+	 */
+	@Override
+	public void spatialObjectsReloadListener() {
+		if (canvas == null) return;
+		canvas.repaint();
+	}
+
+	/**
 	 * Iterates through whole list and checks if any of spatial objects is in point specified by ordinates
 	 *
 	 * @param pointedX
@@ -109,7 +93,7 @@ public class ZooMapController extends Controller {
 	 * @return
 	 */
 	public SpatialObjectModel getObjectFromCanvas(int pointedX, int pointedY) {
-		for (SpatialObjectModel spatialObject : spatialObjects) {
+		for (SpatialObjectModel spatialObject : getSpatialObjects()) {
 			if (!spatialObject.isWithin(pointedX, pointedY)) {
 				continue;
 			}
@@ -127,26 +111,25 @@ public class ZooMapController extends Controller {
 	 */
 	public void selectSpatialObject(SpatialObjectModel objectToSelect) {
 		// twice clicked on map (no object selected)
-		if(objectToSelect == null && this.selectedObjectOnCanvas == null) return;
+		if (objectToSelect == null && this.selectedObjectOnCanvas == null) return;
 		// twice clicked on the same object
-		if(objectToSelect != null && objectToSelect.equals(this.selectedObjectOnCanvas)) return;
+		if (objectToSelect != null && objectToSelect.equals(this.selectedObjectOnCanvas)) return;
 
 		// unselects all objects
 		for (SpatialObjectModel object : getSpatialObjects()) {
 			object.selectOnCanvas(false);
 		}
 
-		if(objectToSelect == null){
+		if (objectToSelect == null) {
 			form.setUnselectedObject();
 			this.selectedObjectOnCanvas = null;
-			ContentPanelObserverSubject.getInstance().notifyAllObjectSelectionChangedListeners(null);
-		}
-		else {
+		} else {
 			objectToSelect.selectOnCanvas(true);
 			form.setSelecteObject(objectToSelect.getName());
 			this.selectedObjectOnCanvas = objectToSelect;
-			ContentPanelObserverSubject.getInstance().notifyAllObjectSelectionChangedListeners(objectToSelect);
 		}
+
+		SpatialObjectSelectionChangeObservable.getInstance().notifyObservers(this.selectedObjectOnCanvas);
 	}
 
 	/**
@@ -240,8 +223,4 @@ public class ZooMapController extends Controller {
 			canvas.repaint();
 		}
 	};
-
-	public ArrayList<SpatialObjectModel> getSpatialObjects() {
-		return spatialObjects;
-	}
 }
