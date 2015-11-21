@@ -51,7 +51,7 @@ public class LoginFormController extends Controller {
 			}
 
 			@Override
-			protected void whenDone(boolean success) {
+			protected void onDone(boolean success) {
 				if (success){
 					form.dispose();
 					new MainFrame().setVisible(true);

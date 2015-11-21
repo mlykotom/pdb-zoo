@@ -44,7 +44,7 @@ public class Controller {
 	public void reloadSpatialObjects() {
 		AsyncTask task = new AsyncTask() {
 			@Override
-			protected void whenDone(boolean success) {
+			protected void onDone(boolean success) {
 				SpatialObjectsReloadObservable.getInstance().notifyObservers();
 			}
 

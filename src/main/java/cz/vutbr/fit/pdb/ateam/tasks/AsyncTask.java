@@ -7,21 +7,23 @@ import javax.swing.*;
 /**
  * This is abstract class representing an asynchronous task that requires
  * a longer execution time.
- * <p>
+ * <p/>
  * To use this Async task you have to override doInBackground() void method.
  * Content of this method is executed on a separate thread. While executing
  * doInBackground method a dialog with cancel btn is shown.
- *
+ * <p/>
  * // TODO make adapter on this class so that cannot be called execute()
+ *
  * @author Tomas Hanus
+ * @author Tomas Mlynaric
  */
-public abstract class AsyncTask extends SwingWorker<Boolean, String>{
+public abstract class AsyncTask extends SwingWorker<Boolean, String> {
 	private LoadingDialogController loadingDialogController;
 
 	/**
 	 * Allowed ways of creating async task
 	 */
-	private enum ProgressType{
+	private enum ProgressType {
 		TYPE_DIALOG,
 		TYPE_PROGRESSBAR,
 	}
@@ -39,9 +41,10 @@ public abstract class AsyncTask extends SwingWorker<Boolean, String>{
 
 	/**
 	 * Creates async task with progressbar type
+	 *
 	 * @param progressPanel progress bar in GUI
 	 */
-	public AsyncTask(JProgressBar progressPanel){
+	public AsyncTask(JProgressBar progressPanel) {
 		this.type = ProgressType.TYPE_PROGRESSBAR;
 		this.progressBar = progressPanel;
 	}
@@ -53,7 +56,7 @@ public abstract class AsyncTask extends SwingWorker<Boolean, String>{
 	@Override
 	protected void done() {
 		super.done();
-		switch (this.type){
+		switch (this.type) {
 			case TYPE_DIALOG:
 				this.loadingDialogController.disposeDialog();
 				break;
@@ -62,7 +65,7 @@ public abstract class AsyncTask extends SwingWorker<Boolean, String>{
 				break;
 		}
 
-		whenDone(isComplete());
+		onDone(isComplete());
 	}
 
 	/**
@@ -70,7 +73,7 @@ public abstract class AsyncTask extends SwingWorker<Boolean, String>{
 	 *
 	 * @return Returns True if process of asyncTask was completed, False if not.
 	 */
-	private boolean isComplete(){
+	private boolean isComplete() {
 		try {
 			return get();
 		} catch (Exception e) {
@@ -78,13 +81,12 @@ public abstract class AsyncTask extends SwingWorker<Boolean, String>{
 		}
 	}
 
-
 	/**
 	 * Correctly handles start of async task based on type
 	 */
-	public void start(){
+	public void start() {
 		this.execute();
-		switch (this.type){
+		switch (this.type) {
 			case TYPE_DIALOG:
 				this.loadingDialogController = new LoadingDialogController(this);
 				loadingDialogController.showDialog(true);
@@ -98,11 +100,27 @@ public abstract class AsyncTask extends SwingWorker<Boolean, String>{
 
 	/**
 	 * Correctly handles when async task ends
+	 *
 	 * @param success checks what doInBackground returns
 	 */
-	abstract protected void whenDone(boolean success);
+	abstract protected void onDone(boolean success);
 
-	protected void setErrorCode(int errorCode){ this.errorCode = errorCode; }
+	/**
+	 * When error code inside background thread, we can push it to method {@link #onDone(boolean)}
+	 * Later code rewrite earliers!
+	 *
+	 * @param errorCode any code related with caller (e.g. DB error code)
+	 */
+	protected void setErrorCode(int errorCode) {
+		this.errorCode = errorCode;
+	}
 
-	protected int getErrorCode(){ return this.errorCode; }
+	/**
+	 * Gets error code which was set in method {@link #setErrorCode(int)}
+	 *
+	 * @return error code
+	 */
+	protected int getErrorCode() {
+		return this.errorCode;
+	}
 }
