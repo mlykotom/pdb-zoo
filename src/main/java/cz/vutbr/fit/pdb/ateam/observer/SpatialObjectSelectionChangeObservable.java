@@ -15,7 +15,7 @@ public class SpatialObjectSelectionChangeObservable extends SimpleObservable<ISp
 
 	@Override
 	public void notifyObservers(Object spatialObjectModel) {
-		if (!(spatialObjectModel instanceof SpatialObjectModel))
+		if (spatialObjectModel != null && !(spatialObjectModel instanceof SpatialObjectModel))
 			throw new ClassCastException("Observer must be type SpatialObjectModel");
 
 		for (ISpatialObjectSelectionChangedListener listener : getObservableList()) {

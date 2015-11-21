@@ -8,6 +8,7 @@ import cz.vutbr.fit.pdb.ateam.gui.BasePanel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialLineStringModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
+import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectsReloadObservable;
 import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
@@ -67,7 +68,9 @@ public class ZooMapCanvas extends BasePanel {
 		g2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
 		if(!controller.getSpatialObjects().isEmpty()) {
+			SpatialObjectModel renderLatest = null;
 			for (SpatialObjectModel model : controller.getSpatialObjects()) {
+//				if(model)renderLatest
 				model.render(g2D);
 			}
 			g2D.setPaint(CANVAS_DEFAULT_COLOR);

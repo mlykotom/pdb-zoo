@@ -4,9 +4,11 @@ import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapPanel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
+import cz.vutbr.fit.pdb.ateam.observer.ISpatialObjectSelectionChangedListener;
 import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectSelectionChangeObservable;
 import cz.vutbr.fit.pdb.ateam.observer.ISpatialObjectsReloadListener;
 import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectsReloadObservable;
+import cz.vutbr.fit.pdb.ateam.utils.Logger;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -19,7 +21,7 @@ import java.awt.event.MouseWheelListener;
  * @author Jakub Tutko
  * @author Tomas Mlynaric
  */
-public class ZooMapController extends Controller implements ISpatialObjectsReloadListener {
+public class ZooMapController extends Controller implements ISpatialObjectsReloadListener, ISpatialObjectSelectionChangedListener {
 	private ZooMapPanel form;
 	private ZooMapCanvas canvas;
 	private SpatialObjectModel selectedObjectOnCanvas;
@@ -34,6 +36,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	public ZooMapController(ZooMapPanel zooMapPanel) {
 		super();
 		SpatialObjectsReloadObservable.getInstance().subscribe(this);
+		SpatialObjectSelectionChangeObservable.getInstance().subscribe(this);
 		this.form = zooMapPanel;
 	}
 
@@ -87,22 +90,24 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	}
 
 	/**
-	 * Iterates through whole list and checks if any of spatial objects is in point specified by ordinates
+	 * Iterates through whole list and checks if any of spatial objects is in point specified by ordinates.
+	 * If more than one object on coordinate, selects latest in list
 	 *
-	 * @param pointedX
-	 * @param pointedY
-	 * @return
+	 * @param pointedX x-coordinate on map
+	 * @param pointedY y-coordinate on map
+	 * @return spatial object|null
 	 */
 	public SpatialObjectModel getObjectFromCanvas(int pointedX, int pointedY) {
+		SpatialObjectModel retObject = null;
+
 		for (SpatialObjectModel spatialObject : getSpatialObjects()) {
 			if (!spatialObject.isWithin(pointedX, pointedY)) {
 				continue;
 			}
-
-			return spatialObject;
+			retObject = spatialObject;
 		}
 
-		return null;
+		return retObject;
 	}
 
 	/**
@@ -121,16 +126,26 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 			object.selectOnCanvas(false);
 		}
 
-		if (objectToSelect == null) {
+		SpatialObjectSelectionChangeObservable.getInstance().notifyObservers(objectToSelect);
+	}
+
+	/**
+	 * Fires when spatial object is selected on zoo map canvas.
+	 *
+	 * @param spatialObjectModel selected spatial object model
+	 */
+	@Override
+	public void spatialObjectSelectionChangedListener(SpatialObjectModel spatialObjectModel) {
+		Logger.createLog(Logger.DEBUG_LOG, "AHOJ");
+
+		if (spatialObjectModel == null) {
 			form.setUnselectedObject();
 			this.selectedObjectOnCanvas = null;
 		} else {
-			objectToSelect.selectOnCanvas(true);
-			form.setSelecteObject(objectToSelect.getName());
-			this.selectedObjectOnCanvas = objectToSelect;
+			spatialObjectModel.selectOnCanvas(true);
+			form.setSelecteObject(spatialObjectModel.getName());
+			this.selectedObjectOnCanvas = spatialObjectModel;
 		}
-
-		SpatialObjectSelectionChangeObservable.getInstance().notifyObservers(this.selectedObjectOnCanvas);
 	}
 
 	/**
