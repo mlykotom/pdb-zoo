@@ -11,15 +11,13 @@ public class SpatialLineStringModel extends SpatialObjectModel {
 	/**
 	 * Setups object and creates shape for graphic representation from jGeometry.
 	 * It's protected so that it's not possible to instantiate the class
-	 * otherwise than by {@link #createFromType(Long, String, SpatialObjectTypeModel, byte[])}
-	 *
-	 * @param id
-	 * @param name
+	 * otherwise than by {@link #loadFromDB(Long, String, SpatialObjectTypeModel, byte[])}
+	 *  @param name
 	 * @param type     association to object type (basket, house, path, ...)
 	 * @param geometry spatial data
 	 */
-	public SpatialLineStringModel(long id, String name, SpatialObjectTypeModel type, JGeometry geometry) {
-		super(id, name, type, geometry);
+	public SpatialLineStringModel(String name, SpatialObjectTypeModel type, JGeometry geometry) {
+		super(name, type, geometry);
 	}
 
 	@Override

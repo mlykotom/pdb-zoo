@@ -4,8 +4,8 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import cz.vutbr.fit.pdb.ateam.controller.ZooMapController;
-import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.gui.ContentPanel;
+import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectCreatingObservable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,6 +24,7 @@ public class ZooMapPanel extends JPanel {
 	private JButton cancelButton;
 	private JLabel selectedObjectName;
 	private JPanel selectedObjectWrapper;
+	private JButton newButton;
 
 	public ZooMapPanel(ContentPanel mainPanel) {
 		this.mainPanel = mainPanel;
@@ -41,12 +42,14 @@ public class ZooMapPanel extends JPanel {
 		saveButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent actionEvent) {
-				try {
-					controller.saveChangedSpatialObjectsAction();
-				} catch (DataManagerException e) {
-					// TODO should show error dialog
-					e.printStackTrace();
-				}
+				controller.saveSpatialObjectsAction();
+			}
+		});
+
+		newButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				SpatialObjectCreatingObservable.getInstance().notifyObservers();
 			}
 		});
 
@@ -92,18 +95,18 @@ public class ZooMapPanel extends JPanel {
 	 */
 	private void $$$setupUI$$$() {
 		rootPanel = new JPanel();
-		rootPanel.setLayout(new GridLayoutManager(2, 5, new Insets(20, 20, 20, 20), -1, -1));
+		rootPanel.setLayout(new GridLayoutManager(2, 6, new Insets(20, 20, 20, 20), -1, -1));
 		mapPanel = new JPanel();
 		mapPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
 		mapPanel.setBackground(new Color(-1));
-		rootPanel.add(mapPanel, new GridConstraints(0, 0, 1, 5, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		rootPanel.add(mapPanel, new GridConstraints(0, 0, 1, 6, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		mapPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(-16777216)), null));
 		saveButton = new JButton();
-		saveButton.setText("Save");
-		rootPanel.add(saveButton, new GridConstraints(1, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		saveButton.setText("Save all");
+		rootPanel.add(saveButton, new GridConstraints(1, 5, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		cancelButton = new JButton();
 		cancelButton.setText("Discard + Reload");
-		rootPanel.add(cancelButton, new GridConstraints(1, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		rootPanel.add(cancelButton, new GridConstraints(1, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final Spacer spacer1 = new Spacer();
 		rootPanel.add(spacer1, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
 		selectedObjectWrapper = new JPanel();
@@ -115,6 +118,9 @@ public class ZooMapPanel extends JPanel {
 		selectedObjectName = new JLabel();
 		selectedObjectName.setText("");
 		selectedObjectWrapper.add(selectedObjectName);
+		newButton = new JButton();
+		newButton.setText("Temp New");
+		rootPanel.add(newButton, new GridConstraints(1, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 	}
 
 	/**

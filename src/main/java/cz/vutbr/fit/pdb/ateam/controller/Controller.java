@@ -1,13 +1,16 @@
 package cz.vutbr.fit.pdb.ateam.controller;
 
 import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
+import cz.vutbr.fit.pdb.ateam.exception.ControllerException;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
+import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectsReloadObservable;
 import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class for managing all view events.
@@ -35,6 +38,47 @@ public class Controller {
 	 */
 	public void reloadAllData() {
 		reloadSpatialObjects();
+	}
+
+	/**
+	 * Save any changed model to the database.
+	 *
+	 * @param modelToSave spatial object must be changed (flag {@link BaseModel#isChanged()}), otherwise skipped
+	 * @throws ControllerException
+	 */
+	public void saveModel(BaseModel modelToSave) throws Exception {
+		ArrayList<BaseModel> list = new ArrayList<>();
+		list.add(modelToSave);
+		saveModels(list);
+	}
+
+	public void saveModels(List<? extends BaseModel> modelsToSave) {
+		AsyncTask saveTask = new AsyncTask() {
+			@Override
+			protected void onDone(boolean success) {
+				// TODO notify?
+			}
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				for (BaseModel model : getSpatialObjects()) {
+					long idOfModel;
+					// TODO need to specify which models can be saved
+					if (model instanceof SpatialObjectModel) {
+						idOfModel = dataManager.saveSpatial((SpatialObjectModel) model);
+					} else {
+						throw new ControllerException("saveModel(): Unsupported model to save");
+					}
+
+					if (idOfModel > 0)
+						Logger.createLog(Logger.DEBUG_LOG, String.format("Model %s (id %d) was saved successfully", model.getClass(),model.getId()));
+
+				}
+				return false;
+			}
+		};
+
+		saveTask.start();
 	}
 
 	/**

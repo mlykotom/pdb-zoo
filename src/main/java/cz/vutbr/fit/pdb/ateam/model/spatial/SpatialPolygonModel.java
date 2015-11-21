@@ -9,8 +9,8 @@ import java.awt.*;
  * Created by Tomas Mlynaric on 20.10.2015.
  */
 public class SpatialPolygonModel extends SpatialObjectModel {
-	public SpatialPolygonModel(long id, String name, SpatialObjectTypeModel type, JGeometry geometry) throws Exception {
-		super(id, name, type, geometry);
+	public SpatialPolygonModel(String name, SpatialObjectTypeModel type, JGeometry geometry) {
+		super(name, type, geometry);
 	}
 
 	@Override

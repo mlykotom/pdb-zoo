@@ -1,14 +1,14 @@
 package cz.vutbr.fit.pdb.ateam.controller;
 
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
+import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapPanel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
-import cz.vutbr.fit.pdb.ateam.observer.ISpatialObjectSelectionChangedListener;
-import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectSelectionChangeObservable;
-import cz.vutbr.fit.pdb.ateam.observer.ISpatialObjectsReloadListener;
-import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectsReloadObservable;
+import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialPolygonModel;
+import cz.vutbr.fit.pdb.ateam.observer.*;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
+import oracle.spatial.geometry.JGeometry;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -21,7 +21,7 @@ import java.awt.event.MouseWheelListener;
  * @author Jakub Tutko
  * @author Tomas Mlynaric
  */
-public class ZooMapController extends Controller implements ISpatialObjectsReloadListener, ISpatialObjectSelectionChangedListener {
+public class ZooMapController extends Controller implements ISpatialObjectsReloadListener, ISpatialObjectSelectionChangedListener, ISpatialObjectCreatingListener {
 	private ZooMapPanel form;
 	private ZooMapCanvas canvas;
 	private SpatialObjectModel selectedObjectOnCanvas;
@@ -37,6 +37,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		super();
 		SpatialObjectsReloadObservable.getInstance().subscribe(this);
 		SpatialObjectSelectionChangeObservable.getInstance().subscribe(this);
+		SpatialObjectCreatingObservable.getInstance().subscribe(this);
 		this.form = zooMapPanel;
 	}
 
@@ -63,14 +64,9 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 
 	/**
 	 * Action when clicked on save button
-	 * TODO should be ASYNC !!
-	 *
-	 * @throws DataManagerException
 	 */
-	public void saveChangedSpatialObjectsAction() throws DataManagerException {
-		for (SpatialObjectModel spatialObject : getSpatialObjects()) {
-			saveSpatialObject(spatialObject);
-		}
+	public void saveSpatialObjectsAction() {
+		saveModels(getSpatialObjects());
 	}
 
 	/**
@@ -136,17 +132,48 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	 */
 	@Override
 	public void spatialObjectSelectionChangedListener(SpatialObjectModel spatialObjectModel) {
-		Logger.createLog(Logger.DEBUG_LOG, "AHOJ");
-
 		if (spatialObjectModel == null) {
 			form.setUnselectedObject();
 			this.selectedObjectOnCanvas = null;
 		} else {
 			spatialObjectModel.selectOnCanvas(true);
-			form.setSelecteObject(spatialObjectModel.getName());
+			form.setSelecteObject(spatialObjectModel.getId() + "|" + spatialObjectModel.getName());
 			this.selectedObjectOnCanvas = spatialObjectModel;
 		}
 	}
+
+	/**
+	 * Handler when mouse is scrolled in canvas - handles scaling spatial objects
+	 */
+	public MouseWheelListener scaleHandler = new MouseWheelListener() {
+		private static final int MOUSE_WHEEL_TIMER_DELAY = 500;
+		private SpatialObjectModel selectedObject;
+
+		public void mouseWheelMoved(MouseWheelEvent mouseEvent) {
+			if (mouseEvent.getScrollType() != MouseWheelEvent.WHEEL_UNIT_SCROLL) {
+				return;
+			}
+
+			int pointX = mouseEvent.getX();
+			int pointY = mouseEvent.getY();
+
+			// this allows to scale only objects within mouse pointer
+			if (selectedObject != null && !selectedObject.isWithin(pointX, pointY)) {
+				selectedObject = null;
+			}
+
+			// check if selected object to reduce operations
+			if (selectedObject == null) {
+				selectedObject = getObjectFromCanvas(pointX, pointY);
+				// second check - if we still didn't select any
+				if (selectedObject == null) return;
+			}
+
+			int scaleDelta = mouseEvent.getWheelRotation();
+			selectedObject.scaleOnCanvas(scaleDelta);
+			canvas.repaint();
+		}
+	};
 
 	/**
 	 * Handler for mouse movement in canvas - handles moving objects
@@ -208,35 +235,21 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	};
 
 	/**
-	 * Handler when mouse is scrolled in canvas - handles scaling spatial objects
+	 * Fires when spatial objects are reloaded
 	 */
-	public MouseWheelListener scaleHandler = new MouseWheelListener() {
-		private static final int MOUSE_WHEEL_TIMER_DELAY = 500;
-		private SpatialObjectModel selectedObject;
-
-		public void mouseWheelMoved(MouseWheelEvent mouseEvent) {
-			if (mouseEvent.getScrollType() != MouseWheelEvent.WHEEL_UNIT_SCROLL) {
-				return;
-			}
-
-			int pointX = mouseEvent.getX();
-			int pointY = mouseEvent.getY();
-
-			// this allows to scale only objects within mouse pointer
-			if (selectedObject != null && !selectedObject.isWithin(pointX, pointY)) {
-				selectedObject = null;
-			}
-
-			// check if selected object to reduce operations
-			if (selectedObject == null) {
-				selectedObject = getObjectFromCanvas(pointX, pointY);
-				// second check - if we still didn't select any
-				if (selectedObject == null) return;
-			}
-
-			int scaleDelta = mouseEvent.getWheelRotation();
-			selectedObject.scaleOnCanvas(scaleDelta);
-			canvas.repaint();
+	@Override
+	public void spatialObjectsCreatingListener() {
+		JGeometry geom = new JGeometry(100.0, 100.0, 200.0, 200.0, 0);
+		SpatialObjectModel n = null;
+		try {
+			n = SpatialObjectModel.createFromJGeometry("<<new>>", dataManager.getSpatialObjectType(2L), geom);
+		} catch (ModelException | DataManagerException e) {
+			e.printStackTrace();
 		}
-	};
+
+		getSpatialObjects().add(n);
+
+		if (canvas == null) return;
+		canvas.repaint();
+	}
 }

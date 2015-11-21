@@ -5,12 +5,11 @@ package cz.vutbr.fit.pdb.ateam.model;
  * Created by Tomas Mlynaric on 20.10.2015.
  */
 abstract public class BaseModel {
-	private long id;
+	protected long id;
 	protected String name;
 	protected boolean isChanged = false;
 
-	public BaseModel(long id) {
-		this.id = id;
+	public BaseModel() {
 	}
 
 	public BaseModel(long id, String name) {
@@ -70,6 +69,11 @@ abstract public class BaseModel {
 
 	public boolean isChanged() {
 		return isNew() || isChanged;
+	}
+
+	// TODO shouln't be this way, because we can easily change object's primary key!
+	public void setId(Long id){
+		this.id = id;
 	}
 
 	public Long getId() {

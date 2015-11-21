@@ -231,15 +231,15 @@ public class DataManager {
 	 * @param spatialObject object, which is filled up with all mandatory fields
 	 * @throws DataManagerException when some mandatory field is missing or when exception
 	 *                              from createDatabaseUpdate() is received
+	 * @return id of save model (0 if not successfull, > 0 if ok)
 	 */
-	public boolean saveSpatial(SpatialObjectModel spatialObject) throws DataManagerException {
+	public long saveSpatial(SpatialObjectModel spatialObject) throws DataManagerException {
 		if (spatialObject == null) {
 			throw new DataManagerException("saveSpatial: Null spatialObject received!");
 		}
 
 		if (!spatialObject.isChanged()) {
-			Logger.createLog(Logger.DEBUG_LOG, String.format("Skipping updating model %d (not changed)", spatialObject.getId()));
-			return false;
+			return 0;
 		}
 
 		if (spatialObject.getType() == null) {
@@ -252,33 +252,41 @@ public class DataManager {
 		String sqlPrep;
 
 		if (spatialObject.isNew()) {
-			sqlPrep = "INSERT INTO Spatial_Objects (Type, Geometry) VALUES(?, ?)";
+			sqlPrep = "INSERT INTO Spatial_Objects (Name, Type, Geometry) VALUES(?, ?, ?)";
 		} else {
-			sqlPrep = "UPDATE Spatial_Objects SET Type = ?, Geometry = ? WHERE ID = ?";
+			sqlPrep = "UPDATE Spatial_Objects SET Name = ?, Type = ?, Geometry = ? WHERE ID = ?";
 		}
 
 		try {
 			OraclePreparedStatement preparedStatement = (OraclePreparedStatement) connection.prepareStatement(sqlPrep);
-			preparedStatement.setLong(1, spatialObject.getType().getId());
-			preparedStatement.setObject(2, JGeometry.store(connection, spatialObject.getGeometry()));
+			preparedStatement.setString(1, spatialObject.getName());
+			preparedStatement.setLong(2, spatialObject.getType().getId());
+			preparedStatement.setObject(3, JGeometry.store(connection, spatialObject.getGeometry()));
+
+			// TODO when inserted must delete old model and insert new because id is set only in local model not in list
 
 			if (!spatialObject.isNew()) {
-				preparedStatement.setLong(3, spatialObject.getId());
+				preparedStatement.setLong(4, spatialObject.getId());
+				preparedStatement.execute();
 			}
-			preparedStatement.execute();
+			else {
+				preparedStatement.execute();
 
-			// TODO when inserting -> should reload that object (because od ID)
-//			ResultSet rs = preparedStatement.getGeneratedKeys();
-//			if(rs.next())
-//			{
-//				 //this is way we can get last inserted ID
-//				long last_inserted_id = rs.getLong(1);
-//			}
+				// TODO when inserting -> should reload that object (because od ID)
+				ResultSet rs = preparedStatement.getGeneratedKeys();
+				if (rs.next()) {
+					//this is way we can get last inserted ID
+					long last_inserted_id = rs.getLong(1);
+					spatialObject.setId(last_inserted_id);
+					Logger.createLog(Logger.DEBUG_LOG, String.format("nove id %d", spatialObject.getId()));
+				}
+			}
+
 			spatialObject.setIsChanged(false);
-			return true;
+			return spatialObject.getId();
 		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
+			return 0;
 		}
 	}
 
@@ -305,7 +313,7 @@ public class DataManager {
 					SpatialObjectTypeModel spatialType = getSpatialObjectType(typeID);
 
 					byte[] rawGeometry = resultSet.getBytes("Geometry");
-					spatialObjects.add(SpatialObjectModel.createFromType(id, name, spatialType, rawGeometry));
+					spatialObjects.add(SpatialObjectModel.loadFromDB(id, name, spatialType, rawGeometry));
 				} catch (ModelException mE) {
 					Logger.createLog(Logger.ERROR_LOG, mE.getMessage());
 				}

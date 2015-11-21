@@ -40,17 +40,16 @@ abstract public class SpatialObjectModel extends BaseModel {
 	/**
 	 * Setups object and creates shape for graphic representation from jGeometry.
 	 * It's protected so that it's not possible to instantiate the class
-	 * otherwise than by {@link #createFromType(Long, String, SpatialObjectTypeModel, byte[])}
+	 * otherwise than by {@link #loadFromDB(Long, String, SpatialObjectTypeModel, byte[])}
 	 *
-	 * @param id
-	 * @param name
+	 * @param name     name of spatial object
 	 * @param type     association to object type (basket, house, path, ...)
 	 * @param geometry spatial data
 	 */
-	protected SpatialObjectModel(long id, String name, SpatialObjectTypeModel type, JGeometry geometry) {
-		super(id);
+	protected SpatialObjectModel(String name, SpatialObjectTypeModel type, JGeometry geometry) {
+		super();
 		this.name = name;
-		this.spatialObjectType = type;
+		setSpatialObjectType(type);
 		this.geometry = geometry;
 		// children models may override color or width of border
 		this.stroke = getDefaultStroke();
@@ -59,41 +58,61 @@ abstract public class SpatialObjectModel extends BaseModel {
 	}
 
 	/**
-	 * Creates specific SpatialObject based on type from JGeometry which is served in raw format
+	 * Creates specific SpatialObject based on data from DB (raw JGeometry data)
 	 *
-	 * @param id
-	 * @param name
-	 * @param spatialType association to object type (basket, house, path, ...)
+	 * @param id          specific id
+	 * @param name        name of spatial object
+	 * @param spatialType reference to {@link SpatialObjectTypeModel}
 	 * @param rawGeometry data from DB query result
-	 * @return
-	 * @throws Exception
+	 * @return new model with ID! (if saved, updates in DB)
+	 * @throws ModelException
 	 */
-	public static SpatialObjectModel createFromType(Long id, String name, SpatialObjectTypeModel spatialType, byte[] rawGeometry) throws Exception {
-		JGeometry geometry = JGeometry.load(rawGeometry);
+	public static SpatialObjectModel loadFromDB(Long id, String name, SpatialObjectTypeModel spatialType, byte[] rawGeometry) throws ModelException {
+		JGeometry geometry = null;
+		try {
+			geometry = JGeometry.load(rawGeometry);
+		} catch (Exception e) {
+			throw new ModelException("loadFromDB: JGeometry data problem");
+		}
+		SpatialObjectModel model = createFromJGeometry(name, spatialType, geometry);
+		// id is set here so that we can create model without Id (new model)
+		model.id = id;
+		return model;
+	}
+
+	/**
+	 * Creates specific SpatialObject based on JGeometry
+	 *
+	 * @param name        name of spatial object
+	 * @param spatialType reference to {@link SpatialObjectTypeModel}
+	 * @param geometry    based on this, new model will be created
+	 * @return new model without ID! (if saved, creates in DB)
+	 * @throws ModelException
+	 */
+	public static SpatialObjectModel createFromJGeometry(String name, SpatialObjectTypeModel spatialType, JGeometry geometry) throws ModelException {
 		SpatialObjectModel newModel;
 
 		switch (geometry.getType()) {
-
 			case JGeometry.GTYPE_MULTIPOLYGON:
 				// TODO should be different!
 			case JGeometry.GTYPE_COLLECTION:
-				newModel = new SpatialMultiPolygonModel(id, name, spatialType, geometry);
+				newModel = new SpatialMultiPolygonModel(name, spatialType, geometry);
 				break;
 
 			case JGeometry.GTYPE_POLYGON:
-				newModel = new SpatialPolygonModel(id, name, spatialType, geometry);
+				newModel = new SpatialPolygonModel(name, spatialType, geometry);
 				break;
 
 			case JGeometry.GTYPE_POINT:
-				newModel = new SpatialPointModel(id, name, spatialType, geometry);
+				newModel = new SpatialPointModel(name, spatialType, geometry);
 				break;
 
 			case JGeometry.GTYPE_CURVE:
-				newModel = new SpatialLineStringModel(id, name, spatialType, geometry);
+				newModel = new SpatialLineStringModel(name, spatialType, geometry);
 				break;
 
 			default:
-				throw new ModelException("createFromType: Not existing type of SpatialObjectModel");
+				throw new ModelException("createFromJGeometry: Not existing type of SpatialObjectModel");
 		}
 
 		return newModel;
@@ -104,6 +123,9 @@ abstract public class SpatialObjectModel extends BaseModel {
 	 */
 	abstract public Shape createShape();
 
+	/**
+	 * Regenerates shape based on internal properties which were set earlier
+	 */
 	public void regenerateShape() {
 		shape = createShape();
 	}
@@ -304,8 +326,22 @@ abstract public class SpatialObjectModel extends BaseModel {
 		return shape;
 	}
 
+	/**
+	 * Returns reference to {@link SpatialObjectTypeModel}.
+	 *
+	 * @return spatial object type
+	 */
 	public SpatialObjectTypeModel getType() {
 		return spatialObjectType;
+	}
+
+	/**
+	 * Sets spatial object type
+	 *
+	 * @param spatialObjectType if null, sets unknown type
+	 */
+	public void setSpatialObjectType(SpatialObjectTypeModel spatialObjectType) {
+		this.spatialObjectType = spatialObjectType == null ? SpatialObjectTypeModel.UnknownSpatialType : spatialObjectType;
 	}
 
 	public JGeometry getGeometry() {
