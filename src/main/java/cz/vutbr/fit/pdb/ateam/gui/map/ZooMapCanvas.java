@@ -1,13 +1,24 @@
 package cz.vutbr.fit.pdb.ateam.gui.map;
 
+import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
 import cz.vutbr.fit.pdb.ateam.controller.Controller;
 import cz.vutbr.fit.pdb.ateam.controller.ZooMapController;
+import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.gui.BasePanel;
+import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialLineStringModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
+import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
+import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectsReloadObservable;
+import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
+import cz.vutbr.fit.pdb.ateam.utils.Logger;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
+import javafx.util.Pair;
+import oracle.spatial.geometry.JGeometry;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.*;
+import java.util.ArrayList;
 
 /**
  * Class paints spatial objects into JPanel, so user can better see
@@ -23,9 +34,13 @@ public class ZooMapCanvas extends BasePanel {
 
 	private final ZooMapController controller;
 
-	public ZooMapCanvas(ZooMapController controller) {
+	public ZooMapCanvas(final ZooMapController controller) {
 		this.controller = controller;
 		initUI();
+
+		// async reload spatial objects
+		//controller.reloadSpatialObjects();
+		// TODO reload is called in reloadAllData() when login success
 	}
 
 	/**
@@ -38,9 +53,6 @@ public class ZooMapCanvas extends BasePanel {
 
 		Utils.setComponentFixSize(this, CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT);
 		setBackground(CANVAS_DEFAULT_COLOR);
-
-		// should be async task
-		controller.reloadSpatialObjects();
 	}
 
 	/**
@@ -49,18 +61,28 @@ public class ZooMapCanvas extends BasePanel {
 	 * @param g
 	 */
 	public void paint(Graphics g) {
-		// TODO should return some error??
-		if (controller.getSpatialObjects().isEmpty()) return;
 		super.paint(g);
 
 		Graphics2D g2D = (Graphics2D) g;
 		g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-		for (SpatialObjectModel model : controller.getSpatialObjects()) {
-			model.render(g2D);
+		if(!controller.getSpatialObjects().isEmpty()) {
+			SpatialObjectModel renderLatest = null;
+			for (SpatialObjectModel model : controller.getSpatialObjects()) {
+				if(model.isSelected()){
+					renderLatest = model;
+					continue;
+				}
+				model.render(g2D);
+			}
+
+			if(renderLatest != null){
+				renderLatest.render(g2D);
+			}
+
+			g2D.setPaint(CANVAS_DEFAULT_COLOR);
 		}
-		g2D.setPaint(CANVAS_DEFAULT_COLOR);
 	}
 
 	@Override

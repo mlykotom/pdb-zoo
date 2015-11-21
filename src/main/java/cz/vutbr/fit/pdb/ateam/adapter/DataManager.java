@@ -5,11 +5,11 @@ import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
+import cz.vutbr.fit.pdb.ateam.utils.Logger;
 import oracle.jdbc.OraclePreparedStatement;
 import oracle.jdbc.pool.OracleDataSource;
 import oracle.spatial.geometry.JGeometry;
 import oracle.sql.ORAData;
-import cz.vutbr.fit.pdb.ateam.utils.Logger;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -29,10 +29,11 @@ import java.util.ArrayList;
  */
 public class DataManager {
 	private static DataManager instance = new DataManager();
-	private static final int INSERT = 0;
-	private static final int UPDATE = 1;
 
 	private Connection connection;
+
+	private ArrayList<SpatialObjectModel> spatialObjects;
+	// TODO spatialObjectTypes
 
 	/**
 	 * Method returns instance of the DataManager object, which was
@@ -67,7 +68,7 @@ public class DataManager {
 			this.connection = ods.getConnection();
 
 		} catch (SQLException sqlEx) {
-			throw new DataManagerException("connectDatabase: SQLException: " + sqlEx.getMessage());
+			throw new DataManagerException("connectDatabase: SQLException: " + sqlEx.getMessage(), sqlEx.getErrorCode());
 		}
 	}
 
@@ -210,6 +211,7 @@ public class DataManager {
 
 	/**
 	 * Allows delete any model inherited from BaseModel by ID
+	 *
 	 * @param model Model which will be deleted (e.g. SpatialObjectModel)
 	 * @throws DataManagerException
 	 */
@@ -288,7 +290,7 @@ public class DataManager {
 	 * @throws DataManagerException when cz.vutbr.fit.pdb.ateam.exception from createDatabaseQuery() is received or
 	 *                              when SQLException is caught
 	 */
-	public ArrayList<SpatialObjectModel> getAllSpatialObjects() throws DataManagerException {
+	public ArrayList<SpatialObjectModel> reloadAllSpatialObjects() throws DataManagerException {
 		ArrayList<SpatialObjectModel> spatialObjects = new ArrayList<>();
 
 		String sqlQuery = "SELECT * FROM Spatial_Objects";
@@ -304,21 +306,34 @@ public class DataManager {
 
 					byte[] rawGeometry = resultSet.getBytes("Geometry");
 					spatialObjects.add(SpatialObjectModel.createFromType(id, name, spatialType, rawGeometry));
-				}
-				catch(ModelException mE){
+				} catch (ModelException mE) {
 					Logger.createLog(Logger.ERROR_LOG, mE.getMessage());
 				}
 			}
 		} catch (SQLException ex) {
-			throw new DataManagerException("getAllSpatialObjects: SQLException: " + ex.getMessage());
+			throw new DataManagerException("reloadAllSpatialObjects: SQLException: " + ex.getMessage());
 		} catch (DataManagerException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new DataManagerException("getAllSpatialObjects: JGeometry exception: " + ex.getMessage());
+			throw new DataManagerException("reloadAllSpatialObjects: JGeometry exception: " + ex.getMessage());
 		}
 
+		this.spatialObjects = spatialObjects;
+
+		// TODO void
 		return spatialObjects;
 	}
+
+	/**
+	 * Is used to get cached data from SpatialObjects Table.
+	 *
+	 * @return list of SpatialObjects
+	 */
+	public ArrayList<SpatialObjectModel> getSpatialObjects() {
+		return this.spatialObjects;
+	}
+
+
 
 	/**
 	 * Method returns spatial object type with specific ID. If type with this ID

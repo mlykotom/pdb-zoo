@@ -2,21 +2,29 @@ package cz.vutbr.fit.pdb.ateam.controller;
 
 import cz.vutbr.fit.pdb.ateam.gui.tabs.EmployeesTab;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
-import cz.vutbr.fit.pdb.ateam.observer.ContentPanelObserverSubject;
+import cz.vutbr.fit.pdb.ateam.observer.ISpatialObjectSelectionChangedListener;
+import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectSelectionChangeObservable;
+
 
 /**
  * Created by Tomas on 10/24/2015.
  */
-public class EmployeesTabController extends Controller implements ContentPanelObserverSubject.ObjectSelectionChangedListener {
+public class EmployeesTabController extends Controller implements ISpatialObjectSelectionChangedListener {
 	private EmployeesTab panel;
 
 	public EmployeesTabController(EmployeesTab employeesPanel) {
 		this.panel = employeesPanel;
-		ContentPanelObserverSubject.getInstance().subscribeForSelectionChange(this);
+		SpatialObjectSelectionChangeObservable.getInstance().subscribe(this);
 	}
 
+
+	/**
+	 * Fires when spatial object is selected on zoo map canvas.
+	 *
+	 * @param spatialObjectModel selected spatial object model
+	 */
 	@Override
-	public void notifyObjectSelectionChanged(SpatialObjectModel spatialObjectModel) {
+	public void spatialObjectSelectionChangedListener(SpatialObjectModel spatialObjectModel) {
 		//TODO Do a reacton on NotifyObjectSelectonCHanged()
 	}
 }

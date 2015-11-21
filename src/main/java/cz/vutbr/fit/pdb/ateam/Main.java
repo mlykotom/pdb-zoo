@@ -9,24 +9,6 @@ import javax.swing.*;
  */
 public class Main {
 	public static void main(String[] args) {
-
-		/** TEST */
-		/*try {
-			ArrayList<SpatialObjectTypeModel> types;
-			SpatialObjectTypeModel type;
-			ArrayList<SpatialObjectModel> spatialObjectModels;
-			DataManager.getInstance().connectDatabase("XMLYNA06", "04h3xlr6");
-			types = DataManager.getInstance().getAllSpatialObjectTypes();
-			type = DataManager.getInstance().getSpatialObjectType(10L);
-			spatialObjectModels = DataManager.getInstance().getAllSpatialObjects();
-			DataManager.getInstance().updateSpatial(spatialObjectModels.get(0));
-			DataManager.getInstance().disconnectDatabase();
-		} catch (DataManagerException ex) {
-			System.out.println("ERROR: " + ex.getMessage());
-		}
-		*/
-		/** ******/
-
 		/** GUI */
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {

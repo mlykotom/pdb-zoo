@@ -25,8 +25,6 @@ public class ZooMapPanel extends JPanel {
 	private JLabel selectedObjectName;
 	private JPanel selectedObjectWrapper;
 
-	private ZooMapCanvas ZooMapCanvas;
-
 	public ZooMapPanel(ContentPanel mainPanel) {
 		this.mainPanel = mainPanel;
 		this.controller = new ZooMapController(this);
@@ -35,11 +33,10 @@ public class ZooMapPanel extends JPanel {
 
 	public void initUI() {
 		add(rootPanel);
-
 		selectedObjectWrapper.setVisible(false);
 
-		this.ZooMapCanvas = controller.prepareCanvas();
-		mapPanel.add(ZooMapCanvas, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		ZooMapCanvas canvas = controller.prepareAndRepaintCanvas();
+		mapPanel.add(canvas, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 
 		saveButton.addActionListener(new ActionListener() {
 			@Override
@@ -57,16 +54,16 @@ public class ZooMapPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent actionEvent) {
 				controller.cancelChangedSpatialObjectsAction();
-				ZooMapCanvas.repaint();
 			}
 		});
 	}
 
 	/**
 	 * Shows selected object name on the bottom of the panel & shows wrapper
+	 *
 	 * @param name
 	 */
-	public void setSelecteObject(String name){
+	public void setSelecteObject(String name) {
 		selectedObjectName.setText(name);
 		selectedObjectWrapper.setVisible(true);
 	}
@@ -74,7 +71,7 @@ public class ZooMapPanel extends JPanel {
 	/**
 	 * Hides selected object name on the bottom of the panel & hides wrapper
 	 */
-	public void setUnselectedObject(){
+	public void setUnselectedObject() {
 		selectedObjectName.setText("");
 		selectedObjectWrapper.setVisible(false);
 	}

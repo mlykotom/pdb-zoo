@@ -15,24 +15,34 @@ import java.awt.geom.Rectangle2D;
  */
 abstract public class SpatialObjectModel extends BaseModel {
 	private static final Paint DEFAULT_BORDER_COLOR = Color.BLACK;
-	private static final BasicStroke DEFAULT_STROKE_SIZE = new BasicStroke(1);
+	private static final BasicStroke DEFAULT_STROKE = new BasicStroke(1);
 
 	protected JGeometry geometry;
 	protected Shape shape;
 	protected SpatialObjectTypeModel spatialObjectType;
-	protected Paint borderColor = DEFAULT_BORDER_COLOR;
-	protected BasicStroke strokeSize = DEFAULT_STROKE_SIZE;
+	protected Paint borderColor;
+	protected BasicStroke stroke;
+	private boolean isSelected = false;
 
 	private enum IsInMapAxis {
 		AXIS_Y,
 		AXIS_X
 	}
 
+	protected BasicStroke getDefaultStroke() {
+		return DEFAULT_STROKE;
+	}
+
+	protected Paint getDefaultBorderColor() {
+		return DEFAULT_BORDER_COLOR;
+	}
+
 	/**
 	 * Setups object and creates shape for graphic representation from jGeometry.
 	 * It's protected so that it's not possible to instantiate the class
 	 * otherwise than by {@link #createFromType(Long, String, SpatialObjectTypeModel, byte[])}
-	 *  @param id
+	 *
+	 * @param id
 	 * @param name
 	 * @param type     association to object type (basket, house, path, ...)
 	 * @param geometry spatial data
@@ -42,6 +52,9 @@ abstract public class SpatialObjectModel extends BaseModel {
 		this.name = name;
 		this.spatialObjectType = type;
 		this.geometry = geometry;
+		// children models may override color or width of border
+		this.stroke = getDefaultStroke();
+		this.borderColor = getDefaultBorderColor();
 		regenerateShape();
 	}
 
@@ -58,15 +71,25 @@ abstract public class SpatialObjectModel extends BaseModel {
 	public static SpatialObjectModel createFromType(Long id, String name, SpatialObjectTypeModel spatialType, byte[] rawGeometry) throws Exception {
 		JGeometry geometry = JGeometry.load(rawGeometry);
 		SpatialObjectModel newModel;
+
 		switch (geometry.getType()) {
+
+			case JGeometry.GTYPE_MULTIPOLYGON:
+				// TODO should be different!
+			case JGeometry.GTYPE_COLLECTION:
+				newModel = new SpatialMultiPolygonModel(id, name, spatialType, geometry);
+				break;
 
 			case JGeometry.GTYPE_POLYGON:
 				newModel = new SpatialPolygonModel(id, name, spatialType, geometry);
 				break;
 
-
 			case JGeometry.GTYPE_POINT:
 				newModel = new SpatialPointModel(id, name, spatialType, geometry);
+				break;
+
+			case JGeometry.GTYPE_CURVE:
+				newModel = new SpatialLineStringModel(id, name, spatialType, geometry);
 				break;
 
 			default:
@@ -94,7 +117,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 		Shape shape = getShape();
 		g2D.setPaint(getType().getColor());
 		g2D.fill(shape);
-		g2D.setStroke(strokeSize);
+		g2D.setStroke(stroke);
 		g2D.setPaint(borderColor);
 		g2D.draw(shape);
 	}
@@ -113,15 +136,17 @@ abstract public class SpatialObjectModel extends BaseModel {
 	/**
 	 * Determines graphics while is selected or not
 	 *
-	 * @param isSelected
+	 * @param selected
 	 */
-	public void selectOnCanvas(boolean isSelected) {
-		if (isSelected) {
+	public void selectOnCanvas(boolean selected) {
+		if (selected) {
+			this.isSelected = true;
 			borderColor = Color.decode("#4F6CB2");
-			strokeSize = new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+			stroke = new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 		} else {
-			borderColor = DEFAULT_BORDER_COLOR;
-			strokeSize = DEFAULT_STROKE_SIZE;
+			this.isSelected = false;
+			borderColor = getDefaultBorderColor();
+			stroke = getDefaultStroke();
 		}
 	}
 
@@ -131,7 +156,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 	 * @param deltaX
 	 * @param deltaY
 	 */
-	public void moveOnCanvas(int deltaX, int deltaY) {
+	public boolean moveOnCanvas(int deltaX, int deltaY) {
 		try {
 			Rectangle2D boundRect = shape.getBounds2D();
 			deltaX = isMovedInMap(boundRect, deltaX, IsInMapAxis.AXIS_X);
@@ -139,8 +164,10 @@ abstract public class SpatialObjectModel extends BaseModel {
 			geometry = geometry.affineTransforms(true, deltaX, deltaY, 0, false, null, 0, 0, 0, false, null, null, 0, 0, false, 0, 0, 0, 0, 0, 0, false, null, null, 0, false, new double[]{}, new double[]{});
 			regenerateShape();
 			setIsChanged(true);
+			return true;
 		} catch (Exception e) {
 			Logger.createLog(Logger.ERROR_LOG, "moveOnCanvas exception" + e.getMessage());
+			return false;
 		}
 	}
 
@@ -149,20 +176,20 @@ abstract public class SpatialObjectModel extends BaseModel {
 	 *
 	 * @param mouseWheelRotation specifies amount of scale
 	 */
-	public void scaleOnCanvas(int mouseWheelRotation) {
+	public boolean scaleOnCanvas(int mouseWheelRotation) {
 		try {
 			Rectangle2D boundRect = shape.getBounds2D();
 			double delta = 1 + (mouseWheelRotation * 0.05f);
 			delta = isScaledInMape(boundRect, delta);
 			JGeometry staticPoint = new JGeometry(boundRect.getCenterX(), boundRect.getCenterY(), 0);
 			geometry = geometry.affineTransforms(false, 0, 0, 0, true, staticPoint, delta, delta, 0, false, null, null, 0, 0, false, 0, 0, 0, 0, 0, 0, false, null, null, 0, false, new double[]{}, new double[]{});
+			setIsChanged(true);
+			regenerateShape();
+			return true;
 		} catch (Exception e1) {
 			e1.printStackTrace();
-			return;
+			return false;
 		}
-
-		setIsChanged(true);
-		regenerateShape();
 	}
 
 	/**
@@ -260,10 +287,17 @@ abstract public class SpatialObjectModel extends BaseModel {
 
 	// ---- GETTERS && SETTERS ---- //
 
-
 	@Override
 	public String getTableName() {
 		return "Spatial_Objects";
+	}
+
+	public boolean isSelected() {
+		return isSelected;
+	}
+
+	public void setSelected(boolean selected) {
+		isSelected = selected;
 	}
 
 	public Shape getShape() {
