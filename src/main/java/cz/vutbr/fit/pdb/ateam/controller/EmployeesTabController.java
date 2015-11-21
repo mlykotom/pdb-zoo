@@ -2,13 +2,14 @@ package cz.vutbr.fit.pdb.ateam.controller;
 
 import cz.vutbr.fit.pdb.ateam.gui.tabs.EmployeesTab;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
+import cz.vutbr.fit.pdb.ateam.observer.ISpatialObjectSelectionChangedListener;
 import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectSelectionChangeObservable;
 
 
 /**
  * Created by Tomas on 10/24/2015.
  */
-public class EmployeesTabController extends Controller implements SpatialObjectSelectionChangeObservable.SpatialObjectSelectionChangedListener {
+public class EmployeesTabController extends Controller implements ISpatialObjectSelectionChangedListener {
 	private EmployeesTab panel;
 
 	public EmployeesTabController(EmployeesTab employeesPanel) {

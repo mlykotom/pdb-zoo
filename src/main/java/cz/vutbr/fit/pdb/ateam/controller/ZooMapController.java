@@ -5,6 +5,7 @@ import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapPanel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectSelectionChangeObservable;
+import cz.vutbr.fit.pdb.ateam.observer.ISpatialObjectsReloadListener;
 import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectsReloadObservable;
 
 import java.awt.event.MouseAdapter;
@@ -18,7 +19,7 @@ import java.awt.event.MouseWheelListener;
  * @author Jakub Tutko
  * @author Tomas Mlynaric
  */
-public class ZooMapController extends Controller implements SpatialObjectsReloadObservable.SpatialObjectsReloadListener {
+public class ZooMapController extends Controller implements ISpatialObjectsReloadListener {
 	private ZooMapPanel form;
 	private ZooMapCanvas canvas;
 	private SpatialObjectModel selectedObjectOnCanvas;

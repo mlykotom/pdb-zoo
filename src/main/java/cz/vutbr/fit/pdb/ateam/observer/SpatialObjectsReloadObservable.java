@@ -5,7 +5,7 @@ package cz.vutbr.fit.pdb.ateam.observer;
  *
  * @author Tomas Mlynaric
  */
-public class SpatialObjectsReloadObservable extends SimpleObservable<SpatialObjectsReloadObservable.SpatialObjectsReloadListener> {
+public class SpatialObjectsReloadObservable extends SimpleObservable<ISpatialObjectsReloadListener> {
 	private static SpatialObjectsReloadObservable instance = new SpatialObjectsReloadObservable();
 
 	public synchronized static SpatialObjectsReloadObservable getInstance() {
@@ -14,15 +14,8 @@ public class SpatialObjectsReloadObservable extends SimpleObservable<SpatialObje
 
 	@Override
 	public void notifyObservers() {
-		for (SpatialObjectsReloadListener listener : getObservableList()) {
+		for (ISpatialObjectsReloadListener listener : getObservableList()) {
 			listener.spatialObjectsReloadListener();
 		}
-	}
-
-	public interface SpatialObjectsReloadListener {
-		/**
-		 * Fires when spatial objects are reloaded
-		 */
-		void spatialObjectsReloadListener();
 	}
 }

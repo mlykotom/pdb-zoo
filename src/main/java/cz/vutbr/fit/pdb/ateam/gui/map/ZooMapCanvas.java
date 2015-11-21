@@ -38,7 +38,8 @@ public class ZooMapCanvas extends BasePanel {
 		initUI();
 
 		// async reload spatial objects
-		controller.reloadSpatialObjects();
+		//controller.reloadSpatialObjects();
+		// TODO reload is called in reloadAllData() when login success
 	}
 
 	/**

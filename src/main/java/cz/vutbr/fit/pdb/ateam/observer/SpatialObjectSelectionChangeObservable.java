@@ -6,7 +6,7 @@ import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
  * @author Tomas Hanus
  * @author Tomas Mlynaric
  */
-public class SpatialObjectSelectionChangeObservable extends SimpleObservable<SpatialObjectSelectionChangeObservable.SpatialObjectSelectionChangedListener> {
+public class SpatialObjectSelectionChangeObservable extends SimpleObservable<ISpatialObjectSelectionChangedListener> {
 	private static SpatialObjectSelectionChangeObservable instance = new SpatialObjectSelectionChangeObservable();
 
 	public synchronized static SpatialObjectSelectionChangeObservable getInstance() {
@@ -18,17 +18,8 @@ public class SpatialObjectSelectionChangeObservable extends SimpleObservable<Spa
 		if (!(spatialObjectModel instanceof SpatialObjectModel))
 			throw new ClassCastException("Observer must be type SpatialObjectModel");
 
-		for (SpatialObjectSelectionChangedListener listener : getObservableList()) {
+		for (ISpatialObjectSelectionChangedListener listener : getObservableList()) {
 			listener.spatialObjectSelectionChangedListener((SpatialObjectModel) spatialObjectModel);
 		}
-	}
-
-	public interface SpatialObjectSelectionChangedListener {
-		/**
-		 * Fires when spatial object is selected on zoo map canvas.
-		 *
-		 * @param spatialObjectModel selected spatial object model
-		 */
-		void spatialObjectSelectionChangedListener(SpatialObjectModel spatialObjectModel);
 	}
 }
