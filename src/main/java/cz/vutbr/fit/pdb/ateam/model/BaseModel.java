@@ -8,6 +8,7 @@ abstract public class BaseModel {
 	protected long id;
 	protected String name;
 	protected boolean isChanged = false;
+	protected boolean isDeleted = false;
 
 	public BaseModel() {
 	}
@@ -17,7 +18,7 @@ abstract public class BaseModel {
 		this.name = name;
 	}
 
-//	abstract public boolean save();
+//	abstract public boolean saveModel();
 
 
 	/**
@@ -86,5 +87,13 @@ abstract public class BaseModel {
 
 	public String getName() {
 		return name;
+	}
+
+	public boolean isDeleted() {
+		return isDeleted;
+	}
+
+	public void setDeleted(boolean deleted) {
+		isDeleted = deleted;
 	}
 }

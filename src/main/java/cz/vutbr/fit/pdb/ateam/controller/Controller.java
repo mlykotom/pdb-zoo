@@ -1,15 +1,17 @@
 package cz.vutbr.fit.pdb.ateam.controller;
 
 import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
-import cz.vutbr.fit.pdb.ateam.exception.ControllerException;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
+import cz.vutbr.fit.pdb.ateam.observer.IModelChangedStateListener;
+import cz.vutbr.fit.pdb.ateam.observer.ModelSavedObservable;
 import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectsReloadObservable;
 import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -41,44 +43,61 @@ public class Controller {
 	}
 
 	/**
-	 * Save any changed model to the database.
+	 * Saves list of models to the database based on {@link DataManager#saveModel(BaseModel)} method.
+	 * After saving, notifies listeners which listens for {@link IModelChangedStateListener}.
+	 * Listeners are notified only when model is actualy saved! (if is changed)
 	 *
-	 * @param modelToSave spatial object must be changed (flag {@link BaseModel#isChanged()}), otherwise skipped
-	 * @throws ControllerException
+	 * @param models list of models to saveModel
 	 */
-	public void saveModel(BaseModel modelToSave) throws Exception {
-		ArrayList<BaseModel> list = new ArrayList<>();
-		list.add(modelToSave);
-		saveModels(list);
-	}
+	public void saveModels(final List<? extends BaseModel> models) {
+		new AsyncTask() {
+			// models which were changed, these will be notified to listeners
+			List<BaseModel> savedModels = new ArrayList<>();
+			List<BaseModel> deletedModels = new ArrayList<>();
 
-	public void saveModels(List<? extends BaseModel> modelsToSave) {
-		AsyncTask saveTask = new AsyncTask() {
 			@Override
 			protected void onDone(boolean success) {
-				// TODO notify?
+				for (BaseModel model : deletedModels) {
+					ModelSavedObservable.getInstance().notifyObservers(model, IModelChangedStateListener.ModelState.DELETED);
+				}
+
+				for (BaseModel model : savedModels) {
+					ModelSavedObservable.getInstance().notifyObservers(model, IModelChangedStateListener.ModelState.SAVED);
+				}
 			}
 
 			@Override
-			protected Boolean doInBackground() throws Exception {
-				for (BaseModel model : getSpatialObjects()) {
-					long idOfModel;
-					// TODO need to specify which models can be saved
-					if (model instanceof SpatialObjectModel) {
-						idOfModel = dataManager.saveSpatial((SpatialObjectModel) model);
-					} else {
-						throw new ControllerException("saveModel(): Unsupported model to save");
+			protected Boolean doInBackground(){
+				for (BaseModel model : models) {
+					try {
+						if(model.isDeleted()){
+							dataManager.deleteModel(model);
+							deletedModels.add(model); // error could only happen when exception
+							continue;
+						}
+
+						if (dataManager.saveModel(model)) {
+							savedModels.add(model);
+						}
+					} catch (DataManagerException e) {
+						e.printStackTrace();
+						// TODO how to handle exceptions?
 					}
-
-					if (idOfModel > 0)
-						Logger.createLog(Logger.DEBUG_LOG, String.format("Model %s (id %d) was saved successfully", model.getClass(),model.getId()));
-
 				}
-				return false;
-			}
-		};
 
-		saveTask.start();
+				// success if we saved at least one model
+				return (deletedModels.size() + savedModels.size()) > 0;
+			}
+		}.start();
+	}
+
+	/**
+	 * Save any changed model to the database.
+	 *
+	 * @param model spatial object must be changed (flag {@link BaseModel#isChanged()}), otherwise skipped
+	 */
+	public void saveModels(BaseModel model) {
+		saveModels(Collections.singletonList(model));
 	}
 
 	/**

@@ -4,10 +4,9 @@ import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapPanel;
+import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
-import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialPolygonModel;
 import cz.vutbr.fit.pdb.ateam.observer.*;
-import cz.vutbr.fit.pdb.ateam.utils.Logger;
 import oracle.spatial.geometry.JGeometry;
 
 import java.awt.event.MouseAdapter;
@@ -21,7 +20,7 @@ import java.awt.event.MouseWheelListener;
  * @author Jakub Tutko
  * @author Tomas Mlynaric
  */
-public class ZooMapController extends Controller implements ISpatialObjectsReloadListener, ISpatialObjectSelectionChangedListener, ISpatialObjectCreatingListener {
+public class ZooMapController extends Controller implements ISpatialObjectsReloadListener, ISpatialObjectSelectionChangedListener, ISpatialObjectCreatingListener, IModelChangedStateListener {
 	private ZooMapPanel form;
 	private ZooMapCanvas canvas;
 	private SpatialObjectModel selectedObjectOnCanvas;
@@ -38,6 +37,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		SpatialObjectsReloadObservable.getInstance().subscribe(this);
 		SpatialObjectSelectionChangeObservable.getInstance().subscribe(this);
 		SpatialObjectCreatingObservable.getInstance().subscribe(this);
+		ModelSavedObservable.getInstance().subscribe(this);
 		this.form = zooMapPanel;
 	}
 
@@ -50,39 +50,6 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		this.canvas = new ZooMapCanvas(this);
 		canvas.repaint();
 		return canvas;
-	}
-
-	/**
-	 * Save one spatial object to DB
-	 *
-	 * @param model spatial object must be changed, otherwise skipped
-	 * @throws DataManagerException
-	 */
-	public void saveSpatialObject(SpatialObjectModel model) throws DataManagerException {
-		dataManager.saveSpatial(model);
-	}
-
-	/**
-	 * Action when clicked on save button
-	 */
-	public void saveSpatialObjectsAction() {
-		saveModels(getSpatialObjects());
-	}
-
-	/**
-	 * Cancel any changes made to spatial objects by reloading all objects from DB
-	 */
-	public void cancelChangedSpatialObjectsAction() {
-		reloadSpatialObjects();
-	}
-
-	/**
-	 * Fires when spatial objects are reloaded
-	 */
-	@Override
-	public void spatialObjectsReloadListener() {
-		if (canvas == null) return;
-		canvas.repaint();
 	}
 
 	/**
@@ -125,22 +92,9 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		SpatialObjectSelectionChangeObservable.getInstance().notifyObservers(objectToSelect);
 	}
 
-	/**
-	 * Fires when spatial object is selected on zoo map canvas.
-	 *
-	 * @param spatialObjectModel selected spatial object model
-	 */
-	@Override
-	public void spatialObjectSelectionChangedListener(SpatialObjectModel spatialObjectModel) {
-		if (spatialObjectModel == null) {
-			form.setUnselectedObject();
-			this.selectedObjectOnCanvas = null;
-		} else {
-			spatialObjectModel.selectOnCanvas(true);
-			form.setSelecteObject(spatialObjectModel.getId() + "|" + spatialObjectModel.getName());
-			this.selectedObjectOnCanvas = spatialObjectModel;
-		}
-	}
+	// ----------------------
+	// ------------- HANDLERS
+	// ----------------------
 
 	/**
 	 * Handler when mouse is scrolled in canvas - handles scaling spatial objects
@@ -234,6 +188,71 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		}
 	};
 
+	// --------------------------
+	// ------------- FORM ACTIONS
+	// --------------------------
+
+	/**
+	 * Action when clicked on saveModel button
+	 */
+	public void saveSpatialObjectsAction() {
+		saveModels(getSpatialObjects());
+	}
+
+	/**
+	 * Cancel any changes made to spatial objects by reloading all objects from DB
+	 */
+	public void cancelChangedSpatialObjectsAction() {
+		reloadSpatialObjects();
+	}
+
+	/**
+	 * Deletes selected model
+	 */
+	public void deleteSelectedModelsAction() {
+		if (selectedObjectOnCanvas == null) return;
+		selectedObjectOnCanvas.setDeleted(true);
+		saveModels(selectedObjectOnCanvas);
+	}
+
+	/**
+	 * Adds new object to canvas
+	 * TODO temporary - should be in right tab
+	 */
+	public void createSpatialObjectAction() {
+		SpatialObjectCreatingObservable.getInstance().notifyObservers();
+	}
+
+	// -----------------------
+	// ------------- LISTENERS
+	// -----------------------
+
+	/**
+	 * Fires when spatial objects are reloaded
+	 */
+	@Override
+	public void spatialObjectsReloadListener() {
+		if (canvas == null) return;
+		canvas.repaint();
+	}
+
+	/**
+	 * Fires when spatial object is selected on zoo map canvas.
+	 *
+	 * @param spatialObjectModel selected spatial object model
+	 */
+	@Override
+	public void spatialObjectSelectionChangedListener(SpatialObjectModel spatialObjectModel) {
+		if (spatialObjectModel == null) {
+			form.setUnselectedObject();
+			this.selectedObjectOnCanvas = null;
+		} else {
+			spatialObjectModel.selectOnCanvas(true);
+			form.setSelecteObject(spatialObjectModel);
+			this.selectedObjectOnCanvas = spatialObjectModel;
+		}
+	}
+
 	/**
 	 * Fires when spatial objects are reloaded
 	 */
@@ -251,5 +270,29 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 
 		if (canvas == null) return;
 		canvas.repaint();
+	}
+
+	/**
+	 * Listener for any model saved to DB.
+	 * Must have conditions on model type!
+	 *
+	 * @param model      any model saved to DB
+	 * @param modelState specifies what happened to the model (possibly SAVED, DELETED) see {@link ModelState}
+	 */
+	public void modelChangedStateListener(BaseModel model, ModelState modelState) {
+		if (!(model instanceof SpatialObjectModel)) return; // TODO for now we only handle SpatialObjects
+
+		switch (modelState) {
+			case DELETED:
+				form.setUnselectedObject();
+				canvas.repaint();
+				break;
+
+			case SAVED:
+				if (((SpatialObjectModel) model).isSelected()) {
+					form.setSelecteObject(model);
+				}
+				break;
+		}
 	}
 }

@@ -11,10 +11,7 @@ import oracle.jdbc.pool.OracleDataSource;
 import oracle.spatial.geometry.JGeometry;
 import oracle.sql.ORAData;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 
 /**
@@ -47,7 +44,7 @@ public class DataManager {
 	}
 
 	/**
-	 * Method connects to the database and save connection for later use.
+	 * Method connects to the database and saveModel connection for later use.
 	 * Database's URL is fixed.
 	 *
 	 * @param userName user name
@@ -204,6 +201,24 @@ public class DataManager {
 		}
 	}
 
+	/**
+	 * Executes prepared statement for insert and sets latest inserted id to the specified model.
+	 * NOTE: Turns off and on autoCommit!
+	 *
+	 * @param preparedStatement will be executed (must be INSERT query)
+	 * @param model             Gets sequence name based on {@link BaseModel#getTableName()}_seq (this sequence MUST BE IN DATABASE!)
+	 * @throws SQLException
+	 */
+	private void executeInsertAndSetId(PreparedStatement preparedStatement, BaseModel model) throws SQLException {
+		connection.setAutoCommit(false);
+		preparedStatement.executeUpdate();
+		ResultSet getIdResultSet = connection.createStatement().executeQuery("SELECT " + model.getTableName() + "_seq.currval FROM dual");
+		if (getIdResultSet.next()) {
+			model.setId(getIdResultSet.getLong(1));
+		}
+		connection.commit();
+		connection.setAutoCommit(true);
+	}
 
 	// ---------------------------------------------------
 	// ------------- METHODS FOR MANIPULATING MODELS IN DB
@@ -215,9 +230,41 @@ public class DataManager {
 	 * @param model Model which will be deleted (e.g. SpatialObjectModel)
 	 * @throws DataManagerException
 	 */
-	public void deleteModel(BaseModel model) throws DataManagerException {
-		String sql = "DELETE FROM " + model.getTableName() + " WHERE ID = " + model.getId();
-		createDatabaseUpdate(sql);
+	public synchronized void deleteModel(BaseModel model) throws DataManagerException {
+		if(!model.isNew()) {
+			String sql = "DELETE FROM " + model.getTableName() + " WHERE ID = " + model.getId();
+			createDatabaseUpdate(sql);
+		}
+
+		// TODO should be specified from which cache will be deleted
+		if(model instanceof SpatialObjectModel){
+			spatialObjects.remove(model);
+		}
+	}
+
+	/**
+	 * // TODO need to specify which models can be saved
+	 *
+	 * @param model any model extendind BaseModel which is implemented here
+	 * @return success
+	 * @throws DataManagerException
+	 */
+	public boolean saveModel(BaseModel model) throws DataManagerException {
+		if (model == null) {
+			throw new DataManagerException("saveModel(): Null model received!");
+		}
+
+		if (!model.isChanged()) {
+			return false;
+		}
+
+		if (model instanceof SpatialObjectModel) {
+			return saveSpatial((SpatialObjectModel) model);
+		}
+		// TODO here specify model's saving methods!
+		else {
+			throw new DataManagerException("saveModel(): Unsupported model to save");
+		}
 	}
 
 	// -----------------------------------------
@@ -229,19 +276,11 @@ public class DataManager {
 	 * at the server with the createDatabaseUpdate() method.
 	 *
 	 * @param spatialObject object, which is filled up with all mandatory fields
+	 * @return id of saveModel model (0 if not successfull, > 0 if ok)
 	 * @throws DataManagerException when some mandatory field is missing or when exception
 	 *                              from createDatabaseUpdate() is received
-	 * @return id of save model (0 if not successfull, > 0 if ok)
 	 */
-	public long saveSpatial(SpatialObjectModel spatialObject) throws DataManagerException {
-		if (spatialObject == null) {
-			throw new DataManagerException("saveSpatial: Null spatialObject received!");
-		}
-
-		if (!spatialObject.isChanged()) {
-			return 0;
-		}
-
+	public boolean saveSpatial(SpatialObjectModel spatialObject) throws DataManagerException {
 		if (spatialObject.getType() == null) {
 			throw new DataManagerException("saveSpatial: Null spatialObject's Type!");
 		}
@@ -249,44 +288,29 @@ public class DataManager {
 			throw new DataManagerException("saveSpatial: Null spatialObject's Geometry!");
 		}
 
-		String sqlPrep;
-
-		if (spatialObject.isNew()) {
-			sqlPrep = "INSERT INTO Spatial_Objects (Name, Type, Geometry) VALUES(?, ?, ?)";
-		} else {
-			sqlPrep = "UPDATE Spatial_Objects SET Name = ?, Type = ?, Geometry = ? WHERE ID = ?";
-		}
-
 		try {
-			OraclePreparedStatement preparedStatement = (OraclePreparedStatement) connection.prepareStatement(sqlPrep);
+			String sqlPrep = null;
+			sqlPrep = spatialObject.isNew() ?
+					"INSERT INTO Spatial_Objects (Name, Type, Geometry) VALUES(?, ?, ?)" :
+					"UPDATE Spatial_Objects SET Name = ?, Type = ?, Geometry = ? WHERE ID = ?";
+
+			PreparedStatement preparedStatement = connection.prepareStatement(sqlPrep);
 			preparedStatement.setString(1, spatialObject.getName());
 			preparedStatement.setLong(2, spatialObject.getType().getId());
 			preparedStatement.setObject(3, JGeometry.store(connection, spatialObject.getGeometry()));
 
-			// TODO when inserted must delete old model and insert new because id is set only in local model not in list
-
-			if (!spatialObject.isNew()) {
+			if (spatialObject.isNew()) {
+				this.executeInsertAndSetId(preparedStatement, spatialObject);
+			} else {
 				preparedStatement.setLong(4, spatialObject.getId());
-				preparedStatement.execute();
-			}
-			else {
-				preparedStatement.execute();
-
-				// TODO when inserting -> should reload that object (because od ID)
-				ResultSet rs = preparedStatement.getGeneratedKeys();
-				if (rs.next()) {
-					//this is way we can get last inserted ID
-					long last_inserted_id = rs.getLong(1);
-					spatialObject.setId(last_inserted_id);
-					Logger.createLog(Logger.DEBUG_LOG, String.format("nove id %d", spatialObject.getId()));
-				}
+				preparedStatement.executeUpdate();
 			}
 
 			spatialObject.setIsChanged(false);
-			return spatialObject.getId();
+			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return 0;
+			return false;
 		}
 	}
 
@@ -340,7 +364,6 @@ public class DataManager {
 	public ArrayList<SpatialObjectModel> getSpatialObjects() {
 		return this.spatialObjects;
 	}
-
 
 
 	/**

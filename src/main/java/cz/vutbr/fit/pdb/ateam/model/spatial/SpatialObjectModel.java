@@ -147,9 +147,9 @@ abstract public class SpatialObjectModel extends BaseModel {
 	/**
 	 * Determines if spatial object is selected based on his shape in canvas
 	 *
-	 * @param x
-	 * @param y
-	 * @return
+	 * @param x x-coordinate
+	 * @param y y-coordinate
+	 * @return this model is within coordinates
 	 */
 	public boolean isWithin(int x, int y) {
 		return getShape().contains(x, y);
@@ -158,7 +158,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 	/**
 	 * Determines graphics while is selected or not
 	 *
-	 * @param selected
+	 * @param selected whether this model is selected or not
 	 */
 	public void selectOnCanvas(boolean selected) {
 		if (selected) {

@@ -3,6 +3,7 @@ package cz.vutbr.fit.pdb.ateam.model.spatial;
 import oracle.spatial.geometry.JGeometry;
 
 import java.awt.*;
+import java.awt.geom.Line2D;
 
 /**
  * Created by Tomas Mlynaric on 25.10.2015.
@@ -32,6 +33,7 @@ public class SpatialLineStringModel extends SpatialObjectModel {
 
 	@Override
 	public Shape createShape() {
+		// TODO problem - will create polygon instead of line
 		return geometry.createShape();
 	}
 
@@ -42,5 +44,16 @@ public class SpatialLineStringModel extends SpatialObjectModel {
 		g2D.setStroke(stroke);
 		g2D.setPaint(borderColor);
 		g2D.draw(shape);
+	}
+
+	@Override
+	public boolean isWithin(int x, int y) {
+		boolean isInBoundingBox = super.isWithin(x, y);
+
+		if(!isInBoundingBox) return false;
+
+		// TODO should be something different cause this will select bounding box instead of just line
+		// TODO possibly http://stackoverflow.com/questions/1797209/how-to-select-a-line ?
+		return true;
 	}
 }
