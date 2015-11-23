@@ -6,9 +6,13 @@ import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapPanel;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
+import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
 import cz.vutbr.fit.pdb.ateam.observer.*;
+import cz.vutbr.fit.pdb.ateam.utils.Utils;
 import oracle.spatial.geometry.JGeometry;
+import oracle.spatial.util.Util;
 
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -24,6 +28,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	private ZooMapPanel form;
 	private ZooMapCanvas canvas;
 	private SpatialObjectModel selectedObjectOnCanvas;
+	public MouseHandler mouseHandler = new MouseHandler();
 
 	/**
 	 * Constructor saves instance of the ZooMapForm as local
@@ -129,21 +134,105 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		}
 	};
 
+	public enum MouseMode {
+		CREATING(new Cursor(Cursor.CROSSHAIR_CURSOR)),
+		SELECTING(new Cursor(Cursor.HAND_CURSOR));
+
+		private Cursor cursor;
+
+		MouseMode(Cursor c) {
+			cursor = c;
+		}
+
+		public Cursor getCursor() {
+			return cursor;
+		}
+	}
+
+	enum ModelType {
+		POINT(1),
+		POLYGON(2),
+		CIRCLE(2);
+
+		private int creatingPointsCount;
+
+		ModelType(int pointsCount) {
+			creatingPointsCount = pointsCount;
+		}
+
+		public int getCreatingPointsCount() {
+			return creatingPointsCount;
+		}
+	}
+
+
 	/**
 	 * Handler for mouse movement in canvas - handles moving objects
 	 */
-	public MouseAdapter mouseHandler = new MouseAdapter() {
+	class MouseHandler extends MouseAdapter {
 		private int pressedX;
 		private int pressedY;
 		private SpatialObjectModel selectedObject;
+		private MouseMode mode = MouseMode.SELECTING;
+
+		private int mouseClickCount = 0;
+		private int oldPressedX;
+		private int oldPressedY;
 
 		@Override
 		public void mouseClicked(MouseEvent mouseEvent) {
 			pressedX = mouseEvent.getX();
 			pressedY = mouseEvent.getY();
-			selectedObject = getObjectFromCanvas(pressedX, pressedY);
-			// selected object may be null, in this case every object is unselected
-			selectSpatialObject(selectedObject);
+			mouseClickCount++;
+
+			switch (mode) {
+				case CREATING:
+					try {
+						ModelType type = ModelType.CIRCLE;
+
+						if (mouseClickCount % type.getCreatingPointsCount() == 1) {
+							oldPressedX = pressedX;
+							oldPressedY = pressedY;
+						} else {
+
+							JGeometry geom;
+							switch (type) {
+								case POLYGON:
+									geom = new JGeometry(Utils.getMin(oldPressedX, pressedX), Utils.getMin(oldPressedY, pressedY), Utils.getMax(oldPressedX, pressedX), Utils.getMax(oldPressedY, pressedY), 0);
+									break;
+
+								case CIRCLE:
+									geom = JGeometry.createCircle(oldPressedX, oldPressedY, Math.sqrt(Math.pow(pressedX - oldPressedX, 2) + Math.pow(pressedY - oldPressedY, 2)), 0);
+									break;
+
+								case POINT:
+									geom = new JGeometry(pressedX, pressedY, 0);
+									break;
+
+								default:
+									return; // TODO error
+							}
+
+							// actually create object
+							SpatialObjectModel newObject = SpatialObjectModel.createFromJGeometry("<<new>>", dataManager.getSpatialObjectType(2L), geom);
+							getSpatialObjects().add(newObject);
+							oldPressedX = oldPressedY = mouseClickCount = 0;
+							setMode(MouseMode.SELECTING);
+						}
+					} catch (DataManagerException | ModelException e) {
+						e.printStackTrace();
+					}
+
+					break;
+
+				// creating has more priority than selecting
+				case SELECTING:
+					selectedObject = getObjectFromCanvas(pressedX, pressedY);
+					// selected object may be null, in this case every object is unselected
+					selectSpatialObject(selectedObject);
+					break;
+			}
+
 			canvas.repaint();
 		}
 
@@ -186,7 +275,18 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 			if (selectedObject == null) return; // TODO this shouldn't happen
 			selectedObject = null;
 		}
-	};
+
+		public void setMode(MouseMode mode) {
+			this.mode = mode;
+			canvas.setCursor(mode.getCursor());
+		}
+
+		public void nullMouseClickCount() {
+			mouseClickCount = 0;
+		}
+	}
+
+	;
 
 	// --------------------------
 	// ------------- FORM ACTIONS
@@ -203,6 +303,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	 * Cancel any changes made to spatial objects by reloading all objects from DB
 	 */
 	public void cancelChangedSpatialObjectsAction() {
+		form.setUnselectedObject();
 		reloadSpatialObjects();
 	}
 
@@ -218,6 +319,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	/**
 	 * Adds new object to canvas
 	 * TODO temporary - should be in right tab
+	 * TODO should send object type
 	 */
 	public void createSpatialObjectAction() {
 		SpatialObjectCreatingObservable.getInstance().notifyObservers();
@@ -258,18 +360,8 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	 */
 	@Override
 	public void spatialObjectsCreatingListener() {
-		JGeometry geom = new JGeometry(100.0, 100.0, 200.0, 200.0, 0);
-		SpatialObjectModel n = null;
-		try {
-			n = SpatialObjectModel.createFromJGeometry("<<new>>", dataManager.getSpatialObjectType(2L), geom);
-		} catch (ModelException | DataManagerException e) {
-			e.printStackTrace();
-		}
-
-		getSpatialObjects().add(n);
-
-		if (canvas == null) return;
-		canvas.repaint();
+		mouseHandler.nullMouseClickCount();
+		mouseHandler.setMode(MouseMode.CREATING);
 	}
 
 	/**

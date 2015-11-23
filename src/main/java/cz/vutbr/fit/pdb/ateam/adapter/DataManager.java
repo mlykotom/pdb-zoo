@@ -231,19 +231,19 @@ public class DataManager {
 	 * @throws DataManagerException
 	 */
 	public synchronized void deleteModel(BaseModel model) throws DataManagerException {
-		if(!model.isNew()) {
+		if (!model.isNew()) {
 			String sql = "DELETE FROM " + model.getTableName() + " WHERE ID = " + model.getId();
 			createDatabaseUpdate(sql);
 		}
 
 		// TODO should be specified from which cache will be deleted
-		if(model instanceof SpatialObjectModel){
+		if (model instanceof SpatialObjectModel) {
 			spatialObjects.remove(model);
 		}
 	}
 
 	/**
-	 * // TODO need to specify which models can be saved
+	 * // TODO need to specify which type of BaseModel can be saved
 	 *
 	 * @param model any model extendind BaseModel which is implemented here
 	 * @return success
@@ -319,7 +319,7 @@ public class DataManager {
 	 * represents one building at the zoo map.
 	 *
 	 * @return all zoo buildings saved in the database
-	 * @throws DataManagerException when cz.vutbr.fit.pdb.ateam.exception from createDatabaseQuery() is received or
+	 * @throws DataManagerException when exception from createDatabaseQuery() is received or
 	 *                              when SQLException is caught
 	 */
 	public ArrayList<SpatialObjectModel> reloadAllSpatialObjects() throws DataManagerException {
@@ -372,7 +372,7 @@ public class DataManager {
 	 *
 	 * @param typeID ID of the type in the database
 	 * @return SpatialObjectTypeModel of the concrete type or null
-	 * @throws DataManagerException when cz.vutbr.fit.pdb.ateam.exception from createDatabaseQuery() is received
+	 * @throws DataManagerException when exception from createDatabaseQuery() is received
 	 */
 	public SpatialObjectTypeModel getSpatialObjectType(Long typeID) throws DataManagerException {
 		if (typeID == null) throw new DataManagerException("getType: Null typeID received");
@@ -400,7 +400,7 @@ public class DataManager {
 	 * Method returns all spatial objects types from the database.
 	 *
 	 * @return Set of the SpacialObjectType, which contains all object types saved in the database
-	 * @throws DataManagerException when cz.vutbr.fit.pdb.ateam.exception from createDatabaseQuery() is received
+	 * @throws DataManagerException when exception from createDatabaseQuery() is received
 	 */
 	public ArrayList<SpatialObjectTypeModel> getAllSpatialObjectTypes() throws DataManagerException {
 		ArrayList<SpatialObjectTypeModel> spacialTypes = new ArrayList<>();
