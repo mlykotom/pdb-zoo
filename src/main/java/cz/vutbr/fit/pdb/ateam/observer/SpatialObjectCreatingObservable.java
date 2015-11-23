@@ -1,5 +1,6 @@
 package cz.vutbr.fit.pdb.ateam.observer;
 
+import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
 
 /**
@@ -14,11 +15,10 @@ public class SpatialObjectCreatingObservable extends SimpleObservable<ISpatialOb
 		return instance;
 	}
 
-	@Override
-	public void notifyObservers() {
+	public void notifyObservers(SpatialObjectModel.ModelType type) {
 		Logger.createLog(Logger.DEBUG_LOG, "Notifying that object is creating...");
 		for (ISpatialObjectCreatingListener listener : getObservableList()) {
-			listener.spatialObjectsCreatingListener();
+			listener.spatialObjectsCreatingListener(type);
 		}
 	}
 }

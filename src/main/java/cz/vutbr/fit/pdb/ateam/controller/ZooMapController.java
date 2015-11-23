@@ -160,6 +160,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		private SpatialObjectModel selectedObject;
 		private MouseMode mode = MouseMode.SELECTING;
 
+		private SpatialObjectModel.ModelType creatingModelType;
 		private int mouseClickCount = 0;
 		private int oldPressedX;
 		private int oldPressedY;
@@ -173,17 +174,15 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 			switch (mode) {
 				case CREATING:
 					try {
-						SpatialObjectModel.ModelType type = SpatialObjectModel.ModelType.CIRCLE;
-
 						// only count points
-						if (mouseClickCount % type.getCreatingPointsCount() == 1) {
+						if (mouseClickCount % creatingModelType.getCreatingPointsCount() == 1) {
 							oldPressedX = pressedX;
 							oldPressedY = pressedY;
 							return;
 						}
 
 						// actually create object
-						JGeometry geom = SpatialObjectModel.createJGeometryFromModelType(type, pressedX, pressedY, oldPressedX, oldPressedY);
+						JGeometry geom = SpatialObjectModel.createJGeometryFromModelType(creatingModelType, pressedX, pressedY, oldPressedX, oldPressedY);
 						SpatialObjectModel newObject = SpatialObjectModel.createFromJGeometry("<<new>>", dataManager.getSpatialObjectType(2L), geom);
 						getSpatialObjects().add(newObject);
 						oldPressedX = oldPressedY = mouseClickCount = 0;
@@ -254,9 +253,13 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		public void nullMouseClickCount() {
 			mouseClickCount = 0;
 		}
+
+		public void setCreatingModelType(SpatialObjectModel.ModelType creatingModelType) {
+			this.creatingModelType = creatingModelType;
+		}
 	}
 
-	;
+
 
 	// --------------------------
 	// ------------- FORM ACTIONS
@@ -283,7 +286,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	public void deleteSelectedModelsAction() {
 		if (selectedObjectOnCanvas == null) return;
 		selectedObjectOnCanvas.setDeleted(true);
-		saveModels(selectedObjectOnCanvas);
+		saveModels(selectedObjectOnCanvas); // TODO if want just delete without saving must implement reload canvas
 	}
 
 	/**
@@ -292,7 +295,8 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	 * TODO should send object type
 	 */
 	public void createSpatialObjectAction() {
-		SpatialObjectCreatingObservable.getInstance().notifyObservers();
+		SpatialObjectModel.ModelType type = SpatialObjectModel.ModelType.CIRCLE; // TODO here change for what you want (select from combobox)
+		SpatialObjectCreatingObservable.getInstance().notifyObservers(type);
 	}
 
 	// -----------------------
@@ -326,10 +330,12 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	}
 
 	/**
-	 * Fires when spatial objects are reloaded
-	 */
+	* Fires when spatial objects are reloaded
+	* @param type which should be set for creating
+	*/
 	@Override
-	public void spatialObjectsCreatingListener() {
+	public void spatialObjectsCreatingListener(SpatialObjectModel.ModelType type) {
+		mouseHandler.setCreatingModelType(type);
 		mouseHandler.nullMouseClickCount();
 		mouseHandler.setMode(MouseMode.CREATING);
 	}
