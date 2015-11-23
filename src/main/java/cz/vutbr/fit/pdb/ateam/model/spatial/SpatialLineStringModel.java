@@ -4,16 +4,19 @@ import oracle.spatial.geometry.JGeometry;
 
 import java.awt.*;
 import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 
 /**
- * Created by Tomas Mlynaric on 25.10.2015.
+ * @author Tomas Mlynaric
  */
 public class SpatialLineStringModel extends SpatialObjectModel {
 	/**
 	 * Setups object and creates shape for graphic representation from jGeometry.
 	 * It's protected so that it's not possible to instantiate the class
 	 * otherwise than by {@link #loadFromDB(Long, String, SpatialObjectTypeModel, byte[])}
-	 *  @param name
+	 *
+	 * @param name
 	 * @param type     association to object type (basket, house, path, ...)
 	 * @param geometry spatial data
 	 */
@@ -34,6 +37,25 @@ public class SpatialLineStringModel extends SpatialObjectModel {
 	@Override
 	public Shape createShape() {
 		// TODO problem - will create polygon instead of line
+//		double[] points =  geometry.getOrdinatesArray();
+//		Path2D path = new Path2D.Double();
+//		path.moveTo(points[0], points[1]);
+//
+//		int i = 0; double lastX, lastY;
+//		for (int y = 2; y < points.length; y++) {
+//			lastX = points[y];
+//			lastY = points[y + 1];
+//
+//			if(i % 2 == 0){
+//			}
+//			else{
+//				lastY = points[y];
+//				path.lineTo(lastX, lastY);
+//			}
+//
+//			i++;
+//		}
+
 		return geometry.createShape();
 	}
 

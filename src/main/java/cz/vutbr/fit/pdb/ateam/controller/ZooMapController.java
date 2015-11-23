@@ -1,5 +1,6 @@
 package cz.vutbr.fit.pdb.ateam.controller;
 
+import cz.vutbr.fit.pdb.ateam.exception.ControllerException;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
@@ -149,22 +150,6 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		}
 	}
 
-	enum ModelType {
-		POINT(1),
-		POLYGON(2),
-		CIRCLE(2);
-
-		private int creatingPointsCount;
-
-		ModelType(int pointsCount) {
-			creatingPointsCount = pointsCount;
-		}
-
-		public int getCreatingPointsCount() {
-			return creatingPointsCount;
-		}
-	}
-
 
 	/**
 	 * Handler for mouse movement in canvas - handles moving objects
@@ -188,37 +173,22 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 			switch (mode) {
 				case CREATING:
 					try {
-						ModelType type = ModelType.CIRCLE;
+						SpatialObjectModel.ModelType type = SpatialObjectModel.ModelType.CIRCLE;
 
+						// only count points
 						if (mouseClickCount % type.getCreatingPointsCount() == 1) {
 							oldPressedX = pressedX;
 							oldPressedY = pressedY;
-						} else {
-
-							JGeometry geom;
-							switch (type) {
-								case POLYGON:
-									geom = new JGeometry(Utils.getMin(oldPressedX, pressedX), Utils.getMin(oldPressedY, pressedY), Utils.getMax(oldPressedX, pressedX), Utils.getMax(oldPressedY, pressedY), 0);
-									break;
-
-								case CIRCLE:
-									geom = JGeometry.createCircle(oldPressedX, oldPressedY, Math.sqrt(Math.pow(pressedX - oldPressedX, 2) + Math.pow(pressedY - oldPressedY, 2)), 0);
-									break;
-
-								case POINT:
-									geom = new JGeometry(pressedX, pressedY, 0);
-									break;
-
-								default:
-									return; // TODO error
-							}
-
-							// actually create object
-							SpatialObjectModel newObject = SpatialObjectModel.createFromJGeometry("<<new>>", dataManager.getSpatialObjectType(2L), geom);
-							getSpatialObjects().add(newObject);
-							oldPressedX = oldPressedY = mouseClickCount = 0;
-							setMode(MouseMode.SELECTING);
+							return;
 						}
+
+						// actually create object
+						JGeometry geom = SpatialObjectModel.createJGeometryFromModelType(type, pressedX, pressedY, oldPressedX, oldPressedY);
+						SpatialObjectModel newObject = SpatialObjectModel.createFromJGeometry("<<new>>", dataManager.getSpatialObjectType(2L), geom);
+						getSpatialObjects().add(newObject);
+						oldPressedX = oldPressedY = mouseClickCount = 0;
+						setMode(MouseMode.SELECTING);
+
 					} catch (DataManagerException | ModelException e) {
 						e.printStackTrace();
 					}

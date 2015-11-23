@@ -4,6 +4,7 @@ import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
+import cz.vutbr.fit.pdb.ateam.utils.Utils;
 import oracle.spatial.geometry.JGeometry;
 
 import java.awt.*;
@@ -56,6 +57,25 @@ abstract public class SpatialObjectModel extends BaseModel {
 		this.borderColor = getDefaultBorderColor();
 		regenerateShape();
 	}
+
+	public enum ModelType {
+		// TODO might have properties for showing in "ComboBox"
+		POINT(1),
+		POLYGON(2),
+		LINE(2), // TODO should have infinite
+		CIRCLE(2);
+
+		private int creatingPointsCount;
+
+		ModelType(int pointsCount) {
+			creatingPointsCount = pointsCount;
+		}
+
+		public int getCreatingPointsCount() {
+			return creatingPointsCount;
+		}
+	}
+
 
 	/**
 	 * Creates specific SpatialObject based on data from DB (raw JGeometry data)
@@ -116,6 +136,41 @@ abstract public class SpatialObjectModel extends BaseModel {
 		}
 
 		return newModel;
+	}
+
+	/**
+	 * Creates JGeometry from {@link ModelType} so that we can make Model from it and render on canvas
+	 * @param type
+	 * @param pressedX
+	 * @param pressedY
+	 * @param oldPressedX
+	 * @param oldPressedY
+	 * @return model's geometry
+	 * @throws ModelException
+	 */
+	public static JGeometry createJGeometryFromModelType(ModelType type, int pressedX, int pressedY, int oldPressedX, int oldPressedY) throws ModelException {
+		JGeometry geom;
+		switch (type) {
+			case POLYGON:
+				geom = new JGeometry(Utils.getMin(oldPressedX, pressedX), Utils.getMin(oldPressedY, pressedY), Utils.getMax(oldPressedX, pressedX), Utils.getMax(oldPressedY, pressedY), 0);
+				break;
+
+			case CIRCLE:
+				geom = JGeometry.createCircle(oldPressedX, oldPressedY, Math.sqrt(Math.pow(pressedX - oldPressedX, 2) + Math.pow(pressedY - oldPressedY, 2)), 0);
+				break;
+
+			case POINT:
+				geom = new JGeometry(pressedX, pressedY, 0);
+				break;
+
+			case LINE:
+				geom = JGeometry.createLinearLineString(new double[]{oldPressedX, oldPressedY, pressedX, pressedY}, 2, 0);
+				break;
+
+			default:
+				throw new ModelException("createJGeometryFromModelType(): Not existing model type");
+		}
+		return geom;
 	}
 
 	/**
