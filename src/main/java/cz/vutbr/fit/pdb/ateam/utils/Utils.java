@@ -44,4 +44,20 @@ public class Utils {
 		panel.removeAll();
 		panel.add(content);
 	}
+
+	public static int getMin(int num, int num2){
+		if(num < num2){
+			return  num;
+		}
+
+		return num2;
+	}
+
+	public static int getMax(int num, int num2){
+		if(num > num2){
+			return num;
+		}
+
+		return num2;
+	}
 }

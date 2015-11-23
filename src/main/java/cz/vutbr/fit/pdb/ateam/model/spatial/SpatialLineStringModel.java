@@ -3,23 +3,25 @@ package cz.vutbr.fit.pdb.ateam.model.spatial;
 import oracle.spatial.geometry.JGeometry;
 
 import java.awt.*;
+import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 
 /**
- * Created by Tomas Mlynaric on 25.10.2015.
+ * @author Tomas Mlynaric
  */
 public class SpatialLineStringModel extends SpatialObjectModel {
 	/**
 	 * Setups object and creates shape for graphic representation from jGeometry.
 	 * It's protected so that it's not possible to instantiate the class
-	 * otherwise than by {@link #createFromType(Long, String, SpatialObjectTypeModel, byte[])}
+	 * otherwise than by {@link #loadFromDB(Long, String, SpatialObjectTypeModel, byte[])}
 	 *
-	 * @param id
 	 * @param name
 	 * @param type     association to object type (basket, house, path, ...)
 	 * @param geometry spatial data
 	 */
-	public SpatialLineStringModel(long id, String name, SpatialObjectTypeModel type, JGeometry geometry) {
-		super(id, name, type, geometry);
+	public SpatialLineStringModel(String name, SpatialObjectTypeModel type, JGeometry geometry) {
+		super(name, type, geometry);
 	}
 
 	@Override
@@ -34,6 +36,26 @@ public class SpatialLineStringModel extends SpatialObjectModel {
 
 	@Override
 	public Shape createShape() {
+		// TODO problem - will create polygon instead of line
+//		double[] points =  geometry.getOrdinatesArray();
+//		Path2D path = new Path2D.Double();
+//		path.moveTo(points[0], points[1]);
+//
+//		int i = 0; double lastX, lastY;
+//		for (int y = 2; y < points.length; y++) {
+//			lastX = points[y];
+//			lastY = points[y + 1];
+//
+//			if(i % 2 == 0){
+//			}
+//			else{
+//				lastY = points[y];
+//				path.lineTo(lastX, lastY);
+//			}
+//
+//			i++;
+//		}
+
 		return geometry.createShape();
 	}
 
@@ -44,5 +66,16 @@ public class SpatialLineStringModel extends SpatialObjectModel {
 		g2D.setStroke(stroke);
 		g2D.setPaint(borderColor);
 		g2D.draw(shape);
+	}
+
+	@Override
+	public boolean isWithin(int x, int y) {
+		boolean isInBoundingBox = super.isWithin(x, y);
+
+		if(!isInBoundingBox) return false;
+
+		// TODO should be something different cause this will select bounding box instead of just line
+		// TODO possibly http://stackoverflow.com/questions/1797209/how-to-select-a-line ?
+		return true;
 	}
 }

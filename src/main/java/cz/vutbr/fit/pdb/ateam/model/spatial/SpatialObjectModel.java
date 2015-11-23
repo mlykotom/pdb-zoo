@@ -4,6 +4,7 @@ import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
+import cz.vutbr.fit.pdb.ateam.utils.Utils;
 import oracle.spatial.geometry.JGeometry;
 
 import java.awt.*;
@@ -40,17 +41,16 @@ abstract public class SpatialObjectModel extends BaseModel {
 	/**
 	 * Setups object and creates shape for graphic representation from jGeometry.
 	 * It's protected so that it's not possible to instantiate the class
-	 * otherwise than by {@link #createFromType(Long, String, SpatialObjectTypeModel, byte[])}
+	 * otherwise than by {@link #loadFromDB(Long, String, SpatialObjectTypeModel, byte[])}
 	 *
-	 * @param id
-	 * @param name
+	 * @param name     name of spatial object
 	 * @param type     association to object type (basket, house, path, ...)
 	 * @param geometry spatial data
 	 */
-	protected SpatialObjectModel(long id, String name, SpatialObjectTypeModel type, JGeometry geometry) {
-		super(id);
+	protected SpatialObjectModel(String name, SpatialObjectTypeModel type, JGeometry geometry) {
+		super();
 		this.name = name;
-		this.spatialObjectType = type;
+		setSpatialObjectType(type);
 		this.geometry = geometry;
 		// children models may override color or width of border
 		this.stroke = getDefaultStroke();
@@ -58,45 +58,119 @@ abstract public class SpatialObjectModel extends BaseModel {
 		regenerateShape();
 	}
 
+	public enum ModelType {
+		// TODO might have properties for showing in "ComboBox"
+		POINT(1),
+		POLYGON(2),
+		LINE(2), // TODO should have infinite
+		CIRCLE(2);
+
+		private int creatingPointsCount;
+
+		ModelType(int pointsCount) {
+			creatingPointsCount = pointsCount;
+		}
+
+		public int getCreatingPointsCount() {
+			return creatingPointsCount;
+		}
+	}
+
+
 	/**
-	 * Creates specific SpatialObject based on type from JGeometry which is served in raw format
+	 * Creates specific SpatialObject based on data from DB (raw JGeometry data)
 	 *
-	 * @param id
-	 * @param name
-	 * @param spatialType association to object type (basket, house, path, ...)
+	 * @param id          specific id
+	 * @param name        name of spatial object
+	 * @param spatialType reference to {@link SpatialObjectTypeModel}
 	 * @param rawGeometry data from DB query result
-	 * @return
-	 * @throws Exception
+	 * @return new model with ID! (if saved, updates in DB)
+	 * @throws ModelException
 	 */
-	public static SpatialObjectModel createFromType(Long id, String name, SpatialObjectTypeModel spatialType, byte[] rawGeometry) throws Exception {
-		JGeometry geometry = JGeometry.load(rawGeometry);
+	public static SpatialObjectModel loadFromDB(Long id, String name, SpatialObjectTypeModel spatialType, byte[] rawGeometry) throws ModelException {
+		JGeometry geometry = null;
+		try {
+			geometry = JGeometry.load(rawGeometry);
+		} catch (Exception e) {
+			throw new ModelException("loadFromDB: JGeometry data problem");
+		}
+		SpatialObjectModel model = createFromJGeometry(name, spatialType, geometry);
+		// id is set here so that we can create model without Id (new model)
+		model.id = id;
+		return model;
+	}
+
+	/**
+	 * Creates specific SpatialObject based on JGeometry
+	 *
+	 * @param name        name of spatial object
+	 * @param spatialType reference to {@link SpatialObjectTypeModel}
+	 * @param geometry    based on this, new model will be created
+	 * @return new model without ID! (if saved, creates in DB)
+	 * @throws ModelException
+	 */
+	public static SpatialObjectModel createFromJGeometry(String name, SpatialObjectTypeModel spatialType, JGeometry geometry) throws ModelException {
 		SpatialObjectModel newModel;
 
 		switch (geometry.getType()) {
-
 			case JGeometry.GTYPE_MULTIPOLYGON:
 				// TODO should be different!
 			case JGeometry.GTYPE_COLLECTION:
-				newModel = new SpatialMultiPolygonModel(id, name, spatialType, geometry);
+				newModel = new SpatialMultiPolygonModel(name, spatialType, geometry);
 				break;
 
 			case JGeometry.GTYPE_POLYGON:
-				newModel = new SpatialPolygonModel(id, name, spatialType, geometry);
+				newModel = new SpatialPolygonModel(name, spatialType, geometry);
 				break;
 
 			case JGeometry.GTYPE_POINT:
-				newModel = new SpatialPointModel(id, name, spatialType, geometry);
+				newModel = new SpatialPointModel(name, spatialType, geometry);
 				break;
 
 			case JGeometry.GTYPE_CURVE:
-				newModel = new SpatialLineStringModel(id, name, spatialType, geometry);
+				newModel = new SpatialLineStringModel(name, spatialType, geometry);
 				break;
 
 			default:
-				throw new ModelException("createFromType: Not existing type of SpatialObjectModel");
+				throw new ModelException("createFromJGeometry: Not existing type of SpatialObjectModel");
 		}
 
 		return newModel;
+	}
+
+	/**
+	 * Creates JGeometry from {@link ModelType} so that we can make Model from it and render on canvas
+	 * @param type
+	 * @param pressedX
+	 * @param pressedY
+	 * @param oldPressedX
+	 * @param oldPressedY
+	 * @return model's geometry
+	 * @throws ModelException
+	 */
+	public static JGeometry createJGeometryFromModelType(ModelType type, int pressedX, int pressedY, int oldPressedX, int oldPressedY) throws ModelException {
+		JGeometry geom;
+		switch (type) {
+			case POLYGON:
+				geom = new JGeometry(Utils.getMin(oldPressedX, pressedX), Utils.getMin(oldPressedY, pressedY), Utils.getMax(oldPressedX, pressedX), Utils.getMax(oldPressedY, pressedY), 0);
+				break;
+
+			case CIRCLE:
+				geom = JGeometry.createCircle(oldPressedX, oldPressedY, Math.sqrt(Math.pow(pressedX - oldPressedX, 2) + Math.pow(pressedY - oldPressedY, 2)), 0);
+				break;
+
+			case POINT:
+				geom = new JGeometry(pressedX, pressedY, 0);
+				break;
+
+			case LINE:
+				geom = JGeometry.createLinearLineString(new double[]{oldPressedX, oldPressedY, pressedX, pressedY}, 2, 0);
+				break;
+
+			default:
+				throw new ModelException("createJGeometryFromModelType(): Not existing model type");
+		}
+		return geom;
 	}
 
 	/**
@@ -104,6 +178,9 @@ abstract public class SpatialObjectModel extends BaseModel {
 	 */
 	abstract public Shape createShape();
 
+	/**
+	 * Regenerates shape based on internal properties which were set earlier
+	 */
 	public void regenerateShape() {
 		shape = createShape();
 	}
@@ -125,9 +202,9 @@ abstract public class SpatialObjectModel extends BaseModel {
 	/**
 	 * Determines if spatial object is selected based on his shape in canvas
 	 *
-	 * @param x
-	 * @param y
-	 * @return
+	 * @param x x-coordinate
+	 * @param y y-coordinate
+	 * @return this model is within coordinates
 	 */
 	public boolean isWithin(int x, int y) {
 		return getShape().contains(x, y);
@@ -136,7 +213,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 	/**
 	 * Determines graphics while is selected or not
 	 *
-	 * @param selected
+	 * @param selected whether this model is selected or not
 	 */
 	public void selectOnCanvas(boolean selected) {
 		if (selected) {
@@ -304,8 +381,22 @@ abstract public class SpatialObjectModel extends BaseModel {
 		return shape;
 	}
 
+	/**
+	 * Returns reference to {@link SpatialObjectTypeModel}.
+	 *
+	 * @return spatial object type
+	 */
 	public SpatialObjectTypeModel getType() {
 		return spatialObjectType;
+	}
+
+	/**
+	 * Sets spatial object type
+	 *
+	 * @param spatialObjectType if null, sets unknown type
+	 */
+	public void setSpatialObjectType(SpatialObjectTypeModel spatialObjectType) {
+		this.spatialObjectType = spatialObjectType == null ? SpatialObjectTypeModel.UnknownSpatialType : spatialObjectType;
 	}
 
 	public JGeometry getGeometry() {

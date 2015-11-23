@@ -51,6 +51,9 @@ public class ZooMapCanvas extends BasePanel {
 		addMouseListener(controller.mouseHandler);
 		addMouseWheelListener(controller.scaleHandler);
 
+		// sets default cursor
+		this.setCursor(ZooMapController.MouseMode.SELECTING.getCursor());
+
 		Utils.setComponentFixSize(this, CANVAS_DEFAULT_WIDTH, CANVAS_DEFAULT_HEIGHT);
 		setBackground(CANVAS_DEFAULT_COLOR);
 	}

@@ -11,6 +11,8 @@ import java.awt.*;
 public class SpatialObjectTypeModel extends BaseModel {
 	private java.awt.Color color;
 
+	public static SpatialObjectTypeModel UnknownSpatialType = new SpatialObjectTypeModel(-5L, "UNKNOWN", "ECB039");
+
 	public SpatialObjectTypeModel(long id, String name, String colorHex) {
 		super(id, name);
 		setColor(colorHex);
