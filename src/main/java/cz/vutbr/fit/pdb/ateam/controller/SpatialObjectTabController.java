@@ -4,6 +4,7 @@ import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.gui.components.SpatialObjectsTable;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.SpatialObjectsTab;
+import cz.vutbr.fit.pdb.ateam.gui.tabs.details.SpatialObjectDetail;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.lists.SpatialObjectsList;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.observer.ISpatialObjectSelectionChangedListener;
@@ -19,12 +20,13 @@ import java.util.List;
 public class SpatialObjectTabController extends Controller implements ISpatialObjectSelectionChangedListener, SpatialObjectTableController {
 	SpatialObjectsTab spatialObjectsTab;
 	SpatialObjectsList spatialObjectList;
+	SpatialObjectDetail spatialObjectDetail;
 
 	public SpatialObjectTabController(SpatialObjectsTab spatialObjectsTab) {
 		super();
 		this.spatialObjectsTab = spatialObjectsTab;
 		this.spatialObjectList = new SpatialObjectsList(this);
-		// TODO: objectDetail
+		this.spatialObjectDetail = new SpatialObjectDetail(this);
 
 		Utils.changePanelContent(spatialObjectsTab, spatialObjectList);
 
@@ -47,12 +49,12 @@ public class SpatialObjectTabController extends Controller implements ISpatialOb
 		spatialObjectList.setSpatialObjectsTable(table);
 	}
 
-	@Override
+	/*@Override
 	public void notifyObjectSelectionChanged(SpatialObjectModel spatialObjectModel) {
 		System.out.println("PRD " + spatialObjectModel.getId());
 
 		// TODO: change list with table into spatial object detail, if null received show table
-	}
+	}*/
 
 	@Override
 	public void spatialObjectsTableEditAction(SpatialObjectModel spatialObjectModel) {
