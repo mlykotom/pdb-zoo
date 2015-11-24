@@ -43,7 +43,7 @@ public class SpatialObjectsTab extends JPanel {
 	 */
 	private void $$$setupUI$$$() {
 		rootPanel = new JPanel();
-		rootPanel.setLayout(new GridLayoutManager(1, 1, new Insets(15, 15, 15, 15), -1, 15));
+		rootPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
 	}
 
 	/**
