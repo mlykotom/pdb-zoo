@@ -48,14 +48,25 @@ public class SpatialObjectTabController extends Controller implements ISpatialOb
 	}
 
 	@Override
+	public void notifyObjectSelectionChanged(SpatialObjectModel spatialObjectModel) {
+		System.out.println("PRD " + spatialObjectModel.getId());
+
+		// TODO: change list with table into spatial object detail, if null received show table
+	}
+
+	@Override
 	public void spatialObjectsTableEditAction(SpatialObjectModel spatialObjectModel) {
 		System.out.println("EDIT: " + spatialObjectModel.getId());
+
+		// TODO: notify that spatial object was selected
 	}
 
 
 	@Override
 	public void spatialObjectsTableDeleteAction(SpatialObjectModel spatialObjectModel) {
 		System.out.println("DELETE: " + spatialObjectModel.getId());
+
+		// TODO: notify that data should be reloaded
 	}
 
 	/**
