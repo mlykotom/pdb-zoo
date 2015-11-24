@@ -7,10 +7,10 @@ import cz.vutbr.fit.pdb.ateam.model.BaseModel;
  *
  * @author Tomas Mlynaric
  */
-public class ModelSavedObservable extends SimpleObservable<IModelChangedStateListener> {
-	private static ModelSavedObservable instance = new ModelSavedObservable();
+public class ModelChangedStateObservable extends SimpleObservable<IModelChangedStateListener> {
+	private static ModelChangedStateObservable instance = new ModelChangedStateObservable();
 
-	public synchronized static ModelSavedObservable getInstance() {
+	public synchronized static ModelChangedStateObservable getInstance() {
 		return instance;
 	}
 

@@ -4,8 +4,9 @@ import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
+import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
 import cz.vutbr.fit.pdb.ateam.observer.IModelChangedStateListener;
-import cz.vutbr.fit.pdb.ateam.observer.ModelSavedObservable;
+import cz.vutbr.fit.pdb.ateam.observer.ModelChangedStateObservable;
 import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectsReloadObservable;
 import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
@@ -58,11 +59,11 @@ public class Controller {
 			@Override
 			protected void onDone(boolean success) {
 				for (BaseModel model : deletedModels) {
-					ModelSavedObservable.getInstance().notifyObservers(model, IModelChangedStateListener.ModelState.DELETED);
+					ModelChangedStateObservable.getInstance().notifyObservers(model, IModelChangedStateListener.ModelState.DELETED);
 				}
 
 				for (BaseModel model : savedModels) {
-					ModelSavedObservable.getInstance().notifyObservers(model, IModelChangedStateListener.ModelState.SAVED);
+					ModelChangedStateObservable.getInstance().notifyObservers(model, IModelChangedStateListener.ModelState.SAVED);
 				}
 			}
 
@@ -115,6 +116,7 @@ public class Controller {
 			protected Boolean doInBackground() throws Exception {
 				try {
 					dataManager.reloadAllSpatialObjects();
+					dataManager.reloadAllSpatialObjectTypes();
 					return true;
 				} catch (DataManagerException e) {
 					Logger.createLog(Logger.ERROR_LOG, e.getMessage());
@@ -133,5 +135,14 @@ public class Controller {
 	 */
 	public ArrayList<SpatialObjectModel> getSpatialObjects() {
 		return dataManager.getSpatialObjects();
+	}
+
+	/**
+	 * Synchronouse method (available everywhere)
+	 *
+	 * @return cached spatial objects data from dataManager
+	 */
+	public ArrayList<SpatialObjectTypeModel> getSpatialObjectTypes() {
+		return dataManager.getSpatialObjectTypes();
 	}
 }

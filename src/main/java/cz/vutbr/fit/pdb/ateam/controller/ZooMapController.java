@@ -1,17 +1,13 @@
 package cz.vutbr.fit.pdb.ateam.controller;
 
-import cz.vutbr.fit.pdb.ateam.exception.ControllerException;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapPanel;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
-import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
 import cz.vutbr.fit.pdb.ateam.observer.*;
-import cz.vutbr.fit.pdb.ateam.utils.Utils;
 import oracle.spatial.geometry.JGeometry;
-import oracle.spatial.util.Util;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -43,7 +39,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		SpatialObjectsReloadObservable.getInstance().subscribe(this);
 		SpatialObjectSelectionChangeObservable.getInstance().subscribe(this);
 		SpatialObjectCreatingObservable.getInstance().subscribe(this);
-		ModelSavedObservable.getInstance().subscribe(this);
+		ModelChangedStateObservable.getInstance().subscribe(this);
 		this.form = zooMapPanel;
 	}
 
@@ -322,6 +318,10 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		if (spatialObjectModel == null) {
 			form.setUnselectedObject();
 			this.selectedObjectOnCanvas = null;
+			// unselects all objects
+			for (SpatialObjectModel object : getSpatialObjects()) {
+				object.selectOnCanvas(false);
+			}
 		} else {
 			spatialObjectModel.selectOnCanvas(true);
 			form.setSelecteObject(spatialObjectModel);

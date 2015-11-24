@@ -6,11 +6,13 @@ import cz.vutbr.fit.pdb.ateam.controller.Controller;
 import cz.vutbr.fit.pdb.ateam.controller.SpatialObjectTabController;
 import cz.vutbr.fit.pdb.ateam.gui.BasePanel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
+import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 /**
  * Created by Jakub on 24.11.2015.
@@ -19,7 +21,7 @@ public class SpatialObjectDetail extends BasePanel {
 	private JPanel rootPanel;
 	private JTextField idTextField;
 	private JTextField nameTextField;
-	private JComboBox typeComboBox;
+	private JComboBox<String> typeComboBox;
 	private JButton saveButton;
 	private JButton cancelButton;
 	private JButton deleteButton;
@@ -37,7 +39,27 @@ public class SpatialObjectDetail extends BasePanel {
 
 		idTextField.setText(spatialObject.getId().toString());
 		nameTextField.setText(spatialObject.getName());
-		typeComboBox.setSelectedIndex(spatialObject.getType().getId().intValue());
+		typeComboBox.setSelectedItem(spatialObject.getType().getName());
+	}
+
+	public String getNameTextFieldVallue() {
+		return nameTextField.getText();
+	}
+
+	public String getTypeComboBoxVallue() {
+		return (String) typeComboBox.getSelectedItem();
+	}
+
+	public void setTypeComboBoxModel(ArrayList<SpatialObjectTypeModel> objectTypes) {
+
+		DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) typeComboBox.getModel();
+		model.removeAllElements();
+
+		for (SpatialObjectTypeModel type : objectTypes) {
+			model.addElement(type.getName());
+		}
+
+		typeComboBox.setModel(model);
 	}
 
 	private void initUI() {
@@ -45,14 +67,14 @@ public class SpatialObjectDetail extends BasePanel {
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO
+				controller.cancelButton();
 			}
 		});
 
 		saveButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO
+				controller.saveButton();
 			}
 		});
 
@@ -86,17 +108,21 @@ public class SpatialObjectDetail extends BasePanel {
 	private void $$$setupUI$$$() {
 		rootPanel = new JPanel();
 		rootPanel.setLayout(new GridLayoutManager(5, 6, new Insets(15, 15, 15, 15), -1, -1));
+		rootPanel.setEnabled(true);
 		final JLabel label1 = new JLabel();
 		label1.setFont(new Font(label1.getFont().getName(), Font.BOLD, 20));
-		label1.setText("Spatial object detail");
+		label1.setText("Building detail");
 		rootPanel.add(label1, new GridConstraints(0, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final JLabel label2 = new JLabel();
+		label2.setFont(new Font(label2.getFont().getName(), Font.BOLD, label2.getFont().getSize()));
 		label2.setText("ID:");
 		rootPanel.add(label2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final JLabel label3 = new JLabel();
+		label3.setFont(new Font(label3.getFont().getName(), Font.BOLD, label3.getFont().getSize()));
 		label3.setText("Name:");
 		rootPanel.add(label3, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final JLabel label4 = new JLabel();
+		label4.setFont(new Font(label4.getFont().getName(), Font.BOLD, label4.getFont().getSize()));
 		label4.setText("Type:");
 		rootPanel.add(label4, new GridConstraints(3, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		idTextField = new JTextField();
@@ -105,6 +131,7 @@ public class SpatialObjectDetail extends BasePanel {
 		nameTextField = new JTextField();
 		rootPanel.add(nameTextField, new GridConstraints(2, 3, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
 		typeComboBox = new JComboBox();
+		typeComboBox.setEditable(false);
 		typeComboBox.setEnabled(true);
 		rootPanel.add(typeComboBox, new GridConstraints(3, 3, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		cancelButton = new JButton();

@@ -43,6 +43,8 @@ public class Utils {
 	public static void changePanelContent(JPanel panel, JComponent content) {
 		panel.removeAll();
 		panel.add(content);
+		panel.revalidate();
+		panel.repaint();
 	}
 
 	public static int getMin(int num, int num2){

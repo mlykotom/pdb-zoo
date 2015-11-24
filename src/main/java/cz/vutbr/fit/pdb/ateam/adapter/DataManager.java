@@ -30,7 +30,7 @@ public class DataManager {
 	private Connection connection;
 
 	private ArrayList<SpatialObjectModel> spatialObjects;
-	// TODO spatialObjectTypes
+	private ArrayList<SpatialObjectTypeModel> spatialObjectTypes;
 
 	/**
 	 * Method returns instance of the DataManager object, which was
@@ -299,6 +299,7 @@ public class DataManager {
 			preparedStatement.setLong(2, spatialObject.getType().getId());
 			preparedStatement.setObject(3, JGeometry.store(connection, spatialObject.getGeometry()));
 
+			Logger.createLog(Logger.DEBUG_LOG, "Sending query: " + sqlPrep + " | name = '" + spatialObject.getName() + "', type = '" + spatialObject.getType().getId() + "', id = '" + spatialObject.getId() + "'");
 			if (spatialObject.isNew()) {
 				this.executeInsertAndSetId(preparedStatement, spatialObject);
 			} else {
@@ -368,7 +369,7 @@ public class DataManager {
 
 	/**
 	 * Method returns spatial object type with specific ID. If type with this ID
-	 * does not exists, method returns null pointer.
+	 * does not exists, method returns null pointer. Searching in cached types.
 	 *
 	 * @param typeID ID of the type in the database
 	 * @return SpatialObjectTypeModel of the concrete type or null
@@ -377,23 +378,13 @@ public class DataManager {
 	public SpatialObjectTypeModel getSpatialObjectType(Long typeID) throws DataManagerException {
 		if (typeID == null) throw new DataManagerException("getType: Null typeID received");
 
-		SpatialObjectTypeModel spatialObjectType = null;
+		if(spatialObjectTypes == null) reloadAllSpatialObjectTypes();
 
-		String sqlQuery = "SELECT * FROM Spatial_Object_Types WHERE ID=" + typeID.toString();
-		ResultSet resultSet = createDatabaseQuery(sqlQuery);
-
-		try {
-			if (resultSet.next()) {
-				Long id = resultSet.getLong("ID");
-				String name = resultSet.getString("Name");
-				String colorHexString = resultSet.getString("Color");
-				spatialObjectType = new SpatialObjectTypeModel(id, name, colorHexString);
-			}
-		} catch (SQLException ex) {
-			throw new DataManagerException("getType: SQLException: " + ex.getMessage());
+		for(SpatialObjectTypeModel type: spatialObjectTypes) {
+			if(type.getId().equals(typeID)) return type;
 		}
 
-		return spatialObjectType;
+		return null;
 	}
 
 	/**
@@ -402,7 +393,7 @@ public class DataManager {
 	 * @return Set of the SpacialObjectType, which contains all object types saved in the database
 	 * @throws DataManagerException when exception from createDatabaseQuery() is received
 	 */
-	public ArrayList<SpatialObjectTypeModel> getAllSpatialObjectTypes() throws DataManagerException {
+	public ArrayList<SpatialObjectTypeModel> reloadAllSpatialObjectTypes() throws DataManagerException {
 		ArrayList<SpatialObjectTypeModel> spacialTypes = new ArrayList<>();
 
 		String sqlQuery = "SELECT * FROM Spatial_Object_Types";
@@ -419,6 +410,18 @@ public class DataManager {
 			throw new DataManagerException("getAllSpatialObjectTypes: SQLException: " + ex.getMessage());
 		}
 
+		this.spatialObjectTypes = spacialTypes;
+
+		// TODO void???
 		return spacialTypes;
+	}
+
+	/**
+	 * Is used to get cached data from SpatialObjectTypes Table.
+	 *
+	 * @return list of SpatialObjectTypes
+	 */
+	public ArrayList<SpatialObjectTypeModel> getSpatialObjectTypes() {
+		return spatialObjectTypes;
 	}
 }
