@@ -67,14 +67,14 @@ public class SpatialObjectDetail extends BasePanel {
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				controller.cancelButton();
+				controller.detailCancelButtonAction();
 			}
 		});
 
 		saveButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				controller.saveButton();
+				controller.detailSaveButtonAction();
 			}
 		});
 

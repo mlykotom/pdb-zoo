@@ -6,10 +6,13 @@ import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * Created by Jakub on 25.10.2015.
@@ -23,6 +26,15 @@ public class SpatialObjectsTable extends JTable {
 		tableModel = new SpatialObjectsTableModel();
 
 		setModel(tableModel);
+
+		TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
+		sorter.setComparator(0, new Comparator<Long>() {
+			@Override
+			public int compare(Long o1, Long o2) {
+				return o1.compareTo(o2);
+			}
+		});
+		this.setRowSorter(sorter);
 
 		getColumn("DELETE").setCellRenderer(new ButtonRenderer());
 		getColumn("DELETE").setCellEditor(

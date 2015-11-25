@@ -1,6 +1,7 @@
 package cz.vutbr.fit.pdb.ateam.gui;
 
 import cz.vutbr.fit.pdb.ateam.controller.MenuBarController;
+import cz.vutbr.fit.pdb.ateam.utils.Utils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -51,6 +52,7 @@ public class MainFrame extends JFrame {
 
 		// ------ content
 		switchContent(contentPanel);
+		pack();
 	}
 
 
@@ -85,6 +87,7 @@ public class MainFrame extends JFrame {
 				menuBarController.logoutMenuAction();
 			}
 		});
+		Utils.setComponentFixSize(logoutButton, 100, 30);
 
 		return logoutButton;
 	}
