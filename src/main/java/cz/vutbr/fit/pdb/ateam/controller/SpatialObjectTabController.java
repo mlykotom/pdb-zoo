@@ -158,8 +158,20 @@ public class SpatialObjectTabController
 		SpatialObjectSelectionChangeObservable.getInstance().notifyObservers(null);
 	}
 
+	public void createBuildingButton() {
+		SpatialObjectModel.ModelType shapeType = spatialObjectList.getComboBoxValue();
+
+		SpatialObjectCreatingObservable.getInstance().notifyObservers(shapeType);
+	}
+
 	@Override
 	public void modelChangedStateListener(BaseModel model, ModelState modelState) {
-		spatialObjectsReloadListener();
+		if((model instanceof SpatialObjectModel) && (modelState == ModelState.SAVED)) {
+			selectedObject = (SpatialObjectModel) model;
+
+			changePanelContentIntoDetail(selectedObject);
+		} else {
+			changePanelContentIntoList();
+		}
 	}
 }

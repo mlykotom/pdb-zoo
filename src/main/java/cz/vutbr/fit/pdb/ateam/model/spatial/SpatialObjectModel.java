@@ -60,19 +60,30 @@ abstract public class SpatialObjectModel extends BaseModel {
 
 	public enum ModelType {
 		// TODO might have properties for showing in "ComboBox"
-		POINT(1),
-		POLYGON(2),
-		LINE(2), // TODO should have infinite
-		CIRCLE(2);
+		POINT("point",1),
+		POLYGON("rectangle",2),
+		LINE("line",2), // TODO should have infinite
+		CIRCLE("circle",2);
 
 		private int creatingPointsCount;
+		private String name;
 
-		ModelType(int pointsCount) {
+		ModelType(String name ,int pointsCount) {
 			creatingPointsCount = pointsCount;
+			this.name = name;
 		}
 
 		public int getCreatingPointsCount() {
 			return creatingPointsCount;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public String toString() {
+			return getName();
 		}
 	}
 
