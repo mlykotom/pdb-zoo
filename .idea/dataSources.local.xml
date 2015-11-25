@@ -2,7 +2,7 @@
 <project version="4">
   <component name="dataSourceStorageLocal">
     <data-source name="Oracle" uuid="6d144dc7-796d-4608-9966-d206c78cb21f">
-      <secret-storage>memory</secret-storage>
+      <secret-storage>master_key</secret-storage>
       <user-name>XMLYNA06</user-name>
     </data-source>
   </component>

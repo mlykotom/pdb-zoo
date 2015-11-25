@@ -89,12 +89,23 @@ public class SpatialObjectTabController
 		spatialObjectList.setSpatialObjectsTable(table);
 	}
 
+	/**
+	 * Action notifies all listeners, even actual instance, that some Spatial Object
+	 * from the table is selected.
+	 *
+	 * @param spatialObjectModel spatial object, which is selected in the table
+	 */
 	@Override
 	public void spatialObjectsTableEditAction(SpatialObjectModel spatialObjectModel) {
 		SpatialObjectSelectionChangeObservable.getInstance().notifyObservers(spatialObjectModel);
 	}
 
 
+	/**
+	 * Action removes specific spatial object selected in the spatial objects table.
+	 *
+	 * @param spatialObjectModel spatial object, which is selected in the table
+	 */
 	@Override
 	public void spatialObjectsTableDeleteAction(SpatialObjectModel spatialObjectModel) {
 		spatialObjectModel.setDeleted(true);
@@ -116,6 +127,11 @@ public class SpatialObjectTabController
 		}
 	}
 
+	/**
+	 * Fires when spatial objects are reload from the database. Panel refresh data
+	 * in the spatial object table or reload details about selected object, depending
+	 * on actual panel view.
+	 */
 	@Override
 	public void spatialObjectsReloadListener() {
 		if(selectedObject == null)
@@ -136,7 +152,10 @@ public class SpatialObjectTabController
 		}
 	}
 
-	public void saveButton() {
+	/**
+	 * Saves selected object with new properties into database.
+	 */
+	public void detailSaveButtonAction() {
 		if(selectedObject == null) return;
 
 		SpatialObjectTypeModel selectedObjectType = selectedObject.getType();
@@ -154,8 +173,12 @@ public class SpatialObjectTabController
 		saveModels(selectedObject);
 	}
 
-	public void cancelButton() {
+	public void detailCancelButtonAction() {
 		SpatialObjectSelectionChangeObservable.getInstance().notifyObservers(null);
+	}
+
+	public void detailDeleteButtonAction(SpatialObjectModel model) {
+		spatialObjectsTableDeleteAction(model);
 	}
 
 	public void createBuildingButton() {
