@@ -20,9 +20,14 @@ import java.io.IOException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Stack;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.sql.*;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * Class for communicating with the database.
@@ -49,6 +54,11 @@ public class DataManager {
 
 	public static final int SQL_FUNCTION_WITHIN_DISTANCE = 1;
 	public static final int SQL_FUNCTION_SDO_RELATE = 2;
+
+	public DataManager() {
+		this.spatialObjects = new ArrayList<>();
+		this.spatialObjectTypes = new ArrayList<>();
+	}
 
 	/**
 	 * Method returns instance of the DataManager object, which was
@@ -118,10 +128,11 @@ public class DataManager {
 	 *
 	 * @throws DataManagerException when connection is not set yet
 	 */
-	public void initDatabase() throws DataManagerException {
+	public void initDatabase(BufferedReader br) throws DataManagerException {
 		tryConnection();
 
-		// TODO here will be run initialize script
+		// TODO: run that script somehow!!!
+
 	}
 
 	/**
