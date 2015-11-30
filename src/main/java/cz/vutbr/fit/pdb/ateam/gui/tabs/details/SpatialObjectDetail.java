@@ -81,7 +81,7 @@ public class SpatialObjectDetail extends BasePanel {
 		deleteButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				controller.spatialObjectsTableDeleteAction(spatialObject);
+				controller.detailDeleteButtonAction(spatialObject);
 			}
 		});
 	}

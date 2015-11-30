@@ -6,6 +6,7 @@ import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapPanel;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
+import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
 import cz.vutbr.fit.pdb.ateam.observer.*;
 import oracle.spatial.geometry.JGeometry;
 
@@ -179,8 +180,9 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 
 						// actually create object
 						JGeometry geom = SpatialObjectModel.createJGeometryFromModelType(creatingModelType, pressedX, pressedY, oldPressedX, oldPressedY);
-						SpatialObjectModel newObject = SpatialObjectModel.createFromJGeometry("<<new>>", dataManager.getSpatialObjectType(2L), geom);
+						SpatialObjectModel newObject = SpatialObjectModel.createFromJGeometry("<<new>>", dataManager.getSpatialObjectType(21L), geom); // TODO magic constant
 						getSpatialObjects().add(newObject);
+						SpatialObjectsReloadObservable.getInstance().notifyObservers();
 						oldPressedX = oldPressedY = mouseClickCount = 0;
 						setMode(MouseMode.SELECTING);
 

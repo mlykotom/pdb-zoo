@@ -1,6 +1,7 @@
 package cz.vutbr.fit.pdb.ateam.controller;
 
 import cz.vutbr.fit.pdb.ateam.gui.components.SpatialObjectsTable;
+import cz.vutbr.fit.pdb.ateam.gui.help.CreatingBuildingHelper;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.SpatialObjectsTab;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.details.SpatialObjectDetail;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.lists.SpatialObjectsList;
@@ -10,6 +11,8 @@ import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
 import cz.vutbr.fit.pdb.ateam.observer.*;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -183,8 +186,8 @@ public class SpatialObjectTabController
 
 	public void createBuildingButton() {
 		SpatialObjectModel.ModelType shapeType = spatialObjectList.getComboBoxValue();
-
 		SpatialObjectCreatingObservable.getInstance().notifyObservers(shapeType);
+		Utils.changePanelContent(spatialObjectsTab, new CreatingBuildingHelper(shapeType));
 	}
 
 	@Override
