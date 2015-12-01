@@ -3,6 +3,7 @@ package cz.vutbr.fit.pdb.ateam.controller;
 import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
+import cz.vutbr.fit.pdb.ateam.model.EmployeeModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
 import cz.vutbr.fit.pdb.ateam.observer.IModelChangedStateListener;
@@ -41,6 +42,7 @@ public class Controller {
 	 */
 	public void reloadAllData() {
 		reloadSpatialObjects();
+		reloadEmployees();
 	}
 
 	/**
@@ -145,4 +147,41 @@ public class Controller {
 	public ArrayList<SpatialObjectTypeModel> getSpatialObjectTypes() {
 		return dataManager.getSpatialObjectTypes();
 	}
+
+
+	/**
+	 * Asynchronously reloads data and store as cached data in dataManager.
+	 * Data are accessible through {@link #getEmployees()} method
+	 */
+	public void reloadEmployees() {
+		AsyncTask task = new AsyncTask() {
+			@Override
+			protected void onDone(boolean success) {
+				SpatialObjectsReloadObservable.getInstance().notifyObservers();
+			}//TODO change to EmployeeReloadObservable?
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				try {
+					dataManager.reloadAllEmployees();
+					return true;
+				} catch (DataManagerException e) {
+					Logger.createLog(Logger.ERROR_LOG, e.getMessage());
+				}
+				return false;
+			}
+		};
+
+		task.start();
+	}
+
+	/**
+	 * Synchronouse method (available everywhere)
+	 *
+	 * @return cached employees data from dataManager
+	 */
+	public ArrayList<EmployeeModel> getEmployees() {
+		return dataManager.getEmployees();
+	}
+	
 }

@@ -3,6 +3,7 @@ package cz.vutbr.fit.pdb.ateam.adapter;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
+import cz.vutbr.fit.pdb.ateam.model.EmployeeModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
@@ -31,6 +32,7 @@ public class DataManager {
 
 	private ArrayList<SpatialObjectModel> spatialObjects;
 	private ArrayList<SpatialObjectTypeModel> spatialObjectTypes;
+	private ArrayList<EmployeeModel> employees;
 
 	/**
 	 * Method returns instance of the DataManager object, which was
@@ -423,5 +425,52 @@ public class DataManager {
 	 */
 	public ArrayList<SpatialObjectTypeModel> getSpatialObjectTypes() {
 		return spatialObjectTypes;
+	}
+
+
+	/**
+	 * Method returns all spatial objects types from the database.
+	 *
+	 * @return Set of the SpacialObjectType, which contains all object types saved in the database
+	 * @throws DataManagerException when exception from createDatabaseQuery() is received
+	 */
+	public ArrayList<EmployeeModel> reloadAllEmployees() throws DataManagerException {
+		ArrayList<EmployeeModel> employees = new ArrayList<>();
+
+		String sqlQuery = "SELECT * FROM Employees";
+		ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+		try {
+			while (resultSet.next()) {
+				Long id = resultSet.getLong("ID");
+				String name = resultSet.getString("Name");
+				String surname = resultSet.getString("Surname");
+				Long location = Long.valueOf(4);//resultSet.getLong("Location");
+				employees.add(new EmployeeModel(id, name, surname, location));
+			}
+		} catch (SQLException ex) {
+			throw new DataManagerException("getAllEmployees: SQLException: " + ex.getMessage());
+		}
+
+		this.employees = employees;
+
+		// TODO void???
+		return employees;
+	}
+
+
+	// -----------------------------------------
+	// ------------- METHODS FOR EMPLOYEES -----
+	// -----------------------------------------
+
+
+
+	/**
+	 * Is used to get cached data from Employees Table.
+	 *
+	 * @return list of Employees
+	 */
+	public ArrayList<EmployeeModel> getEmployees() {
+		return employees;
 	}
 }
