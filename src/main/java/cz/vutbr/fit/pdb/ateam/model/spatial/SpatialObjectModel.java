@@ -417,4 +417,9 @@ abstract public class SpatialObjectModel extends BaseModel {
 	public void setGeometry(JGeometry geometry) {
 		this.geometry = geometry;
 	}
+
+	@Override
+	public String toString() {
+		return "#"+ id + " " + getType().getName() + ": " + name;
+	}
 }
