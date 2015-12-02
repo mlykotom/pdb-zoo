@@ -36,10 +36,6 @@ public class EmployeesTable extends JTable {
 		});
 		this.setRowSorter(sorter);
 
-		getColumn("DELETE").setCellRenderer(new ButtonRenderer());
-		getColumn("DELETE").setCellEditor(
-				new ButtonEditor(controller));
-
 		getColumn("EDIT").setCellRenderer(new ButtonRenderer());
 		getColumn("EDIT").setCellEditor(
 				new ButtonEditor(controller));
@@ -54,7 +50,7 @@ public class EmployeesTable extends JTable {
 		private ArrayList<EmployeeModel> objectsList;
 
 		public EmployeesTableModel() {
-			columnNames = new String[] {"ID", "NAME", "SURNAME", "LOCATION", "DELETE", "EDIT"};
+			columnNames = new String[] {"ID", "NAME", "SURNAME", "LOCATION", "EDIT"};
 			objectsList = new ArrayList<>();
 		}
 
@@ -92,8 +88,6 @@ public class EmployeesTable extends JTable {
 				case 3:
 					return EmployeeModel.getLocation();
 				case 4:
-					return "Delete";
-				case 5:
 					return "Edit";
 				default:
 					return "";
@@ -172,15 +166,13 @@ public class EmployeesTable extends JTable {
 			isPushed = true;
 
 			this.EmployeeModel = ((EmployeesTableModel)table.getModel()).getEmployeeModel(row);
-			if(column == 4) this.pushedButton = "delete";
-			if(column == 5) this.pushedButton = "edit";
+			if(column == 4) this.pushedButton = "edit";
 
 			return button;
 		}
 
 		public Object getCellEditorValue() {
 			if (isPushed) {
-				if(pushedButton.equals("delete")) controller.EmployeesTableDeleteAction(EmployeeModel);
 				if(pushedButton.equals("edit")) controller.EmployeesTableEditAction(EmployeeModel);
 			}
 			isPushed = false;
