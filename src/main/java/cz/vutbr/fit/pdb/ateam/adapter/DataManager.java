@@ -298,6 +298,9 @@ public class DataManager {
 		}else if (model instanceof  EmployeeModel){
 			return saveEmployee((EmployeeModel) model);
 		}
+		else if(model instanceof ImageModel) {
+			return saveImage((ImageModel) model);
+		}
 		// TODO here specify model's saving methods!
 		else {
 			throw new DataManagerException("saveModel(): Unsupported model to save");
@@ -378,8 +381,8 @@ public class DataManager {
 			if(model.isNew()) {
 				Statement statement = connection.createStatement();
 				String insertSQL = "";
-				insertSQL += "INSERT INTO " + model.getTableName() + "(name, photo) ";
-				insertSQL += "VALUES (" + model.getName() + ", ordys.ordimage.init())";
+				insertSQL += "INSERT INTO " + model.getTableName() + " (name, photo) ";
+				insertSQL += "VALUES ('" + model.getName() + "', ordsys.ordimage.init())";
 				Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + insertSQL);
 				statement.executeUpdate(insertSQL);
 				ResultSet getIdResultSet = connection.createStatement().executeQuery("SELECT " + model.getTableName() + "_seq.currval FROM dual");
@@ -392,9 +395,11 @@ public class DataManager {
 			if(model.getImage() == null) {
 				Statement stmt = connection.createStatement();
 				String selectSQL = "";
-				selectSQL += "SELECT " + model.getTableName() + " ";
+				selectSQL += "SELECT photo ";
+				selectSQL += "FROM " + model.getTableName() + " ";
 				selectSQL += "WHERE id=" + model.getId() + " ";
 				selectSQL += " FOR UPDATE";
+				Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + selectSQL);
 				OracleResultSet rset = (OracleResultSet) stmt.executeQuery(selectSQL);
 				if(!rset.next()) {
 					throw new DataManagerException("Object with id=[" + model.getId() + "] not found!");
@@ -413,10 +418,11 @@ public class DataManager {
 
 			String updateSQL = "";
 			updateSQL += "UPDATE " + model.getTableName() + " ";
-			updateSQL += "SET name=" + model.getName() + " photo=? ";
+			updateSQL += "SET name=?, photo=? ";
 			updateSQL += "WHERE id=" + model.getId();
 			OraclePreparedStatement preparedStmt = (OraclePreparedStatement) connection.prepareStatement(updateSQL);
-			preparedStmt.setORAData(1, model.getImage());
+			preparedStmt.setString(1, model.getName());
+			preparedStmt.setORAData(2, model.getImage());
 			Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + updateSQL + " | photo=" + model.getImage().toString());
 			preparedStmt.executeUpdate();
 			preparedStmt.close();

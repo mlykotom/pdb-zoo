@@ -2,19 +2,71 @@ package cz.vutbr.fit.pdb.ateam.gui;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
+import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
+import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
+import cz.vutbr.fit.pdb.ateam.gui.components.ImagePanel;
+import cz.vutbr.fit.pdb.ateam.model.multimedia.ImageModel;
+import cz.vutbr.fit.pdb.ateam.utils.Logger;
+import cz.vutbr.fit.pdb.ateam.utils.Utils;
+import oracle.ord.im.OrdImage;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.SQLException;
 
 /**
  * Created by Jakub on 02.12.2015.
  */
 public class MultimediaTest extends JPanel {
 	private JPanel rootPanel;
-	private JButton saveImg;
+	private JButton saveImageButton;
+	private JButton openFileButton;
+	private JPanel imagePanel;
+	private JFileChooser fileChooser;
+
+	private ImageModel model;
 
 	public MultimediaTest() {
 		add(rootPanel);
+
+		fileChooser = new JFileChooser();
+
+		openFileButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int returnVal = fileChooser.showOpenDialog(rootPanel);
+
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = fileChooser.getSelectedFile();
+
+					System.out.println("File Selected: " + file.getName() + "!");
+
+					model = new ImageModel(0, file.getName());
+					model.setImagePath(file.getPath());
+					model.setIsChanged(true);
+
+					try {
+						DataManager.getInstance().saveModel(model);
+					} catch (DataManagerException e1) {
+						Logger.createLog(Logger.ERROR_LOG, e1.getMessage());
+					}
+
+					// TODO print image into panel, maybe use processCopy
+				} else {
+					System.out.println("Cancel button pressed!");
+
+					model = null;
+				}
+			}
+		});
 	}
 
 	{
@@ -33,10 +85,16 @@ public class MultimediaTest extends JPanel {
 	 */
 	private void $$$setupUI$$$() {
 		rootPanel = new JPanel();
-		rootPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-		saveImg = new JButton();
-		saveImg.setText("Button");
-		rootPanel.add(saveImg, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		rootPanel.setLayout(new GridLayoutManager(2, 2, new Insets(15, 15, 15, 15), -1, -1));
+		saveImageButton = new JButton();
+		saveImageButton.setText("save");
+		rootPanel.add(saveImageButton, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		openFileButton = new JButton();
+		openFileButton.setText("open");
+		rootPanel.add(openFileButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		imagePanel = new JPanel();
+		imagePanel.setLayout(new CardLayout(0, 0));
+		rootPanel.add(imagePanel, new GridConstraints(0, 0, 2, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 	}
 
 	/**
