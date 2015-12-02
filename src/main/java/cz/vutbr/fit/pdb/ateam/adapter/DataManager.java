@@ -6,12 +6,15 @@ import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import cz.vutbr.fit.pdb.ateam.model.EmployeeModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
+import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
 import oracle.jdbc.OraclePreparedStatement;
 import oracle.jdbc.pool.OracleDataSource;
 import oracle.spatial.geometry.JGeometry;
 import oracle.sql.ORAData;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -471,6 +474,60 @@ public class DataManager {
 	 * @return list of Employees
 	 */
 	public ArrayList<EmployeeModel> getEmployees() {
+		return employees;
+	}
+
+
+	public ArrayList<EmployeeModel> getEmployeesAtDate(final Date date) throws DataManagerException {
+		final ArrayList<EmployeeModel> employees = new ArrayList<EmployeeModel>();
+		AsyncTask asyncTask = new AsyncTask() {
+			@Override
+			protected void onDone(boolean success) {
+				System.out.println("Hotovo");
+			}
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				java.sql.Date dateToShow = new java.sql.Date(date.getTime());
+				String datum = new SimpleDateFormat("dd-MMM-yyyy").format(date);
+				String sqlQuery = "SELECT e.ID, e.Name, e.Surname, Location " +
+						"FROM EMPLOYEES e LEFT JOIN Employees_Shift s ON e.ID = s.EmplId " +
+						"WHERE s.dFrom <= '" + datum + "' AND s.dTo >= '" + datum + "'";
+//				String sqlQuery = "SELECT * FROM Employees_Shift";
+//				String sqlQuery = "SELECT * FROM HAHA";
+//				String sqlQuery = "INSERT INTO HAHA (ID) VALUES (1)";
+//
+//				CREATE TABLE HAHA (
+//						ID INT NOT NULL,
+//						PRIMARY KEY (ID)
+//				);
+
+//				String sqlQuery = "\n" +
+//						"SELECT e.*, s.Location, s.dFrom, s.dTo  FROM Employees e\n" +
+//						"LEFT JOIN Employees_Shift s on e.ID = s.EmplID\n" +
+//						"WHERE s.dFrom <= dateToShow and s.dTo >= dateToShow\n";
+				ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+//				PreparedStatement psSelectRecord = null;
+//				psSelectRecord = connection.prepareStatement(sqlQuery);
+//				ResultSet resultSet = psSelectRecord.executeQuery();
+
+				System.out.println("dasdasadadasdasdasdasdafasd");
+				try {
+					while (resultSet.next()) {
+						Long id = resultSet.getLong("ID");
+						String name = resultSet.getString("Name");
+						String surname = resultSet.getString("Surname");
+						Long location = resultSet.getLong("Location");
+						employees.add(new EmployeeModel(id, name, surname, location));
+					}
+				} catch (SQLException e) {
+					throw new DataManagerException("getAllEmployeesAtDate: SQLException: " + e.getMessage());
+				}
+				return true;
+			}
+		};
+		asyncTask.start();
 		return employees;
 	}
 }

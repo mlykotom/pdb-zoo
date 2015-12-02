@@ -1,6 +1,8 @@
 package cz.vutbr.fit.pdb.ateam.controller;
 
 import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
+import cz.vutbr.fit.pdb.ateam.exception.ControllerException;
+import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.gui.components.EmployeesTable;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.EmployeesTab;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.details.EmployeeDetailPanel;
@@ -9,8 +11,10 @@ import cz.vutbr.fit.pdb.ateam.model.EmployeeModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.observer.ISpatialObjectSelectionChangedListener;
 import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectSelectionChangeObservable;
+import cz.vutbr.fit.pdb.ateam.utils.Logger;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
 
+import javax.swing.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -22,6 +26,8 @@ import java.util.List;
  */
 public class EmployeesTabController extends Controller implements ISpatialObjectSelectionChangedListener, EmployeesTableController {
 	public static final Long ALL_LOCATIONS = Long.valueOf(-1);
+	public static final Boolean SHOW_ACTUAL_DATA = true;
+	public static final Boolean SHOW_HISTORY = false;
 
 	private EmployeesTab employeesTab;
 	private EmployeesListPanel employeesListPanel;
@@ -71,14 +77,13 @@ public class EmployeesTabController extends Controller implements ISpatialObject
 		EmployeesTable table = new EmployeesTable(this);
 		List<EmployeeModel> models;
 
-		models = getEmployees();
-
-		// TODO fill models by parameter from controller not the other way
-//		if (Utils.removeTime(dateToDisplay).before(Utils.removeTime(Calendar.getInstance().getTime()))){
-////		models = DataManager.getInstance().getEmployeesFromTO(dateToDisplay,dateToDisplay);
-//		}else{
-//			models = getEmployees();
-//		}
+//		models = getEmployees();
+		models = new ArrayList<EmployeeModel>();
+		try {
+			models = dataManager.getEmployeesAtDate(dateToDisplay);
+		} catch (DataManagerException e) {
+			Logger.createLog(Logger.ERROR_LOG, e.getMessage());
+		}
 
 		for (EmployeeModel model : models) {
 			if (selectedSpatialObject == null){
@@ -188,27 +193,64 @@ public class EmployeesTabController extends Controller implements ISpatialObject
 	@Override
 	public void spatialObjectSelectionChangedListener(SpatialObjectModel spatialObjectModel) {
 		//TODO Do a reacton on NotifyObjectSelectonCHanged()
-//		this.selectedSpatialObject = spatialObjectModel;
-//		showEmployeeList(dateToDisplay);
+		System.out.println("wtf");
+		this.selectedSpatialObject = spatialObjectModel;
+		showEmployeeList(dateToDisplay);
 	}
 
 	@Override
 	public void EmployeesTableEditAction(EmployeeModel employeeModel) {
-//		editEmployeeDetail(employeeModel, EmployeeDetailPanel.EDIT_EMPLOYEE);
+		editEmployeeDetail(employeeModel, EmployeeDetailPanel.EDIT_EMPLOYEE);
 		//TODO Show DetailPanel for selected Employee
 	}
 
 	@Override
 	public void EmployeesTableDeleteAction(EmployeeModel employeeModel) {
-//		System.out.println("vymazavam zamestnanca menom " + employeeModel.getName());
+		System.out.println("vymazavam zamestnanca menom " + employeeModel.getName());
 		//TODO Delete selected employee
 	}
 
+
+	/**
+	 * Whenever user select a date from datePicker on EmployeeListPanel this action is triggered.
+	 * Content of EmployeeListPanel is then updated if date is corret.
+	 *
+	 * If newDate is from future ??alert message pops up??
+	 * @param newDate New date selected from DatePicker
+	 */
 	public void datePickerChangedAction(Date newDate) {
-//		if (!Utils.removeTime(dateToDisplay).equals(Utils.removeTime(newDate))){
-//			dateToDisplay = newDate;
-//			showEmployeeList(dateToDisplay);
-//		}
+		Date newDateWithoutTime = Utils.removeTime(newDate);
+		Date currentlyDisplayedDateWithoutTime = Utils.removeTime(dateToDisplay);
+		Date todayDateWithoutTime = Utils.removeTime(Calendar.getInstance().getTime());
+
+		try{
+			if (newDateWithoutTime.after(todayDateWithoutTime)){
+				throw new ControllerException("datePickerChangedAction: " + "Future date selected!");
+			}
+		} catch (ControllerException e) {
+			Logger.createLog(Logger.WARNING_LOG, "datePickerChangedAction: Future date selected.");
+			employeesListPanel.switchToToday();
+			newDateWithoutTime = todayDateWithoutTime;
+			//TODO Create Alert message ??here or in the listPanel??
+		} finally {
+			if (!currentlyDisplayedDateWithoutTime.equals(newDateWithoutTime)){
+				dateToDisplay = newDateWithoutTime;
+				showEmployeeList(dateToDisplay);
+			}
+		}
+	}
+
+	public void actualDateSwitchAction(boolean isSelected) {
+		System.out.println("Actual checked");
+		dateToDisplay = Utils.removeTime(Calendar.getInstance().getTime());
+		showEmployeeList(dateToDisplay);
+		employeesListPanel.switchToToday();
+	}
+
+	public void showHistorySwitchAction() {
+		System.out.println("History checked");
+		employeesListPanel.switchToPast(Utils.removeTime(Calendar.getInstance().getTime()));
+//		dateToDisplay = Utils.removeTime(Calendar.getInstance().getTime());
 
 	}
 }

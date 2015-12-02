@@ -4,6 +4,8 @@ import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Class includes helpful static methods used in the whole application.
@@ -61,5 +63,20 @@ public class Utils {
 		}
 
 		return num2;
+	}
+
+	/**
+	 * If you want use date only as Year, Mont, Day this function removes any extra time units (hours, minutes, ... )
+	 * @param date
+	 * @return
+	 */
+	public static Date removeTime(Date date) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		return cal.getTime();
 	}
 }

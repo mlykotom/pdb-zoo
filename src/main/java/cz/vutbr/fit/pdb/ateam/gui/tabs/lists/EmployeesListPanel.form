@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="cz.vutbr.fit.pdb.ateam.gui.tabs.lists.EmployeesListPanel">
-  <grid id="27dc6" binding="rootPanel" layout-manager="GridLayoutManager" row-count="5" column-count="8" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="rootPanel" layout-manager="GridLayoutManager" row-count="6" column-count="6" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="500" height="400"/>
+      <xy x="20" y="20" width="507" height="400"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
       <grid id="6defd" binding="tablePanel" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints>
-          <grid row="4" column="0" row-span="1" col-span="5" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="5" column="0" row-span="1" col-span="5" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
@@ -18,64 +18,100 @@
       </grid>
       <component id="6787e" class="javax.swing.JLabel">
         <constraints>
-          <grid row="3" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="4" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <font size="20" style="1"/>
           <text value="Employees List"/>
         </properties>
       </component>
-      <component id="3e086" class="javax.swing.JSeparator">
+      <component id="cec13" class="javax.swing.JCheckBox" binding="actualCheckBox" default-binding="true">
         <constraints>
-          <grid row="2" column="0" row-span="1" col-span="7" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
+            <maximum-size width="85" height="-1"/>
+          </grid>
         </constraints>
-        <properties/>
+        <properties>
+          <font size="16"/>
+          <text value="Today"/>
+        </properties>
       </component>
-      <component id="ee7ee" class="javax.swing.JLabel">
+      <component id="e8c1f" class="javax.swing.JLabel">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <font size="20" style="1"/>
-          <text value="Pick a date:"/>
+          <text value="Date:"/>
         </properties>
       </component>
-      <hspacer id="1ba75">
+      <component id="8259" class="javax.swing.JCheckBox" binding="historyCheckBox" default-binding="true">
         <constraints>
-          <grid row="1" column="6" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
+            <maximum-size width="85" height="-1"/>
+          </grid>
         </constraints>
-      </hspacer>
-      <hspacer id="c5c3c">
+        <properties>
+          <font size="16"/>
+          <text value="History"/>
+        </properties>
+      </component>
+      <component id="3e086" class="javax.swing.JSeparator">
         <constraints>
-          <grid row="2" column="7" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="3" column="0" row-span="1" col-span="5" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <hspacer id="11f65">
+        <constraints>
+          <grid row="1" column="3" row-span="1" col-span="3" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
+            <minimum-size width="25" height="-1"/>
+          </grid>
         </constraints>
       </hspacer>
       <component id="50bcf" class="javax.swing.JButton" binding="addButton" default-binding="true">
         <constraints>
-          <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
+            <maximum-size width="85" height="-1"/>
+          </grid>
         </constraints>
         <properties>
           <text value="Add"/>
         </properties>
       </component>
-      <grid id="70703" binding="datePickerPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+      <grid id="55f6c" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
-          <grid row="1" column="4" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="1" row-span="1" col-span="3" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
-        <children/>
-      </grid>
-      <hspacer id="5468f">
-        <constraints>
-          <grid row="1" column="1" row-span="1" col-span="3" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-      </hspacer>
-      <hspacer id="11f65">
-        <constraints>
-          <grid row="1" column="5" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
-            <minimum-size width="25" height="-1"/>
+        <children>
+          <component id="3ac1b" class="javax.swing.JLabel" binding="datePickerLabel">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <font size="18" style="1"/>
+              <text value="Pick:"/>
+            </properties>
+          </component>
+          <grid id="70703" binding="datePickerBox" layout-manager="BorderLayout" hgap="0" vgap="0">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <minimum-size width="150" height="-1"/>
+                <maximum-size width="150" height="-1"/>
+              </grid>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children/>
           </grid>
+        </children>
+      </grid>
+      <hspacer id="c5c3c">
+        <constraints>
+          <grid row="3" column="5" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
       </hspacer>
     </children>
