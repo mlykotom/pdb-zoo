@@ -370,6 +370,33 @@ public class DataManager {
 	// ------------- METHODS FOR SPATIAL OBJECTS
 	// -----------------------------------------
 
+	public synchronized ImageModel getImage(Long id) throws DataManagerException {
+		try {
+			Statement stmt = connection.createStatement();
+			String selectSQL = "";
+			selectSQL += "SELECT * ";
+			selectSQL += "FROM Test_images ";
+			selectSQL += "WHERE id=" + id + " ";
+			selectSQL += " FOR UPDATE";
+			Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + selectSQL);
+			OracleResultSet rset = (OracleResultSet) stmt.executeQuery(selectSQL);
+			if(!rset.next()) {
+				throw new DataManagerException("Object with id=[" + id + "] not found!");
+			}
+			String name = rset.getString("name");
+			OrdImage image = (OrdImage) rset.getORAData("photo", OrdImage.getORADataFactory());
+			rset.close();
+			stmt.close();
+
+			ImageModel model = new ImageModel(id, name);
+			model.setImage(image);
+
+			return model;
+		} catch (SQLException e) {
+			throw new DataManagerException("SQLException: " + e.getMessage());
+		}
+	}
+
 	/**
 	 * TODO
 	 */
@@ -392,27 +419,25 @@ public class DataManager {
 				statement.close();
 			}
 
-			if(model.getImage() == null) {
-				Statement stmt = connection.createStatement();
-				String selectSQL = "";
-				selectSQL += "SELECT photo ";
-				selectSQL += "FROM " + model.getTableName() + " ";
-				selectSQL += "WHERE id=" + model.getId() + " ";
-				selectSQL += " FOR UPDATE";
-				Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + selectSQL);
-				OracleResultSet rset = (OracleResultSet) stmt.executeQuery(selectSQL);
-				if(!rset.next()) {
-					throw new DataManagerException("Object with id=[" + model.getId() + "] not found!");
-				}
-				OrdImage image = (OrdImage) rset.getORAData("photo", OrdImage.getORADataFactory());
-				rset.close();
-				stmt.close();
-
-				model.setImage(image);
+			Statement stmt = connection.createStatement();
+			String selectSQL = "";
+			selectSQL += "SELECT photo ";
+			selectSQL += "FROM " + model.getTableName() + " ";
+			selectSQL += "WHERE id=" + model.getId() + " ";
+			selectSQL += " FOR UPDATE";
+			Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + selectSQL);
+			OracleResultSet rset = (OracleResultSet) stmt.executeQuery(selectSQL);
+			if(!rset.next()) {
+				throw new DataManagerException("Object with id=[" + model.getId() + "] not found!");
 			}
+			OrdImage image = (OrdImage) rset.getORAData("photo", OrdImage.getORADataFactory());
+			rset.close();
+			stmt.close();
 
-			if(model.getImagePath() != null) {
-				model.getImage().loadDataFromFile(model.getImagePath());
+			model.setImage(image);
+
+			if(model.getImageByteArray() != null) {
+				model.getImage().loadDataFromByteArray(model.getImageByteArray());
 				model.getImage().setProperties();
 			}
 
@@ -427,7 +452,7 @@ public class DataManager {
 			preparedStmt.executeUpdate();
 			preparedStmt.close();
 
-			Statement stmt = connection.createStatement();
+			 stmt = connection.createStatement();
 			String updateStillImageSQL = "";
 			updateStillImageSQL += "UPDATE " + model.getTableName() + " t ";
 			updateStillImageSQL += "SET t.photo_si=SI_STILLImage(t.photo.getContent()) ";
@@ -456,6 +481,7 @@ public class DataManager {
 			throw new DataManagerException("IOException: " + e.getMessage());
 		}
 
+		model.setImageByteArray(null);
 		model.setIsChanged(false);
 		return true;
 	}

@@ -14,26 +14,33 @@ import java.sql.SQLException;
 public class ImageModel extends BaseModel {
 
 	private OrdImage image;
-	private String imagePath;
+	private byte[] imageByteArray;
 
 	public ImageModel(long id, String name) {
 		super(id, name);
+	}
+
+	public byte[] getImageByteArray() {
+		return imageByteArray;
+	}
+
+	public void setImageByteArray(byte[] imageByteArray) {
+		this.imageByteArray = imageByteArray;
 	}
 
 	public void setImage(OrdImage image) {
 		this.image = image;
 	}
 
-	public String getImagePath() {
-		return imagePath;
-	}
-
-	public void setImagePath(String imagePath) {
-		this.imagePath = imagePath;
-	}
-
 	public OrdImage getImage() {
 		return this.image;
+	}
+
+	public ImageModel copy() {
+		ImageModel newModel = new ImageModel(this.getId(), this.getName());
+		newModel.setImage(this.getImage());
+
+		return newModel;
 	}
 
 	@Override
