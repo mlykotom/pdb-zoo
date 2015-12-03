@@ -134,7 +134,8 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 
 	public enum MouseMode {
 		CREATING(new Cursor(Cursor.CROSSHAIR_CURSOR)),
-		SELECTING(new Cursor(Cursor.HAND_CURSOR));
+		SELECTING(new Cursor(Cursor.HAND_CURSOR)),
+		MERGING(new Cursor(Cursor.HAND_CURSOR));
 
 		private Cursor cursor;
 
@@ -168,7 +169,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 			pressedY = mouseEvent.getY();
 			mouseClickCount++;
 
-			switch (mode) {
+			switch(mode){
 				case CREATING:
 					try {
 						// only count points
@@ -189,14 +190,13 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 					} catch (DataManagerException | ModelException e) {
 						e.printStackTrace();
 					}
-
 					break;
 
-				// creating has more priority than selecting
+				case MERGING:
+					break;
+
 				case SELECTING:
-					selectedObject = getObjectFromCanvas(pressedX, pressedY);
-					// selected object may be null, in this case every object is unselected
-					selectSpatialObject(selectedObject);
+					// note: selecting is handled in mousePress
 					break;
 			}
 
@@ -209,9 +209,17 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		 * @param mouseEvent
 		 */
 		public void mousePressed(MouseEvent mouseEvent) {
+			if(mode != MouseMode.SELECTING) return;
+
 			pressedX = mouseEvent.getX();
 			pressedY = mouseEvent.getY();
+
+			// creating has more priority than selecting
 			selectedObject = getObjectFromCanvas(pressedX, pressedY);
+			// selected object may be null, in this case every object is unselected
+			selectSpatialObject(selectedObject);
+
+			canvas.repaint();
 		}
 
 		/**
@@ -285,16 +293,6 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		if (selectedObjectOnCanvas == null) return;
 		selectedObjectOnCanvas.setDeleted(true);
 		saveModels(selectedObjectOnCanvas); // TODO if want just delete without saving must implement reload canvas
-	}
-
-	/**
-	 * Adds new object to canvas
-	 * TODO temporary - should be in right tab
-	 * TODO should send object type
-	 */
-	public void createSpatialObjectAction() {
-		SpatialObjectModel.ModelType type = SpatialObjectModel.ModelType.CIRCLE; // TODO here change for what you want (select from combobox)
-		SpatialObjectCreatingObservable.getInstance().notifyObservers(type);
 	}
 
 	// -----------------------
