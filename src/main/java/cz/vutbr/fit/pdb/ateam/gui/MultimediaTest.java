@@ -22,8 +22,8 @@ import java.sql.SQLException;
  * Created by Jakub on 02.12.2015.
  */
 public class MultimediaTest extends JPanel {
-	private static final int IMAGE_WIDTH = 100;
-	private static final int IMAGE_HEIGHT = 100;
+	private static final int IMAGE_WIDTH = 200;
+	private static final int IMAGE_HEIGHT = 200;
 
 	private JPanel rootPanel;
 	private JButton saveImageButton;
@@ -37,7 +37,6 @@ public class MultimediaTest extends JPanel {
 	private JFileChooser fileChooser;
 
 	private ImageModel model;
-	private ImageModel oldModel;
 
 	public MultimediaTest() {
 		add(rootPanel);
@@ -96,6 +95,8 @@ public class MultimediaTest extends JPanel {
 		loadButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if(idTextField.getText() == null) return;
+
 				Long id = Long.parseLong(idTextField.getText());
 
 				try {

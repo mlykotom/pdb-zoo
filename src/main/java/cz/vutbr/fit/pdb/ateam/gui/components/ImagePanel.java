@@ -4,7 +4,6 @@ import cz.vutbr.fit.pdb.ateam.utils.Logger;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
 
 import javax.imageio.ImageIO;
-import javax.rmi.CORBA.Util;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -52,8 +51,9 @@ public class ImagePanel extends JPanel {
 	}
 
 	public void rotateImage() {
-		AffineTransform transform = new AffineTransform();
-		transform.rotate(Math.toRadians(90), originalImage.getWidth()/2, originalImage.getHeight()/2);
+		AffineTransform transform = AffineTransform.getScaleInstance(-1, 1);
+		//transform.rotate(Math.toRadians(180), originalImage.getWidth()/2, originalImage.getHeight()/2);
+		transform.translate(-originalImage.getWidth(null), 0);
 		AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
 		originalImage = op.filter(originalImage, null);
 

@@ -452,7 +452,7 @@ public class DataManager {
 			preparedStmt.executeUpdate();
 			preparedStmt.close();
 
-			 stmt = connection.createStatement();
+			stmt = connection.createStatement();
 			String updateStillImageSQL = "";
 			updateStillImageSQL += "UPDATE " + model.getTableName() + " t ";
 			updateStillImageSQL += "SET t.photo_si=SI_STILLImage(t.photo.getContent()) ";
