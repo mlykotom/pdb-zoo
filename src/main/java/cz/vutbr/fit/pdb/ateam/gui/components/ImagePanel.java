@@ -30,6 +30,19 @@ public class ImagePanel extends JPanel {
 		}
 	}
 
+	public ImagePanel(BufferedImage bufferedImage, JPanel parentPanel) {
+		originalImage = bufferedImage;
+		this.parentPanel = parentPanel;
+	}
+
+	public void setParentPanel(JPanel parentPanel) {
+		this.parentPanel = parentPanel;
+	}
+
+	public ImagePanel copy() {
+		return new ImagePanel(originalImage, parentPanel);
+	}
+
 	public ImagePanel(File file, JPanel parentPanel) {
 		try {
 			originalImage = ImageIO.read(file);
@@ -52,18 +65,24 @@ public class ImagePanel extends JPanel {
 
 	public void rotateImage() {
 		AffineTransform transform = AffineTransform.getScaleInstance(-1, 1);
-		//transform.rotate(Math.toRadians(180), originalImage.getWidth()/2, originalImage.getHeight()/2);
 		transform.translate(-originalImage.getWidth(null), 0);
 		AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
 		originalImage = op.filter(originalImage, null);
 
-		Utils.changePanelContent(parentPanel, this);
+		revalidate();
+		repaint();
 	}
 
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		Image scaledImage = originalImage.getScaledInstance(parentPanel.getWidth(), parentPanel.getHeight(), Image.SCALE_SMOOTH);
+
+		Image scaledImage;
+		if(parentPanel != null)
+			scaledImage = originalImage.getScaledInstance(parentPanel.getWidth(), parentPanel.getHeight(), Image.SCALE_SMOOTH);
+		else
+			scaledImage = originalImage;
+
 		g.drawImage(scaledImage, 0, 0, null); // see javadoc for more info on the parameters
 	}
 }

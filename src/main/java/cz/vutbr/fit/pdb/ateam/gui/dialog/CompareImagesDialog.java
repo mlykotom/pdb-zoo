@@ -3,6 +3,7 @@ package cz.vutbr.fit.pdb.ateam.gui.dialog;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import cz.vutbr.fit.pdb.ateam.gui.components.ImagePanel;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
 
 import javax.swing.*;
@@ -11,44 +12,55 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class CompareImagesDialog extends JDialog {
+	private static final int WINDOW_WIDTH = 600;
+	private static final int WINDOW_HEIGHT = 600;
+	private static final int IMAGE_WIDTH = 200;
+	private static final int IMAGE_HEIGHT = 200;
+
 	private JPanel contentPane;
 	private JButton buttonCancel;
 	private JPanel originalImagePanel;
-	private JPanel similarImagesPanel;
+	private JPanel similarImagePanel1;
+	private JPanel similarImagePanel2;
+	private JPanel similarImagePanel3;
 
-	public CompareImagesDialog() {
+	public CompareImagesDialog(JPanel parentPanel, ImagePanel originalImage, ImagePanel image1, ImagePanel image2, ImagePanel image3) {
 		setContentPane(contentPane);
 		setModal(true);
+		setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+		setTitle("Photos comparison");
+		setLocationRelativeTo(parentPanel);
 		getRootPane().setDefaultButton(buttonCancel);
 
-		Utils.setComponentFixSize(originalImagePanel, 200, 200);
-		Utils.setComponentFixSize(similarImagesPanel, 200, 500);
+		Utils.setComponentFixSize(originalImagePanel, IMAGE_WIDTH, IMAGE_HEIGHT);
+		Utils.setComponentFixSize(similarImagePanel1, IMAGE_WIDTH, IMAGE_HEIGHT);
+		Utils.setComponentFixSize(similarImagePanel2, IMAGE_WIDTH, IMAGE_HEIGHT);
+		Utils.setComponentFixSize(similarImagePanel3, IMAGE_WIDTH, IMAGE_HEIGHT);
+
+		if(originalImage != null) {
+			originalImage.setParentPanel(originalImagePanel);
+			originalImagePanel.add(originalImage);
+		}
+		if(image1 != null) {
+			image1.setParentPanel(this.originalImagePanel);
+			similarImagePanel1.add(image1);
+		}
+		if(image2 != null) {
+			image2.setParentPanel(this.originalImagePanel);
+			similarImagePanel2.add(image2);
+		}
+		if(image3 != null) {
+			image3.setParentPanel(this.originalImagePanel);
+			similarImagePanel3.add(image3);
+		}
 
 		buttonCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				onCancel();
+				dispose();
 			}
 		});
 
-// call onCancel() when cross is clicked
-		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-		addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
-				onCancel();
-			}
-		});
-
-// call onCancel() on ESCAPE
-		contentPane.registerKeyboardAction(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				onCancel();
-			}
-		}, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-	}
-
-	private void onCancel() {
-// add your code here if necessary
-		dispose();
+		pack();
 	}
 
 	{
@@ -80,22 +92,54 @@ public class CompareImagesDialog extends JDialog {
 		buttonCancel.setText("OK");
 		panel2.add(buttonCancel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final JPanel panel3 = new JPanel();
-		panel3.setLayout(new GridLayoutManager(4, 1, new Insets(0, 0, 0, 0), -1, -1));
+		panel3.setLayout(new GridLayoutManager(4, 3, new Insets(0, 0, 0, 0), -1, -1));
 		contentPane.add(panel3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		originalImagePanel = new JPanel();
-		originalImagePanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+		originalImagePanel.setLayout(new CardLayout(0, 0));
+		originalImagePanel.setBackground(new Color(-1));
 		panel3.add(originalImagePanel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		originalImagePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, new Color(-16777216)));
-		similarImagesPanel = new JPanel();
-		similarImagesPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-		panel3.add(similarImagesPanel, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-		similarImagesPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, new Color(-16777216)));
 		final JLabel label1 = new JLabel();
+		label1.setFont(new Font(label1.getFont().getName(), Font.BOLD, 18));
 		label1.setText("Original:");
 		panel3.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final JLabel label2 = new JLabel();
-		label2.setText("Similar:");
+		label2.setFont(new Font(label2.getFont().getName(), Font.BOLD, 18));
+		label2.setText("The Most Similar:");
 		panel3.add(label2, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		final JPanel panel4 = new JPanel();
+		panel4.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
+		panel3.add(panel4, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		similarImagePanel1 = new JPanel();
+		similarImagePanel1.setLayout(new CardLayout(0, 0));
+		similarImagePanel1.setBackground(new Color(-1));
+		panel4.add(similarImagePanel1, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		similarImagePanel1.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, new Color(-16777216)));
+		final JLabel label3 = new JLabel();
+		label3.setText("1.");
+		panel4.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		final JPanel panel5 = new JPanel();
+		panel5.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
+		panel3.add(panel5, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		similarImagePanel2 = new JPanel();
+		similarImagePanel2.setLayout(new CardLayout(0, 0));
+		similarImagePanel2.setBackground(new Color(-1));
+		panel5.add(similarImagePanel2, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		similarImagePanel2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, new Color(-16777216)));
+		final JLabel label4 = new JLabel();
+		label4.setText("2.");
+		panel5.add(label4, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		final JPanel panel6 = new JPanel();
+		panel6.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
+		panel3.add(panel6, new GridConstraints(3, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		similarImagePanel3 = new JPanel();
+		similarImagePanel3.setLayout(new CardLayout(0, 0));
+		similarImagePanel3.setBackground(new Color(-1));
+		panel6.add(similarImagePanel3, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		similarImagePanel3.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, new Color(-16777216)));
+		final JLabel label5 = new JLabel();
+		label5.setText("3.");
+		panel6.add(label5, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 	}
 
 	/**

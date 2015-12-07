@@ -370,6 +370,35 @@ public class DataManager {
 	// ------------- METHODS FOR SPATIAL OBJECTS
 	// -----------------------------------------
 
+	public synchronized ArrayList<ImageModel> getThreeSimilarImages(ImageModel sourceModel) throws DataManagerException {
+		ArrayList<ImageModel> modelsList = new ArrayList<>();
+
+		try {
+			String selectSQL = "";
+			selectSQL += "SELECT destination FROM (SELECT src.id AS source, dst.id AS destination, SI_ScoreByFtrList( ";
+			selectSQL += "new SI_FeatureList(src.photo_ac, 0.3, src.photo_ch, 0.3, ";
+			selectSQL += "src.photo_pc, 0.1, src.photo_tx, 0.3), dst.photo_si) AS similarity ";
+			selectSQL += "FROM test_images src, test_images dst ";
+			selectSQL += "WHERE src.id <> dst.id AND src.id=" + sourceModel.getId() + " ";
+			selectSQL += "ORDER BY similarity ASC) img WHERE ROWNUM <= 3";
+
+			ResultSet resultSet = createDatabaseQuery(selectSQL);
+
+			while(resultSet.next()) {
+				Long id = resultSet.getLong("destination");
+				ImageModel model = getImage(id);
+
+				modelsList.add(model);
+			}
+
+			resultSet.close();
+		} catch (SQLException e) {
+			throw new DataManagerException("SQLException: " + e.getMessage());
+		}
+
+		return modelsList;
+	}
+
 	public synchronized ImageModel getImage(Long id) throws DataManagerException {
 		try {
 			Statement stmt = connection.createStatement();

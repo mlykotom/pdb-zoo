@@ -17,6 +17,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 /**
  * Created by Jakub on 02.12.2015.
@@ -55,8 +56,6 @@ public class MultimediaTest extends JPanel {
 
 					System.out.println("File Selected: " + file.getName() + "!");
 
-					if (model == null) model = new ImageModel(0, file.getName());
-
 					imagePanel = new ImagePanel(file, imagePanelParent);
 					Utils.changePanelContent(imagePanelParent, imagePanel);
 
@@ -80,6 +79,7 @@ public class MultimediaTest extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				if (imagePanel == null) return;
 
+				if (model == null) model = new ImageModel(0, "<<new>>");
 				model.setImageByteArray(imagePanel.getByteArray());
 				model.setIsChanged(true);
 
@@ -95,7 +95,7 @@ public class MultimediaTest extends JPanel {
 		loadButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(idTextField.getText() == null) return;
+				if (idTextField.getText() == null) return;
 
 				Long id = Long.parseLong(idTextField.getText());
 
@@ -103,13 +103,15 @@ public class MultimediaTest extends JPanel {
 					model = DataManager.getInstance().getImage(id);
 				} catch (DataManagerException e1) {
 					Logger.createLog(Logger.ERROR_LOG, e1.getMessage());
+					return;
 				}
 
 				try {
 					imagePanel = new ImagePanel(model.getImage().getDataInStream(), imagePanelParent);
 					Utils.changePanelContent(imagePanelParent, imagePanel);
 				} catch (SQLException e1) {
-					e1.printStackTrace();
+					Logger.createLog(Logger.ERROR_LOG, e1.getMessage());
+					return;
 				}
 			}
 		});
@@ -117,8 +119,35 @@ public class MultimediaTest extends JPanel {
 		compareButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				CompareImagesDialog dialog = new CompareImagesDialog();
-				dialog.pack();
+				if (imagePanel == null || model == null) return;
+
+				if (model.getId() == 0L) {
+					// TODO model needs to be saved first
+					return;
+				}
+
+				ArrayList<ImageModel> models;
+				ImagePanel image1 = null;
+				ImagePanel image2 = null;
+				ImagePanel image3 = null;
+
+				try {
+					models = DataManager.getInstance().getThreeSimilarImages(model);
+				} catch (DataManagerException e1) {
+					Logger.createLog(Logger.ERROR_LOG, e1.getMessage());
+					return;
+				}
+
+				if (models.size() > 0) try {
+					image1 = new ImagePanel(models.get(0).getImage().getDataInStream(), null);
+					image2 = new ImagePanel(models.get(1).getImage().getDataInStream(), null);
+					image3 = new ImagePanel(models.get(2).getImage().getDataInStream(), null);
+				} catch (SQLException e1) {
+					Logger.createLog(Logger.ERROR_LOG, e1.getMessage());
+					return;
+				}
+
+				CompareImagesDialog dialog = new CompareImagesDialog(rootPanel, imagePanel.copy(), image1, image2, image3);
 				dialog.setVisible(true);
 			}
 		});
