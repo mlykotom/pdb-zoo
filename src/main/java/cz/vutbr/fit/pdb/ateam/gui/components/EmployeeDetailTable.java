@@ -3,28 +3,34 @@ package cz.vutbr.fit.pdb.ateam.gui.components;
 import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
 import cz.vutbr.fit.pdb.ateam.controller.EmployeesTableController;
 import cz.vutbr.fit.pdb.ateam.model.employee.EmployeeModel;
+import cz.vutbr.fit.pdb.ateam.utils.Utils;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+import javax.xml.crypto.Data;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 
 /**
- * Created by Tomas Hanus on 28.11.2015.
+ * Created by Tomas Hanus on 03.12.2015.
  */
-public class EmployeesTable extends JTable {
-	private EmployeesTableModel tableModel;
+public class EmployeeDetailTable extends JTable {
+	private static final String FOREVER_DATE = "01-Jan-2500";
+	private EmployeeDetailTableModel tableModel;
 
-	public EmployeesTable (EmployeesTableController controller) {
+	public EmployeeDetailTable() {
 		super();
 
-		tableModel = new EmployeesTableModel();
+		tableModel = new EmployeeDetailTableModel();
 
 		setModel(tableModel);
 
@@ -36,10 +42,6 @@ public class EmployeesTable extends JTable {
 			}
 		});
 		this.setRowSorter(sorter);
-
-		getColumn("EDIT").setCellRenderer(new ButtonRenderer());
-		getColumn("EDIT").setCellEditor(
-				new ButtonEditor(controller));
 	}
 
 	public void addEmployeeModel(EmployeeModel employeeModel) {
@@ -47,7 +49,7 @@ public class EmployeesTable extends JTable {
 	}
 
 	public void setColumnsWidth() {
-		for (int i = 0; i<= 4; i++){
+		for (int i = 0; i<= 3; i++){
 			switch (i){
 				case 0:
 					getColumnModel().getColumn(i).setPreferredWidth(35);
@@ -55,28 +57,23 @@ public class EmployeesTable extends JTable {
 					break;
 				case 1:
 				case 2:
-					getColumnModel().getColumn(i).setPreferredWidth(70);
-//					getColumnModel().getColumn(i).setMaxWidth(80);
+					getColumnModel().getColumn(i).setPreferredWidth(80);
+					getColumnModel().getColumn(i).setMaxWidth(80);
 					break;
 				case 3:
-					getColumnModel().getColumn(i).setPreferredWidth(150);
+					getColumnModel().getColumn(i).setPreferredWidth(80);
 					break;
-				case 4:
-					getColumnModel().getColumn(i).setPreferredWidth(55);
-					getColumnModel().getColumn(i).setMaxWidth(55);
-					break;
-
 				default: getColumnModel().getColumn(i).setPreferredWidth(80);
 			}
 		}
 	}
 
-	private class EmployeesTableModel extends AbstractTableModel {
+	private class EmployeeDetailTableModel extends AbstractTableModel {
 		private String[] columnNames;
 		private ArrayList<EmployeeModel> objectsList;
 
-		public EmployeesTableModel() {
-			columnNames = new String[] {"ID", "NAME", "SURNAME", "LOCATION", "EDIT"};
+		public EmployeeDetailTableModel() {
+			columnNames = new String[] {"ID", "FROM", "TO", "LOCATION"};
 			objectsList = new ArrayList<>();
 		}
 
@@ -106,18 +103,33 @@ public class EmployeesTable extends JTable {
 
 			switch (columnIndex) {
 				case 0:
-					return EmployeeModel.getId();
+					return EmployeeModel.getShiftID();
 				case 1:
-					return EmployeeModel.getName();
+					return EmployeeModel.getDateFrom();
 				case 2:
-					return EmployeeModel.getSurname();
+					return getStringDate(EmployeeModel.getDateTo());
 				case 3:
 					return DataManager.getInstance().getSpatialObjectModelWithID(EmployeeModel.getLocation()).toString();
-				case 4:
-					return "Edit";
 				default:
 					return "";
 			}
+		}
+
+		private String getStringDate(Date dateTo) {
+			SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
+			Date foreverDate = dateTo;
+			try {
+				foreverDate = formatter.parse(FOREVER_DATE);
+				System.out.println(foreverDate);
+				System.out.println(formatter.format(foreverDate));
+
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			if (Utils.removeTime(dateTo).equals(foreverDate)){
+				return "now";
+			}
+			return dateTo.toString();
 		}
 
 		@Override
@@ -191,7 +203,7 @@ public class EmployeesTable extends JTable {
 			button.setText(label);
 			isPushed = true;
 
-			this.EmployeeModel = ((EmployeesTableModel)table.getModel()).getEmployeeModel(row);
+			this.EmployeeModel = ((EmployeeDetailTableModel)table.getModel()).getEmployeeModel(row);
 			if(column == 4) this.pushedButton = "edit";
 
 			return button;

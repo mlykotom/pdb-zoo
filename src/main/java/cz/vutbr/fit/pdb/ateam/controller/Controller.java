@@ -3,7 +3,7 @@ package cz.vutbr.fit.pdb.ateam.controller;
 import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
-import cz.vutbr.fit.pdb.ateam.model.EmployeeModel;
+import cz.vutbr.fit.pdb.ateam.model.employee.EmployeeModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
 import cz.vutbr.fit.pdb.ateam.observer.IModelChangedStateListener;
@@ -53,6 +53,7 @@ public class Controller {
 	 * @param models list of models to saveModel
 	 */
 	public void saveModels(final List<? extends BaseModel> models) {
+
 		new AsyncTask() {
 			// models which were changed, these will be notified to listeners
 			List<BaseModel> savedModels = new ArrayList<>();

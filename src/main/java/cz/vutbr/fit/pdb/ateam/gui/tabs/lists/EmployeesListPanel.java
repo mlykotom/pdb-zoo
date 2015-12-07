@@ -5,10 +5,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import cz.vutbr.fit.pdb.ateam.controller.Controller;
 import cz.vutbr.fit.pdb.ateam.controller.EmployeesTabController;
-import cz.vutbr.fit.pdb.ateam.exception.ControllerException;
 import cz.vutbr.fit.pdb.ateam.gui.BasePanel;
-import cz.vutbr.fit.pdb.ateam.utils.Logger;
-import cz.vutbr.fit.pdb.ateam.utils.Utils;
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
@@ -30,12 +27,12 @@ public class EmployeesListPanel extends BasePanel {
 	private JTable employeesTable;
 	private EmployeesTabController controller;
 	private JPanel rootPanel;
-	private JButton addButton;
+	private JButton addNewEmployeeButton;
 	private JPanel tablePanel;
 	private JPanel datePickerBox;
-	private JCheckBox actualCheckBox;
-	private JCheckBox historyCheckBox;
 	private JLabel datePickerLabel;
+	private JRadioButton todayRadioButton;
+	private JRadioButton historyRadioButton;
 	private JDatePickerImpl datePicker;
 
 	public EmployeesListPanel(EmployeesTabController controller) {
@@ -49,25 +46,37 @@ public class EmployeesListPanel extends BasePanel {
 		switchToToday();
 		initializeDatePicker();
 
+		initializeTodayHistoryRarioButtons();
 
-		actualCheckBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				controller.actualDateSwitchAction(actualCheckBox.isSelected());
-			}
-		});
-		historyCheckBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				controller.showHistorySwitchAction();
-			}
-		});
-		addButton.addActionListener(new ActionListener() {
+		addNewEmployeeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				controller.addNewEmployeeAction();
 			}
 		});
+	}
+
+	private void initializeTodayHistoryRarioButtons() {
+		todayRadioButton.setSelected(true);
+
+		ButtonGroup bg = new ButtonGroup();
+		bg.add(todayRadioButton);
+		bg.add(historyRadioButton);
+
+		todayRadioButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				controller.actualDateSwitchAction(true);
+			}
+		});
+
+		historyRadioButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				controller.showHistorySwitchAction();
+			}
+		});
+
 	}
 
 
@@ -78,9 +87,9 @@ public class EmployeesListPanel extends BasePanel {
 		final UtilDateModel dateModel = new UtilDateModel();
 		Properties properties = new Properties();
 
-		properties.put("text.today", "Today");
-		properties.put("text.month", "Month");
-		properties.put("text.year", "Year");
+//		properties.put("text.today", "Today");
+//		properties.put("text.month", "Month");
+//		properties.put("text.year", "Year");
 
 		final JDatePanelImpl datePanel = new JDatePanelImpl(dateModel, properties);
 
@@ -114,19 +123,19 @@ public class EmployeesListPanel extends BasePanel {
 	}
 
 	public void switchToToday() {
-		actualCheckBox.setSelected(true);
-		historyCheckBox.setSelected(false);
-		historyCheckBox.setEnabled(true);
-		actualCheckBox.setEnabled(false);
+//		actualCheckBox.setSelected(true);
+//		historyCheckBox.setSelected(false);
+//		historyCheckBox.setEnabled(true);
+//		actualCheckBox.setEnabled(false);
 		datePickerBox.setVisible(false);
 		datePickerLabel.setVisible(false);
 	}
 
 	public void switchToPast(Date date) {
-		historyCheckBox.setSelected(true);
-		actualCheckBox.setEnabled(true);
-		actualCheckBox.setSelected(false);
-		historyCheckBox.setEnabled(false);
+//		historyCheckBox.setSelected(true);
+//		actualCheckBox.setEnabled(true);
+//		actualCheckBox.setSelected(false);
+//		historyCheckBox.setEnabled(false);
 		datePickerBox.setVisible(true);
 		datePickerLabel.setVisible(true);
 
@@ -154,25 +163,17 @@ public class EmployeesListPanel extends BasePanel {
 		label1.setFont(new Font(label1.getFont().getName(), Font.BOLD, 20));
 		label1.setText("Employees List");
 		rootPanel.add(label1, new com.intellij.uiDesigner.core.GridConstraints(4, 0, 1, 5, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-		actualCheckBox = new JCheckBox();
-		actualCheckBox.setFont(new Font(actualCheckBox.getFont().getName(), actualCheckBox.getFont().getStyle(), 16));
-		actualCheckBox.setText("Today");
-		rootPanel.add(actualCheckBox, new com.intellij.uiDesigner.core.GridConstraints(1, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, new Dimension(85, -1), 0, false));
 		final JLabel label2 = new JLabel();
 		label2.setFont(new Font(label2.getFont().getName(), Font.BOLD, 20));
 		label2.setText("Date:");
 		rootPanel.add(label2, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-		historyCheckBox = new JCheckBox();
-		historyCheckBox.setFont(new Font(historyCheckBox.getFont().getName(), historyCheckBox.getFont().getStyle(), 16));
-		historyCheckBox.setText("History");
-		rootPanel.add(historyCheckBox, new com.intellij.uiDesigner.core.GridConstraints(1, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, new Dimension(85, -1), 0, false));
 		final JSeparator separator1 = new JSeparator();
 		rootPanel.add(separator1, new com.intellij.uiDesigner.core.GridConstraints(3, 0, 1, 5, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
 		final com.intellij.uiDesigner.core.Spacer spacer1 = new com.intellij.uiDesigner.core.Spacer();
 		rootPanel.add(spacer1, new com.intellij.uiDesigner.core.GridConstraints(1, 3, 1, 3, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, 1, new Dimension(25, -1), null, null, 0, false));
-		addButton = new JButton();
-		addButton.setText("Add");
-		rootPanel.add(addButton, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, new Dimension(85, -1), 0, false));
+		addNewEmployeeButton = new JButton();
+		addNewEmployeeButton.setText("Add");
+		rootPanel.add(addNewEmployeeButton, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, new Dimension(85, -1), 0, false));
 		final JPanel panel1 = new JPanel();
 		panel1.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
 		rootPanel.add(panel1, new com.intellij.uiDesigner.core.GridConstraints(2, 1, 1, 3, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -185,6 +186,12 @@ public class EmployeesListPanel extends BasePanel {
 		panel1.add(datePickerBox, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(150, -1), null, new Dimension(150, -1), 0, false));
 		final com.intellij.uiDesigner.core.Spacer spacer2 = new com.intellij.uiDesigner.core.Spacer();
 		rootPanel.add(spacer2, new com.intellij.uiDesigner.core.GridConstraints(3, 5, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+		todayRadioButton = new JRadioButton();
+		todayRadioButton.setText("Today");
+		rootPanel.add(todayRadioButton, new com.intellij.uiDesigner.core.GridConstraints(1, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		historyRadioButton = new JRadioButton();
+		historyRadioButton.setText("History");
+		rootPanel.add(historyRadioButton, new com.intellij.uiDesigner.core.GridConstraints(1, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 	}
 
 	/**
@@ -213,7 +220,6 @@ public class EmployeesListPanel extends BasePanel {
 
 			return "";
 		}
-
 	}
 
 }

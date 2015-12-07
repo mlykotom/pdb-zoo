@@ -1,12 +1,9 @@
 package cz.vutbr.fit.pdb.ateam.gui;
 
-import com.intellij.uiDesigner.core.GridConstraints;
-import com.intellij.uiDesigner.core.GridLayoutManager;
-import cz.vutbr.fit.pdb.ateam.controller.Controller;
+import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapPanel;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.AnimalsTab;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.EmployeesTab;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.SpatialObjectsTab;
-import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -40,16 +37,23 @@ public class ContentPanel extends JPanel {
 		mapPanelContent = new ZooMapPanel(this);
 		mapWrapper.add(mapPanelContent);
 
+		final JTabbedPane detailTabsPane = new JTabbedPane();
 		// tab panels (right)
 		spatialObjectsTab = new SpatialObjectsTab(this);
 		animalsTab = new AnimalsTab(this);
-		employeesTab = new EmployeesTab(this);
+		employeesTab = new EmployeesTab(this, detailTabsPane);
 
-		JTabbedPane detailTabsPane = new JTabbedPane();
 		detailTabsPane.addTab("Objects", spatialObjectsTab);
 		detailTabsPane.addTab("Animals", animalsTab);
 		detailTabsPane.addTab("Employees", employeesTab);
 		detailWrapper.add(detailTabsPane);
+
+//		detailTabsPane.addChangeListener(new ChangeListener() {
+//			@Override
+//			public void stateChanged(ChangeEvent e) {
+//				controller.tabChangeAction(detailTabsPane.getSelectedComponent());
+//			}
+//		});
 	}
 
 	public ZooMapPanel getMapPanelContent() {

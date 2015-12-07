@@ -4,6 +4,8 @@ import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -13,7 +15,7 @@ import java.util.Date;
  * @author Jakub Tutko
  */
 public class Utils {
-
+	private static final String FOREVER_DATE = "01-Jan-2500";
 	/**
 	 * Disconnects database and closes application.
 	 */
@@ -78,5 +80,17 @@ public class Utils {
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 		return cal.getTime();
+	}
+
+	public static Date getForeverDate(){
+		SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
+		Date foreverDate = new Date();
+		try {
+			foreverDate = formatter.parse(FOREVER_DATE);
+
+		} catch (ParseException e) {
+			Logger.createLog(Logger.ERROR_LOG, "getForeverDate: ParseException");
+		}
+		return foreverDate;
 	}
 }
