@@ -5,9 +5,9 @@ import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapPanel;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
+import cz.vutbr.fit.pdb.ateam.model.Coordinate;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.observer.*;
-import oracle.spatial.geometry.JGeometry;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -26,7 +26,28 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	private ZooMapPanel form;
 	private ZooMapCanvas canvas;
 	private SpatialObjectModel selectedObjectOnCanvas;
+	public SpatialObjectModel creatingModel;
 	public MouseHandler mouseHandler = new MouseHandler();
+
+	/**
+	 * Enum for canvas modes.
+	 * Canvas cursor is setup based on this mode
+	 */
+	public enum MouseMode {
+		CREATING(new Cursor(Cursor.CROSSHAIR_CURSOR)),
+		SELECTING(new Cursor(Cursor.HAND_CURSOR)),
+		MERGING(new Cursor(Cursor.HAND_CURSOR));
+
+		private Cursor cursor;
+
+		MouseMode(Cursor c) {
+			cursor = c;
+		}
+
+		public Cursor getCursor() {
+			return cursor;
+		}
+	}
 
 	/**
 	 * Constructor saves instance of the ZooMapForm as local
@@ -103,7 +124,6 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	 * Handler when mouse is scrolled in canvas - handles scaling spatial objects
 	 */
 	public MouseWheelListener scaleHandler = new MouseWheelListener() {
-		private static final int MOUSE_WHEEL_TIMER_DELAY = 500;
 		private SpatialObjectModel selectedObject;
 
 		public void mouseWheelMoved(MouseWheelEvent mouseEvent) {
@@ -132,113 +152,42 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		}
 	};
 
-	public enum MouseMode {
-		CREATING(new Cursor(Cursor.CROSSHAIR_CURSOR)),
-		SELECTING(new Cursor(Cursor.HAND_CURSOR)),
-		MERGING(new Cursor(Cursor.HAND_CURSOR));
-
-		private Cursor cursor;
-
-		MouseMode(Cursor c) {
-			cursor = c;
-		}
-
-		public Cursor getCursor() {
-			return cursor;
-		}
-	}
-
-
 	/**
 	 * Handler for mouse movement in canvas - handles moving objects
 	 */
 	public class MouseHandler extends MouseAdapter {
 		private int pressedX;
 		private int pressedY;
-		private SpatialObjectModel selectedObject;
 		private MouseMode mode = MouseMode.SELECTING;
-
+		private SpatialObjectModel selectedObject;
 		private SpatialObjectModel.ModelShape creatingModelShape;
 		private int mouseClickCount = 0;
-		private int oldPressedX;
-		private int oldPressedY;
-
-		private ArrayList<Cord> pressedCords = new ArrayList<>();
-//		private ArrayList<Integer> pressedCoordsY = new ArrayList<>();
-
-		class Cord {
-			public int x;
-			public int y;
-
-			public Cord(int x, int y) {
-				this.x = x;
-				this.y = y;
-			}
-
-			public double[] toArray() {
-				return new double[]{x, y};
-			}
-
-		}
-
-		private JGeometry creatingGeometry;
-		public SpatialObjectModel creatingModel;
+		private ArrayList<Coordinate> pressedCoordinates = new ArrayList<>();
 
 		@Override
 		public void mouseClicked(MouseEvent mouseEvent) {
 			pressedX = mouseEvent.getX();
 			pressedY = mouseEvent.getY();
 
-			pressedCords.add(new Cord(pressedX, pressedY));
-//			pressedCoordsY.add(pressedY);
-
+			pressedCoordinates.add(new Coordinate(pressedX, pressedY));
 			mouseClickCount++;
 
 			switch (mode) {
 				case CREATING:
 					try {
-					// only count points
-					if (mouseClickCount < creatingModelShape.getPointsToRenderCount()) {
-//							oldPressedX = pressedX;
-//							oldPressedY = pressedY;
-						return;
-					}
+						// only count points
+						if (mouseClickCount < creatingModelShape.getPointsToRenderCount()) {
+							return;
+						}
 
-					double[] points = new double[pressedCords.size() * 2];
-					int i = 0;
-					for (Cord cord : pressedCords) {
-						points[i++] = cord.x;
-						points[i++] = cord.y;
-					}
+						creatingModel = SpatialObjectModel.create(creatingModelShape, "<<new>>", dataManager.getSpatialObjectType(21L), pressedCoordinates);
 
-
-					creatingGeometry = JGeometry.createLinearLineString(points, 2, 0);
-					creatingGeometry.getElemInfo()[2] = 2;
-					creatingModel = SpatialObjectModel.createFromJGeometry("<XXX>",  dataManager.getSpatialObjectType(21L), creatingGeometry);
-//					getSpatialObjects().add(creatingModel);
-//					creatingModel.setGeometry(creatingGeometry);
-
-					// actually create object
-//						JGeometry geom = SpatialObjectModel.createJGeometryFromModelType(creatingModelShape, pressedCoordsX, pressedCoordsY);
-//						SpatialObjectModel newObject = SpatialObjectModel.createFromJGeometry("<<new>>", dataManager.getSpatialObjectType(21L), creatingGeometry); // TODO magic constant
-//						getSpatialObjects().add(newObject);
-//						SpatialObjectsReloadObservable.getInstance().notifyObservers();
-//						oldPressedX = oldPressedY = mouseClickCount = 0;
-//						mouseClickCount = 0;
-//						pressedCords.clear();
-//						pressedCoordsX.clear();
-//						pressedCoordsY.clear();
-//						setMode(MouseMode.SELECTING);
+						if (mouseClickCount == creatingModelShape.getTotalPointsCount()) {
+							finishCreatingAndSetSelectingModel();
+						}
 					} catch (DataManagerException | ModelException e) {
 						e.printStackTrace();
 					}
-					break;
-
-				case MERGING:
-					break;
-
-				case SELECTING:
-					// note: selecting is handled in mousePress
 					break;
 			}
 
@@ -289,7 +238,6 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		 * @param mouseEvent
 		 */
 		public void mouseReleased(MouseEvent mouseEvent) {
-			if (selectedObject == null) return; // TODO this shouldn't happen
 			selectedObject = null;
 		}
 
@@ -298,15 +246,34 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 			canvas.setCursor(mode.getCursor());
 		}
 
-		public void nullMouseClickCount() {
+		/**
+		 * Creating new shape
+		 *
+		 * @param creatingModelShape this shape will be set for creating
+		 */
+		public void setCreatingModel(SpatialObjectModel.ModelShape creatingModelShape) {
+			this.clearCreatingMode();
+			this.creatingModelShape = creatingModelShape;
+			this.setMode(MouseMode.CREATING);
+		}
+
+		public void finishCreatingAndSetSelectingModel() {
+			if (creatingModel != null) {
+				getSpatialObjects().add(creatingModel);
+				SpatialObjectsReloadObservable.getInstance().notifyObservers();
+			}
+
+			this.clearCreatingMode();
+			this.setMode(MouseMode.SELECTING);
+		}
+
+		public void clearCreatingMode(){
+			pressedCoordinates.clear();
+			this.creatingModelShape = null;
+			creatingModel = null;
 			mouseClickCount = 0;
 		}
-
-		public void setCreatingModelShape(SpatialObjectModel.ModelShape creatingModelShape) {
-			this.creatingModelShape = creatingModelShape;
-		}
 	}
-
 
 	// --------------------------
 	// ------------- FORM ACTIONS
@@ -316,6 +283,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	 * Action when clicked on saveModel button
 	 */
 	public void saveSpatialObjectsAction() {
+		mouseHandler.finishCreatingAndSetSelectingModel();
 		saveModels(getSpatialObjects());
 	}
 
@@ -324,16 +292,12 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	 */
 	public void cancelChangedSpatialObjectsAction() {
 		form.setUnselectedObject();
+		mouseHandler.clearCreatingMode();
 		reloadSpatialObjects();
 	}
 
-	/**
-	 * Deletes selected model
-	 */
-	public void deleteSelectedModelsAction() {
-		if (selectedObjectOnCanvas == null) return;
-		selectedObjectOnCanvas.setDeleted(true);
-		saveModels(selectedObjectOnCanvas); // TODO if want just delete without saving must implement reload canvas
+	public void finishCreatingSpatialObjectAction() {
+		mouseHandler.finishCreatingAndSetSelectingModel();
 	}
 
 	// -----------------------
@@ -377,9 +341,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	 */
 	@Override
 	public void spatialObjectsCreatingListener(SpatialObjectModel.ModelShape type) {
-		mouseHandler.setCreatingModelShape(type);
-		mouseHandler.nullMouseClickCount();
-		mouseHandler.setMode(MouseMode.CREATING);
+		mouseHandler.setCreatingModel(type);
 	}
 
 	/**

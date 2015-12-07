@@ -1,5 +1,6 @@
 package cz.vutbr.fit.pdb.ateam.model.spatial;
 
+import cz.vutbr.fit.pdb.ateam.model.Coordinate;
 import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
@@ -60,11 +61,10 @@ abstract public class SpatialObjectModel extends BaseModel {
 	}
 
 	public enum ModelShape {
-		// TODO might have properties for showing in "ComboBox"
-		POINT("point", 1, 1),
-		POLYGON("rectangle", 2, 2),
-		LINE("line", 2, -1), // TODO should have infinite
-		CIRCLE("circle", 2, 2);
+		POINT("point", 1),
+		POLYGON("rectangle", 2),
+		LINE("line", 2, -1),
+		CIRCLE("circle", 2);
 
 		private int pointsToRenderCount;
 		private int totalPointsCount;
@@ -73,6 +73,11 @@ abstract public class SpatialObjectModel extends BaseModel {
 		ModelShape(String name, int pointsToRenderCount, int totalPointsCount) {
 			this.pointsToRenderCount = pointsToRenderCount;
 			this.totalPointsCount = totalPointsCount;
+			this.name = name;
+		}
+
+		ModelShape(String name, int totalPointsCount) {
+			this.totalPointsCount = this.pointsToRenderCount = totalPointsCount;
 			this.name = name;
 		}
 
@@ -157,40 +162,53 @@ abstract public class SpatialObjectModel extends BaseModel {
 	}
 
 	/**
-	 * Creates JGeometry from {@link ModelShape} so that we can make Model from it and render on canvas
-	 *
-	 * @param type
-	 * @param pressedX
-	 * @param pressedY
-	 * @param oldPressedX
-	 * @param oldPressedY
-	 * @return model's geometry
+	 * Creates SpatialObject from {@link ModelShape} based on rules in ModelShape
+	 * @param shapeType
+	 * @param name
+	 * @param spatialType
+	 * @param pressedCoordinates
+	 * @return
 	 * @throws ModelException
 	 */
-//	public static JGeometry createJGeometryFromModelType(ModelShape type, ArrayList<Integer> pressedCoordsX, ArrayList<Integer> pressedCoordsY) throws ModelException {
-//		JGeometry geom;
-//		switch (type) {
-//			case POLYGON:
-//				geom = new JGeometry(Utils.getMin(oldPressedX, pressedX), Utils.getMin(oldPressedY, pressedY), Utils.getMax(oldPressedX, pressedX), Utils.getMax(oldPressedY, pressedY), 0);
-//				break;
-//
-//			case CIRCLE:
-//				geom = JGeometry.createCircle(oldPressedX, oldPressedY, Math.sqrt(Math.pow(pressedX - oldPressedX, 2) + Math.pow(pressedY - oldPressedY, 2)), 0);
-//				break;
-//
-//			case POINT:
-//				geom = new JGeometry(pressedX, pressedY, 0);
-//				break;
-//
-//			case LINE:
-//				geom = JGeometry.createLinearLineString(new double[]{oldPressedX, oldPressedY, pressedX, pressedY}, 2, 0);
-//				break;
-//
-//			default:
-//				throw new ModelException("createJGeometryFromModelType(): Not existing model type");
-//		}
-//		return geom;
-//	}
+	public static SpatialObjectModel create(ModelShape shapeType, String name, SpatialObjectTypeModel spatialType, ArrayList<Coordinate> pressedCoordinates) throws ModelException {
+		JGeometry geom;
+		Coordinate firstPoint, lastPoint;
+
+		switch (shapeType) {
+			case POINT:
+				firstPoint = pressedCoordinates.get(0);
+				geom = new JGeometry(firstPoint.x, firstPoint.y, 0);
+				break;
+
+			case POLYGON:
+				firstPoint = pressedCoordinates.get(0);
+				lastPoint = pressedCoordinates.get(1);
+				geom = new JGeometry(
+						Utils.getMin(firstPoint.x, lastPoint.x),
+						Utils.getMin(firstPoint.y, lastPoint.y),
+						Utils.getMax(firstPoint.x, lastPoint.x),
+						Utils.getMax(firstPoint.y, lastPoint.y),
+						0);
+				break;
+
+			case CIRCLE:
+				firstPoint = pressedCoordinates.get(0);
+				lastPoint = pressedCoordinates.get(1);
+				geom = JGeometry.createCircle(firstPoint.x, firstPoint.y, Math.sqrt(Math.pow(lastPoint.x - firstPoint.x, 2) + Math.pow(lastPoint.y - firstPoint.y, 2)), 0);
+
+				break;
+
+			case LINE:
+				double[] points = Coordinate.fromListToArray(pressedCoordinates);
+				geom = JGeometry.createLinearLineString(points, 2, 0);
+				break;
+
+			default:
+				throw new ModelException("create(): Not existing model type");
+		}
+
+		return SpatialObjectModel.createFromJGeometry(name, spatialType, geom);
+	}
 
 	/**
 	 * Creates new shape based on class type

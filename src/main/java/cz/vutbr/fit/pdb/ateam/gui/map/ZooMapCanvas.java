@@ -37,10 +37,6 @@ public class ZooMapCanvas extends BasePanel {
 	public ZooMapCanvas(final ZooMapController controller) {
 		this.controller = controller;
 		initUI();
-
-		// async reload spatial objects
-		//controller.reloadSpatialObjects();
-		// TODO reload is called in reloadAllData() when login success
 	}
 
 	/**
@@ -70,26 +66,22 @@ public class ZooMapCanvas extends BasePanel {
 		g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-		if(!controller.getSpatialObjects().isEmpty() || controller.mouseHandler.creatingModel != null) {
-			SpatialObjectModel renderLatest = null;
-			for (SpatialObjectModel model : controller.getSpatialObjects()) {
-				if(model.isSelected()){
-					renderLatest = model;
-					continue;
-				}
-				model.render(g2D);
-			}
+		if (controller.getSpatialObjects().isEmpty() && controller.creatingModel == null) return;
 
-			if(renderLatest != null){
-				renderLatest.render(g2D);
+		SpatialObjectModel renderLatest = null;
+		for (SpatialObjectModel model : controller.getSpatialObjects()) {
+			if(model.isSelected()){
+				renderLatest = model;
+				continue;
 			}
-
-			if(controller.mouseHandler.creatingModel != null){
-				controller.mouseHandler.creatingModel.render(g2D);
-			}
-
-			g2D.setPaint(CANVAS_DEFAULT_COLOR);
+			model.render(g2D);
 		}
+
+		if(renderLatest != null) renderLatest.render(g2D);
+
+		if(controller.creatingModel != null) controller.creatingModel.render(g2D);
+
+		g2D.setPaint(CANVAS_DEFAULT_COLOR);
 	}
 
 	@Override
