@@ -9,6 +9,7 @@ import oracle.spatial.geometry.JGeometry;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 
 /**
  * Abstract representation of object in spatial DB.
@@ -166,30 +167,30 @@ abstract public class SpatialObjectModel extends BaseModel {
 	 * @return model's geometry
 	 * @throws ModelException
 	 */
-	public static JGeometry createJGeometryFromModelType(ModelShape type, int pressedX, int pressedY, int oldPressedX, int oldPressedY) throws ModelException {
-		JGeometry geom;
-		switch (type) {
-			case POLYGON:
-				geom = new JGeometry(Utils.getMin(oldPressedX, pressedX), Utils.getMin(oldPressedY, pressedY), Utils.getMax(oldPressedX, pressedX), Utils.getMax(oldPressedY, pressedY), 0);
-				break;
-
-			case CIRCLE:
-				geom = JGeometry.createCircle(oldPressedX, oldPressedY, Math.sqrt(Math.pow(pressedX - oldPressedX, 2) + Math.pow(pressedY - oldPressedY, 2)), 0);
-				break;
-
-			case POINT:
-				geom = new JGeometry(pressedX, pressedY, 0);
-				break;
-
-			case LINE:
-				geom = JGeometry.createLinearLineString(new double[]{oldPressedX, oldPressedY, pressedX, pressedY}, 2, 0);
-				break;
-
-			default:
-				throw new ModelException("createJGeometryFromModelType(): Not existing model type");
-		}
-		return geom;
-	}
+//	public static JGeometry createJGeometryFromModelType(ModelShape type, ArrayList<Integer> pressedCoordsX, ArrayList<Integer> pressedCoordsY) throws ModelException {
+//		JGeometry geom;
+//		switch (type) {
+//			case POLYGON:
+//				geom = new JGeometry(Utils.getMin(oldPressedX, pressedX), Utils.getMin(oldPressedY, pressedY), Utils.getMax(oldPressedX, pressedX), Utils.getMax(oldPressedY, pressedY), 0);
+//				break;
+//
+//			case CIRCLE:
+//				geom = JGeometry.createCircle(oldPressedX, oldPressedY, Math.sqrt(Math.pow(pressedX - oldPressedX, 2) + Math.pow(pressedY - oldPressedY, 2)), 0);
+//				break;
+//
+//			case POINT:
+//				geom = new JGeometry(pressedX, pressedY, 0);
+//				break;
+//
+//			case LINE:
+//				geom = JGeometry.createLinearLineString(new double[]{oldPressedX, oldPressedY, pressedX, pressedY}, 2, 0);
+//				break;
+//
+//			default:
+//				throw new ModelException("createJGeometryFromModelType(): Not existing model type");
+//		}
+//		return geom;
+//	}
 
 	/**
 	 * Creates new shape based on class type
@@ -423,6 +424,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 
 	public void setGeometry(JGeometry geometry) {
 		this.geometry = geometry;
+		this.regenerateShape();
 	}
 
 	@Override

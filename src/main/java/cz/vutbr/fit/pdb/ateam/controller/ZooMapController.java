@@ -14,6 +14,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.ArrayList;
 
 /**
  * Class controls all events occurred in ZooMapForm.
@@ -151,7 +152,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	/**
 	 * Handler for mouse movement in canvas - handles moving objects
 	 */
-	class MouseHandler extends MouseAdapter {
+	public class MouseHandler extends MouseAdapter {
 		private int pressedX;
 		private int pressedY;
 		private SpatialObjectModel selectedObject;
@@ -162,30 +163,72 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		private int oldPressedX;
 		private int oldPressedY;
 
+		private ArrayList<Cord> pressedCords = new ArrayList<>();
+//		private ArrayList<Integer> pressedCoordsY = new ArrayList<>();
+
+		class Cord {
+			public int x;
+			public int y;
+
+			public Cord(int x, int y) {
+				this.x = x;
+				this.y = y;
+			}
+
+			public double[] toArray() {
+				return new double[]{x, y};
+			}
+
+		}
+
+		private JGeometry creatingGeometry;
+		public SpatialObjectModel creatingModel;
+
 		@Override
 		public void mouseClicked(MouseEvent mouseEvent) {
 			pressedX = mouseEvent.getX();
 			pressedY = mouseEvent.getY();
+
+			pressedCords.add(new Cord(pressedX, pressedY));
+//			pressedCoordsY.add(pressedY);
+
 			mouseClickCount++;
 
-			switch(mode){
+			switch (mode) {
 				case CREATING:
 					try {
-						// only count points
-						if (mouseClickCount % creatingModelShape.getPointsToRenderCount() == 1) {
-							oldPressedX = pressedX;
-							oldPressedY = pressedY;
-							return;
-						}
+					// only count points
+					if (mouseClickCount < creatingModelShape.getPointsToRenderCount()) {
+//							oldPressedX = pressedX;
+//							oldPressedY = pressedY;
+						return;
+					}
 
-						// actually create object
-						JGeometry geom = SpatialObjectModel.createJGeometryFromModelType(creatingModelShape, pressedX, pressedY, oldPressedX, oldPressedY);
-						SpatialObjectModel newObject = SpatialObjectModel.createFromJGeometry("<<new>>", dataManager.getSpatialObjectType(21L), geom); // TODO magic constant
-						getSpatialObjects().add(newObject);
-						SpatialObjectsReloadObservable.getInstance().notifyObservers();
-						oldPressedX = oldPressedY = mouseClickCount = 0;
-						setMode(MouseMode.SELECTING);
+					double[] points = new double[pressedCords.size() * 2];
+					int i = 0;
+					for (Cord cord : pressedCords) {
+						points[i++] = cord.x;
+						points[i++] = cord.y;
+					}
 
+
+					creatingGeometry = JGeometry.createLinearLineString(points, 2, 0);
+					creatingGeometry.getElemInfo()[2] = 2;
+					creatingModel = SpatialObjectModel.createFromJGeometry("<XXX>",  dataManager.getSpatialObjectType(21L), creatingGeometry);
+//					getSpatialObjects().add(creatingModel);
+//					creatingModel.setGeometry(creatingGeometry);
+
+					// actually create object
+//						JGeometry geom = SpatialObjectModel.createJGeometryFromModelType(creatingModelShape, pressedCoordsX, pressedCoordsY);
+//						SpatialObjectModel newObject = SpatialObjectModel.createFromJGeometry("<<new>>", dataManager.getSpatialObjectType(21L), creatingGeometry); // TODO magic constant
+//						getSpatialObjects().add(newObject);
+//						SpatialObjectsReloadObservable.getInstance().notifyObservers();
+//						oldPressedX = oldPressedY = mouseClickCount = 0;
+//						mouseClickCount = 0;
+//						pressedCords.clear();
+//						pressedCoordsX.clear();
+//						pressedCoordsY.clear();
+//						setMode(MouseMode.SELECTING);
 					} catch (DataManagerException | ModelException e) {
 						e.printStackTrace();
 					}
@@ -208,7 +251,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		 * @param mouseEvent
 		 */
 		public void mousePressed(MouseEvent mouseEvent) {
-			if(mode != MouseMode.SELECTING) return;
+			if (mode != MouseMode.SELECTING) return;
 
 			pressedX = mouseEvent.getX();
 			pressedY = mouseEvent.getY();
@@ -263,7 +306,6 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 			this.creatingModelShape = creatingModelShape;
 		}
 	}
-
 
 
 	// --------------------------
@@ -329,9 +371,10 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	}
 
 	/**
-	* Fires when spatial objects are reloaded
-	* @param type which should be set for creating
-	*/
+	 * Fires when spatial objects are reloaded
+	 *
+	 * @param type which should be set for creating
+	 */
 	@Override
 	public void spatialObjectsCreatingListener(SpatialObjectModel.ModelShape type) {
 		mouseHandler.setCreatingModelShape(type);

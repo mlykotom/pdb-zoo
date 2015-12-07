@@ -70,7 +70,7 @@ public class ZooMapCanvas extends BasePanel {
 		g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-		if(!controller.getSpatialObjects().isEmpty()) {
+		if(!controller.getSpatialObjects().isEmpty() || controller.mouseHandler.creatingModel != null) {
 			SpatialObjectModel renderLatest = null;
 			for (SpatialObjectModel model : controller.getSpatialObjects()) {
 				if(model.isSelected()){
@@ -82,6 +82,10 @@ public class ZooMapCanvas extends BasePanel {
 
 			if(renderLatest != null){
 				renderLatest.render(g2D);
+			}
+
+			if(controller.mouseHandler.creatingModel != null){
+				controller.mouseHandler.creatingModel.render(g2D);
 			}
 
 			g2D.setPaint(CANVAS_DEFAULT_COLOR);
