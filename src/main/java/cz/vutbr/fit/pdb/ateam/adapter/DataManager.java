@@ -142,7 +142,7 @@ public class DataManager {
 
 			resultSet = statement.executeQuery(sqlQuery);
 		} catch (SQLException ex) {
-			throw new DataManagerException("createDatabaseQuery: SQLException: " + ex.getMessage());
+			throw new DataManagerException("createDatabaseQuery: SQLException: " + ex.getMessage(), ex.getErrorCode());
 		}
 
 		return resultSet;

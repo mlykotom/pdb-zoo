@@ -122,6 +122,7 @@ public class Controller {
 					dataManager.reloadAllSpatialObjectTypes();
 					return true;
 				} catch (DataManagerException e) {
+					// TODO should check ORA-02396(max nevyuzity cas) or ORA-01012(neprihlaseno do systemu)
 					Logger.createLog(Logger.ERROR_LOG, e.getMessage());
 				}
 				return false;
