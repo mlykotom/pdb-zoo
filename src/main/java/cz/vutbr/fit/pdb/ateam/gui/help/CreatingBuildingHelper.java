@@ -3,7 +3,6 @@ package cz.vutbr.fit.pdb.ateam.gui.help;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
-import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,10 +12,10 @@ import java.awt.*;
  */
 public class CreatingBuildingHelper extends JPanel {
 	private JPanel rootPanel;
-	private SpatialObjectModel.ModelType modelType;
+	private SpatialObjectModel.ModelShape modelShape;
 
-	public CreatingBuildingHelper(SpatialObjectModel.ModelType modelType) {
-		this.modelType = modelType;
+	public CreatingBuildingHelper(SpatialObjectModel.ModelShape modelShape) {
+		this.modelShape = modelShape;
 		add(rootPanel);
 	}
 

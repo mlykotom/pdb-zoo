@@ -7,13 +7,11 @@ import cz.vutbr.fit.pdb.ateam.controller.Controller;
 import cz.vutbr.fit.pdb.ateam.controller.SpatialObjectTabController;
 import cz.vutbr.fit.pdb.ateam.gui.BasePanel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
-import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 /**
  * Created by Jakub on 24.10.2015.
@@ -22,7 +20,7 @@ public class SpatialObjectsList extends BasePanel {
 	private JPanel rootPanel;
 	private JPanel createBuildingPanel;
 	private JPanel tablePanel;
-	private JComboBox<SpatialObjectModel.ModelType> shapeComboBox;
+	private JComboBox<SpatialObjectModel.ModelShape> shapeComboBox;
 	private JButton createBuildingButton;
 	private JTable spatialObjectsTable;
 	private SpatialObjectTabController controller;
@@ -44,17 +42,17 @@ public class SpatialObjectsList extends BasePanel {
 		});
 	}
 
-	public SpatialObjectModel.ModelType getComboBoxValue() {
-		return (SpatialObjectModel.ModelType) shapeComboBox.getSelectedItem();
+	public SpatialObjectModel.ModelShape getComboBoxValue() {
+		return (SpatialObjectModel.ModelShape) shapeComboBox.getSelectedItem();
 	}
 
 	private void initComboBox() {
-		DefaultComboBoxModel<SpatialObjectModel.ModelType> comboBoxModel = (DefaultComboBoxModel<SpatialObjectModel.ModelType>) shapeComboBox.getModel();
+		DefaultComboBoxModel<SpatialObjectModel.ModelShape> comboBoxModel = (DefaultComboBoxModel<SpatialObjectModel.ModelShape>) shapeComboBox.getModel();
 
-		SpatialObjectModel.ModelType[] modelTypes = SpatialObjectModel.ModelType.class.getEnumConstants();
+		SpatialObjectModel.ModelShape[] modelShapes = SpatialObjectModel.ModelShape.class.getEnumConstants();
 
-		for (SpatialObjectModel.ModelType modelType : modelTypes) {
-			comboBoxModel.addElement(modelType);
+		for (SpatialObjectModel.ModelShape modelShape : modelShapes) {
+			comboBoxModel.addElement(modelShape);
 		}
 
 		shapeComboBox.setModel(comboBoxModel);

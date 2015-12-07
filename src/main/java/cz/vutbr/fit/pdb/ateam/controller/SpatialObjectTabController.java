@@ -11,8 +11,6 @@ import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
 import cz.vutbr.fit.pdb.ateam.observer.*;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -185,7 +183,7 @@ public class SpatialObjectTabController
 	}
 
 	public void createBuildingButton() {
-		SpatialObjectModel.ModelType shapeType = spatialObjectList.getComboBoxValue();
+		SpatialObjectModel.ModelShape shapeType = spatialObjectList.getComboBoxValue();
 		SpatialObjectCreatingObservable.getInstance().notifyObservers(shapeType);
 		Utils.changePanelContent(spatialObjectsTab, new CreatingBuildingHelper(shapeType));
 	}

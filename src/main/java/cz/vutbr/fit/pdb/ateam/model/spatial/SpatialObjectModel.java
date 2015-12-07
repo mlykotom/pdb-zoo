@@ -58,23 +58,29 @@ abstract public class SpatialObjectModel extends BaseModel {
 		regenerateShape();
 	}
 
-	public enum ModelType {
+	public enum ModelShape {
 		// TODO might have properties for showing in "ComboBox"
-		POINT("point",1),
-		POLYGON("rectangle",2),
-		LINE("line",2), // TODO should have infinite
-		CIRCLE("circle",2);
+		POINT("point", 1, 1),
+		POLYGON("rectangle", 2, 2),
+		LINE("line", 2, -1), // TODO should have infinite
+		CIRCLE("circle", 2, 2);
 
-		private int creatingPointsCount;
+		private int pointsToRenderCount;
+		private int totalPointsCount;
 		private String name;
 
-		ModelType(String name ,int pointsCount) {
-			creatingPointsCount = pointsCount;
+		ModelShape(String name, int pointsToRenderCount, int totalPointsCount) {
+			this.pointsToRenderCount = pointsToRenderCount;
+			this.totalPointsCount = totalPointsCount;
 			this.name = name;
 		}
 
-		public int getCreatingPointsCount() {
-			return creatingPointsCount;
+		public int getTotalPointsCount() {
+			return totalPointsCount;
+		}
+
+		public int getPointsToRenderCount() {
+			return pointsToRenderCount;
 		}
 
 		public String getName() {
@@ -150,7 +156,8 @@ abstract public class SpatialObjectModel extends BaseModel {
 	}
 
 	/**
-	 * Creates JGeometry from {@link ModelType} so that we can make Model from it and render on canvas
+	 * Creates JGeometry from {@link ModelShape} so that we can make Model from it and render on canvas
+	 *
 	 * @param type
 	 * @param pressedX
 	 * @param pressedY
@@ -159,7 +166,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 	 * @return model's geometry
 	 * @throws ModelException
 	 */
-	public static JGeometry createJGeometryFromModelType(ModelType type, int pressedX, int pressedY, int oldPressedX, int oldPressedY) throws ModelException {
+	public static JGeometry createJGeometryFromModelType(ModelShape type, int pressedX, int pressedY, int oldPressedX, int oldPressedY) throws ModelException {
 		JGeometry geom;
 		switch (type) {
 			case POLYGON:
@@ -268,7 +275,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 		try {
 			Rectangle2D boundRect = shape.getBounds2D();
 			double delta = 1 + (mouseWheelRotation * 0.05f);
-			delta = isScaledInMape(boundRect, delta);
+			delta = isScaledInMap(boundRect, delta);
 			JGeometry staticPoint = new JGeometry(boundRect.getCenterX(), boundRect.getCenterY(), 0);
 			geometry = geometry.affineTransforms(false, 0, 0, 0, true, staticPoint, delta, delta, 0, false, null, null, 0, 0, false, 0, 0, 0, 0, 0, 0, false, null, null, 0, false, new double[]{}, new double[]{});
 			setIsChanged(true);
@@ -330,7 +337,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 	 * @param delta     amount which will be scaled
 	 * @return changed delta amount
 	 */
-	private double isScaledInMape(Rectangle2D boundRect, double delta) {
+	private double isScaledInMap(Rectangle2D boundRect, double delta) {
 		double centerX = boundRect.getCenterX();
 		double halfWidth = boundRect.getWidth() / 2.0;
 		double centerY = boundRect.getCenterY();

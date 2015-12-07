@@ -6,7 +6,6 @@ import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapPanel;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
-import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
 import cz.vutbr.fit.pdb.ateam.observer.*;
 import oracle.spatial.geometry.JGeometry;
 
@@ -158,7 +157,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		private SpatialObjectModel selectedObject;
 		private MouseMode mode = MouseMode.SELECTING;
 
-		private SpatialObjectModel.ModelType creatingModelType;
+		private SpatialObjectModel.ModelShape creatingModelShape;
 		private int mouseClickCount = 0;
 		private int oldPressedX;
 		private int oldPressedY;
@@ -173,14 +172,14 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 				case CREATING:
 					try {
 						// only count points
-						if (mouseClickCount % creatingModelType.getCreatingPointsCount() == 1) {
+						if (mouseClickCount % creatingModelShape.getPointsToRenderCount() == 1) {
 							oldPressedX = pressedX;
 							oldPressedY = pressedY;
 							return;
 						}
 
 						// actually create object
-						JGeometry geom = SpatialObjectModel.createJGeometryFromModelType(creatingModelType, pressedX, pressedY, oldPressedX, oldPressedY);
+						JGeometry geom = SpatialObjectModel.createJGeometryFromModelType(creatingModelShape, pressedX, pressedY, oldPressedX, oldPressedY);
 						SpatialObjectModel newObject = SpatialObjectModel.createFromJGeometry("<<new>>", dataManager.getSpatialObjectType(21L), geom); // TODO magic constant
 						getSpatialObjects().add(newObject);
 						SpatialObjectsReloadObservable.getInstance().notifyObservers();
@@ -260,8 +259,8 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 			mouseClickCount = 0;
 		}
 
-		public void setCreatingModelType(SpatialObjectModel.ModelType creatingModelType) {
-			this.creatingModelType = creatingModelType;
+		public void setCreatingModelShape(SpatialObjectModel.ModelShape creatingModelShape) {
+			this.creatingModelShape = creatingModelShape;
 		}
 	}
 
@@ -334,8 +333,8 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	* @param type which should be set for creating
 	*/
 	@Override
-	public void spatialObjectsCreatingListener(SpatialObjectModel.ModelType type) {
-		mouseHandler.setCreatingModelType(type);
+	public void spatialObjectsCreatingListener(SpatialObjectModel.ModelShape type) {
+		mouseHandler.setCreatingModelShape(type);
 		mouseHandler.nullMouseClickCount();
 		mouseHandler.setMode(MouseMode.CREATING);
 	}
