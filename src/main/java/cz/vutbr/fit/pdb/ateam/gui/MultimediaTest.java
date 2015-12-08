@@ -18,6 +18,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Created by Jakub on 02.12.2015.
@@ -31,7 +32,7 @@ public class MultimediaTest extends JPanel {
 	private JButton openFileButton;
 	private JPanel imagePanelParent;
 	private ImagePanel imagePanel;
-	private JButton rotateButton;
+	private JButton mirrorButton;
 	private JTextField idTextField;
 	private JButton loadButton;
 	private JButton compareButton;
@@ -46,6 +47,11 @@ public class MultimediaTest extends JPanel {
 
 		Utils.setComponentFixSize(imagePanelParent, IMAGE_WIDTH, IMAGE_HEIGHT);
 
+		imagePanel = new ImagePanel(imagePanelParent);
+		Utils.changePanelContent(imagePanelParent, imagePanel);
+
+		// BUTTONS -----------------------------------------------------------------
+
 		openFileButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -53,65 +59,62 @@ public class MultimediaTest extends JPanel {
 
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					File file = fileChooser.getSelectedFile();
-
-					System.out.println("File Selected: " + file.getName() + "!");
-
-					imagePanel = new ImagePanel(file, imagePanelParent);
-					Utils.changePanelContent(imagePanelParent, imagePanel);
-
-				} else {
-					System.out.println("Cancel button pressed!");
+					changeImagePanelContent(file);
 				}
 			}
 		});
 
-		rotateButton.addActionListener(new ActionListener() {
+		mirrorButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (imagePanel == null) return;
+				try {
+					if (model == null) {
+						// TODO save model first
+						return;
+					}
 
-				imagePanel.rotateImage();
+					DataManager.getInstance().mirrorImage(model);
+					changeImagePanelContent(model);
+				} catch (DataManagerException e1) {
+					e1.printStackTrace();
+				}
 			}
 		});
 
 		saveImageButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (imagePanel == null) return;
-
-				if (model == null) model = new ImageModel(0, "<<new>>");
-				model.setImageByteArray(imagePanel.getByteArray());
-				model.setIsChanged(true);
-
 				try {
+					byte[] bytes = imagePanel.getByteArray();
+					if (bytes == null) {
+						// TODO open something first
+						return;
+					}
+
+					if (model == null) {
+						model = new ImageModel(0, "<<new>>");
+					}
+
+					model.setImageByteArray(bytes);
+					model.setIsChanged(true);
 					DataManager.getInstance().saveModel(model);
 				} catch (DataManagerException e1) {
 					Logger.createLog(Logger.ERROR_LOG, e1.getMessage());
 				}
-
 			}
 		});
 
 		loadButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (idTextField.getText() == null) return;
-
-				Long id = Long.parseLong(idTextField.getText());
-
 				try {
+					if (idTextField.getText() == null) return;
+
+					Long id = Long.parseLong(idTextField.getText());
 					model = DataManager.getInstance().getImage(id);
+					changeImagePanelContent(model);
 				} catch (DataManagerException e1) {
 					Logger.createLog(Logger.ERROR_LOG, e1.getMessage());
-					return;
-				}
-
-				try {
-					imagePanel = new ImagePanel(model.getImage().getDataInStream(), imagePanelParent);
-					Utils.changePanelContent(imagePanelParent, imagePanel);
-				} catch (SQLException e1) {
-					Logger.createLog(Logger.ERROR_LOG, e1.getMessage());
-					return;
 				}
 			}
 		});
@@ -119,38 +122,51 @@ public class MultimediaTest extends JPanel {
 		compareButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (imagePanel == null || model == null) return;
-
-				if (model.getId() == 0L) {
-					// TODO model needs to be saved first
-					return;
-				}
-
-				ArrayList<ImageModel> models;
-				ImagePanel image1 = null;
-				ImagePanel image2 = null;
-				ImagePanel image3 = null;
-
 				try {
+					if (model == null) {
+						// TODO open image and save or load model first
+						return;
+					}
+
+					if (model.getId() == 0L) {
+						// TODO model needs to be saved first
+						return;
+					}
+
+					ArrayList<ImageModel> models;
+					ImagePanel image1 = null;
+					ImagePanel image2 = null;
+					ImagePanel image3 = null;
+
 					models = DataManager.getInstance().getThreeSimilarImages(model);
+
+					if (models.size() > 0) {
+						image1 = new ImagePanel(models.get(0).getImage().getDataInStream(), null);
+						image2 = new ImagePanel(models.get(1).getImage().getDataInStream(), null);
+						image3 = new ImagePanel(models.get(2).getImage().getDataInStream(), null);
+					}
+
+					CompareImagesDialog dialog = new CompareImagesDialog(rootPanel, imagePanel.copy(), image1, image2, image3);
+					dialog.setVisible(true);
+
 				} catch (DataManagerException e1) {
 					Logger.createLog(Logger.ERROR_LOG, e1.getMessage());
-					return;
-				}
-
-				if (models.size() > 0) try {
-					image1 = new ImagePanel(models.get(0).getImage().getDataInStream(), null);
-					image2 = new ImagePanel(models.get(1).getImage().getDataInStream(), null);
-					image3 = new ImagePanel(models.get(2).getImage().getDataInStream(), null);
 				} catch (SQLException e1) {
-					Logger.createLog(Logger.ERROR_LOG, e1.getMessage());
-					return;
+					Logger.createLog(Logger.ERROR_LOG, "SQLException: " + e1.getMessage());
 				}
-
-				CompareImagesDialog dialog = new CompareImagesDialog(rootPanel, imagePanel.copy(), image1, image2, image3);
-				dialog.setVisible(true);
 			}
 		});
+	}
+
+	private void changeImagePanelContent(Object obj) {
+		try {
+			if (obj instanceof ImageModel)
+				imagePanel.changeImage(((ImageModel) obj).getImage().getDataInStream());
+			else if (obj instanceof File)
+				imagePanel.changeImage((File) obj);
+		} catch (SQLException e) {
+			Logger.createLog(Logger.ERROR_LOG, "SQLException: " + e.getMessage());
+		}
 	}
 
 	{
@@ -182,9 +198,9 @@ public class MultimediaTest extends JPanel {
 		imagePanelParent.setForeground(new Color(-1));
 		rootPanel.add(imagePanelParent, new GridConstraints(0, 0, 5, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		imagePanelParent.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, new Color(-16777216)));
-		rotateButton = new JButton();
-		rotateButton.setText("rotate");
-		rootPanel.add(rotateButton, new GridConstraints(1, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		mirrorButton = new JButton();
+		mirrorButton.setText("mirror and save");
+		rootPanel.add(mirrorButton, new GridConstraints(1, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		idTextField = new JTextField();
 		rootPanel.add(idTextField, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
 		loadButton = new JButton();

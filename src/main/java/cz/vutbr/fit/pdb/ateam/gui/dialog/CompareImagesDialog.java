@@ -37,19 +37,19 @@ public class CompareImagesDialog extends JDialog {
 		Utils.setComponentFixSize(similarImagePanel2, IMAGE_WIDTH, IMAGE_HEIGHT);
 		Utils.setComponentFixSize(similarImagePanel3, IMAGE_WIDTH, IMAGE_HEIGHT);
 
-		if(originalImage != null) {
+		if (originalImage != null) {
 			originalImage.setParentPanel(originalImagePanel);
 			originalImagePanel.add(originalImage);
 		}
-		if(image1 != null) {
+		if (image1 != null) {
 			image1.setParentPanel(this.originalImagePanel);
 			similarImagePanel1.add(image1);
 		}
-		if(image2 != null) {
+		if (image2 != null) {
 			image2.setParentPanel(this.originalImagePanel);
 			similarImagePanel2.add(image2);
 		}
-		if(image3 != null) {
+		if (image3 != null) {
 			image3.setParentPanel(this.originalImagePanel);
 			similarImagePanel3.add(image3);
 		}

@@ -370,6 +370,27 @@ public class DataManager {
 	// ------------- METHODS FOR SPATIAL OBJECTS
 	// -----------------------------------------
 
+	public synchronized void mirrorImage(ImageModel model) throws DataManagerException {
+
+		String mirrorSQL = ""
+				+ "DECLARE "
+				+ "obj ORDSYS.ORDImage; "
+				+ "BEGIN "
+				+ "SELECT photo INTO obj FROM TEST_IMAGES "
+				+ "WHERE id = " + model.getId() + " FOR UPDATE; "
+				+ "obj.process('mirror'); "
+				+ "UPDATE TEST_IMAGES SET photo = obj WHERE id = " + model.getId() + "; "
+				+ "COMMIT; "
+				+ "EXCEPTION "
+				+ "WHEN ORDSYS.ORDImageExceptions.DATA_NOT_LOCAL THEN "
+				+ "DBMS_OUTPUT.PUT_LINE('Data is not local'); "
+				+ "END; ";
+
+		createDatabaseUpdate(mirrorSQL);
+
+		saveImage(model);
+	}
+
 	public synchronized ArrayList<ImageModel> getThreeSimilarImages(ImageModel sourceModel) throws DataManagerException {
 		ArrayList<ImageModel> modelsList = new ArrayList<>();
 
