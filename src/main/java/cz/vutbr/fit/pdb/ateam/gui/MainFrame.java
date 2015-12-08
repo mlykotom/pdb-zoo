@@ -29,7 +29,7 @@ public class MainFrame extends JFrame {
 	 */
 	public MainFrame() {
 		this.menuBarController = new MenuBarController(this);
-		//contentPanel = new ContentPanel();
+		contentPanel = new ContentPanel();
 		initUI();
 	}
 
@@ -64,8 +64,8 @@ public class MainFrame extends JFrame {
 	public JPanel switchContent(JPanel panelToShow) {
 		Container contentPane = getContentPane();
 		contentPane.removeAll();
-		//contentPane.add(panelToShow);
-		contentPane.add(new MultimediaTest()); // TODO: temporary
+		contentPane.add(panelToShow);
+		//contentPane.add(new MultimediaTest()); // TODO: show multimedia
 		// TODO is it necessary? usually yes, but here I don't know
 		//contentPane.revalidate();
 		//contentPane.repaint();
