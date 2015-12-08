@@ -65,7 +65,8 @@ public class MainFrame extends JFrame {
 		Container contentPane = getContentPane();
 		contentPane.removeAll();
 		contentPane.add(panelToShow);
-		// TODO is it necessary?
+		//contentPane.add(new MultimediaTest()); // TODO: show multimedia
+		// TODO is it necessary? usually yes, but here I don't know
 		//contentPane.revalidate();
 		//contentPane.repaint();
 

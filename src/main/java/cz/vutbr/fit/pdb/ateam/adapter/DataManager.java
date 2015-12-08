@@ -3,20 +3,25 @@ package cz.vutbr.fit.pdb.ateam.adapter;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
+import cz.vutbr.fit.pdb.ateam.model.multimedia.ImageModel;
 import cz.vutbr.fit.pdb.ateam.model.employee.EmployeeModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
 import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
 import oracle.jdbc.OraclePreparedStatement;
+import oracle.jdbc.OracleResultSet;
 import oracle.jdbc.pool.OracleDataSource;
+import oracle.ord.im.OrdImage;
 import oracle.spatial.geometry.JGeometry;
 import oracle.sql.ORAData;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Stack;
 
 /**
  * Class for communicating with the database.
@@ -78,6 +83,9 @@ public class DataManager {
 	 * Closes connection if opened.
 	 */
 	public void disconnectDatabase() {
+		this.spatialObjectTypes = null;
+		this.spatialObjects = null;
+
 		if (connection != null) {
 			try {
 				connection.close();
@@ -290,6 +298,9 @@ public class DataManager {
 		}else if (model instanceof  EmployeeModel){
 			return saveEmployee((EmployeeModel) model);
 		}
+		else if(model instanceof ImageModel) {
+			return saveImage((ImageModel) model);
+		}
 		// TODO here specify model's saving methods!
 		else {
 			throw new DataManagerException("saveModel(): Unsupported model to save");
@@ -358,6 +369,172 @@ public class DataManager {
 	// -----------------------------------------
 	// ------------- METHODS FOR SPATIAL OBJECTS
 	// -----------------------------------------
+
+	public synchronized void mirrorImage(ImageModel model) throws DataManagerException {
+
+		String mirrorSQL = ""
+				+ "DECLARE "
+				+ "obj ORDSYS.ORDImage; "
+				+ "BEGIN "
+				+ "SELECT photo INTO obj FROM TEST_IMAGES "
+				+ "WHERE id = " + model.getId() + " FOR UPDATE; "
+				+ "obj.process('mirror'); "
+				+ "UPDATE TEST_IMAGES SET photo = obj WHERE id = " + model.getId() + "; "
+				+ "COMMIT; "
+				+ "EXCEPTION "
+				+ "WHEN ORDSYS.ORDImageExceptions.DATA_NOT_LOCAL THEN "
+				+ "DBMS_OUTPUT.PUT_LINE('Data is not local'); "
+				+ "END; ";
+
+		createDatabaseUpdate(mirrorSQL);
+
+		saveImage(model);
+	}
+
+	public synchronized ArrayList<ImageModel> getThreeSimilarImages(ImageModel sourceModel) throws DataManagerException {
+		ArrayList<ImageModel> modelsList = new ArrayList<>();
+
+		try {
+			String selectSQL = "";
+			selectSQL += "SELECT destination FROM (SELECT src.id AS source, dst.id AS destination, SI_ScoreByFtrList( ";
+			selectSQL += "new SI_FeatureList(src.photo_ac, 0.3, src.photo_ch, 0.3, ";
+			selectSQL += "src.photo_pc, 0.1, src.photo_tx, 0.3), dst.photo_si) AS similarity ";
+			selectSQL += "FROM test_images src, test_images dst ";
+			selectSQL += "WHERE src.id <> dst.id AND src.id=" + sourceModel.getId() + " ";
+			selectSQL += "ORDER BY similarity ASC) img WHERE ROWNUM <= 3";
+
+			ResultSet resultSet = createDatabaseQuery(selectSQL);
+
+			while(resultSet.next()) {
+				Long id = resultSet.getLong("destination");
+				ImageModel model = getImage(id);
+
+				modelsList.add(model);
+			}
+
+			resultSet.close();
+		} catch (SQLException e) {
+			throw new DataManagerException("SQLException: " + e.getMessage());
+		}
+
+		return modelsList;
+	}
+
+	public synchronized ImageModel getImage(Long id) throws DataManagerException {
+		try {
+			Statement stmt = connection.createStatement();
+			String selectSQL = "";
+			selectSQL += "SELECT * ";
+			selectSQL += "FROM Test_images ";
+			selectSQL += "WHERE id=" + id + " ";
+			selectSQL += " FOR UPDATE";
+			Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + selectSQL);
+			OracleResultSet rset = (OracleResultSet) stmt.executeQuery(selectSQL);
+			if(!rset.next()) {
+				throw new DataManagerException("Object with id=[" + id + "] not found!");
+			}
+			String name = rset.getString("name");
+			OrdImage image = (OrdImage) rset.getORAData("photo", OrdImage.getORADataFactory());
+			rset.close();
+			stmt.close();
+
+			ImageModel model = new ImageModel(id, name);
+			model.setImage(image);
+
+			return model;
+		} catch (SQLException e) {
+			throw new DataManagerException("SQLException: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * TODO
+	 */
+	public synchronized boolean saveImage(ImageModel model) throws DataManagerException {
+		try {
+
+			connection.setAutoCommit(false);
+
+			if(model.isNew()) {
+				Statement statement = connection.createStatement();
+				String insertSQL = "";
+				insertSQL += "INSERT INTO " + model.getTableName() + " (name, photo) ";
+				insertSQL += "VALUES ('" + model.getName() + "', ordsys.ordimage.init())";
+				Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + insertSQL);
+				statement.executeUpdate(insertSQL);
+				ResultSet getIdResultSet = connection.createStatement().executeQuery("SELECT " + model.getTableName() + "_seq.currval FROM dual");
+				if (getIdResultSet.next()) {
+					model.setId(getIdResultSet.getLong(1));
+				}
+				statement.close();
+			}
+
+			Statement stmt = connection.createStatement();
+			String selectSQL = "";
+			selectSQL += "SELECT photo ";
+			selectSQL += "FROM " + model.getTableName() + " ";
+			selectSQL += "WHERE id=" + model.getId() + " ";
+			selectSQL += " FOR UPDATE";
+			Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + selectSQL);
+			OracleResultSet rset = (OracleResultSet) stmt.executeQuery(selectSQL);
+			if(!rset.next()) {
+				throw new DataManagerException("Object with id=[" + model.getId() + "] not found!");
+			}
+			OrdImage image = (OrdImage) rset.getORAData("photo", OrdImage.getORADataFactory());
+			rset.close();
+			stmt.close();
+
+			model.setImage(image);
+
+			if(model.getImageByteArray() != null) {
+				model.getImage().loadDataFromByteArray(model.getImageByteArray());
+				model.getImage().setProperties();
+			}
+
+			String updateSQL = "";
+			updateSQL += "UPDATE " + model.getTableName() + " ";
+			updateSQL += "SET name=?, photo=? ";
+			updateSQL += "WHERE id=" + model.getId();
+			OraclePreparedStatement preparedStmt = (OraclePreparedStatement) connection.prepareStatement(updateSQL);
+			preparedStmt.setString(1, model.getName());
+			preparedStmt.setORAData(2, model.getImage());
+			Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + updateSQL + " | photo=" + model.getImage().toString());
+			preparedStmt.executeUpdate();
+			preparedStmt.close();
+
+			stmt = connection.createStatement();
+			String updateStillImageSQL = "";
+			updateStillImageSQL += "UPDATE " + model.getTableName() + " t ";
+			updateStillImageSQL += "SET t.photo_si=SI_STILLImage(t.photo.getContent()) ";
+			updateStillImageSQL += "WHERE id=" + model.getId();
+			Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + updateStillImageSQL);
+			stmt.executeQuery(updateStillImageSQL);
+
+			String updateFeaturesSQL = "";
+			updateFeaturesSQL += "UPDATE " + model.getTableName() + " t SET ";
+			updateFeaturesSQL += "t.photo_ac=SI_AverageColor(t.photo_si), ";
+			updateFeaturesSQL += "t.photo_ch=SI_ColorHistogram(t.photo_si), ";
+			updateFeaturesSQL += "t.photo_pc=SI_PositionalColor(t.photo_si), ";
+			updateFeaturesSQL += "t.photo_tx=SI_Texture(t.photo_si) ";
+			updateFeaturesSQL += "WHERE id=" + model.getId();
+			Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + updateFeaturesSQL);
+			stmt.executeQuery(updateFeaturesSQL);
+			stmt.close();
+
+			connection.commit();
+
+			connection.setAutoCommit(true);
+
+		} catch (SQLException e) {
+			throw new DataManagerException("SQLException: " + e.getMessage());
+		} catch (IOException e) {
+			throw new DataManagerException("IOException: " + e.getMessage());
+		}
+
+		model.setImageByteArray(null);
+		model.setIsChanged(false);
+		return true;
+	}
 
 	/**
 	 * Method parses all needed data from SpacialObject and builds sql query, which is sent
