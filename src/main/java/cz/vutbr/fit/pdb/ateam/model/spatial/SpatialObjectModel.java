@@ -27,6 +27,9 @@ abstract public class SpatialObjectModel extends BaseModel {
 	protected BasicStroke stroke;
 	private boolean isSelected = false;
 
+	public double area;
+	public double length;
+
 	private enum IsInMapAxis {
 		AXIS_Y,
 		AXIS_X

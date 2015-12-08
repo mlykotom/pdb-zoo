@@ -291,7 +291,6 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	 * Cancel any changes made to spatial objects by reloading all objects from DB
 	 */
 	public void cancelChangedSpatialObjectsAction() {
-		form.setUnselectedObject();
 		mouseHandler.clearCreatingMode();
 		reloadSpatialObjects();
 	}
@@ -321,7 +320,6 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	@Override
 	public void spatialObjectSelectionChangedListener(SpatialObjectModel spatialObjectModel) {
 		if (spatialObjectModel == null) {
-			form.setUnselectedObject();
 			this.selectedObjectOnCanvas = null;
 			// unselects all objects
 			for (SpatialObjectModel object : getSpatialObjects()) {
@@ -329,7 +327,6 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 			}
 		} else {
 			spatialObjectModel.selectOnCanvas(true);
-			form.setSelecteObject(spatialObjectModel);
 			this.selectedObjectOnCanvas = spatialObjectModel;
 		}
 	}
@@ -353,18 +350,6 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	 */
 	public void modelChangedStateListener(BaseModel model, ModelState modelState) {
 		if (!(model instanceof SpatialObjectModel)) return;
-
-		switch (modelState) {
-			case DELETED:
-				form.setUnselectedObject();
-				break;
-
-			case SAVED:
-				if (((SpatialObjectModel) model).isSelected()) {
-					form.setSelecteObject(model);
-				}
-				break;
-		}
 		canvas.repaint();
 	}
 }

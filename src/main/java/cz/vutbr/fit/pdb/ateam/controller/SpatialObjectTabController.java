@@ -9,8 +9,11 @@ import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
 import cz.vutbr.fit.pdb.ateam.observer.*;
+import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.List;
 
 /**
@@ -18,12 +21,12 @@ import java.util.List;
  */
 public class SpatialObjectTabController
 		extends
-			Controller
+		Controller
 		implements
-			ISpatialObjectSelectionChangedListener,
-			SpatialObjectTableController,
-			ISpatialObjectsReloadListener,
-			IModelChangedStateListener{
+		ISpatialObjectSelectionChangedListener,
+		SpatialObjectTableController,
+		ISpatialObjectsReloadListener,
+		IModelChangedStateListener {
 
 	SpatialObjectsTab spatialObjectsTab;
 	SpatialObjectsList spatialObjectList;
@@ -68,6 +71,7 @@ public class SpatialObjectTabController
 	 */
 	private void changePanelContentIntoDetail(SpatialObjectModel spatialObjectModel) {
 		Utils.changePanelContent(spatialObjectsTab, spatialObjectDetail);
+		spatialObjectDetail.setCalculatedInfo(null, null);
 		spatialObjectDetail.setTypeComboBoxModel(getSpatialObjectTypes());
 		spatialObjectDetail.setSpatialObject(spatialObjectModel);
 		selectedObject = spatialObjectModel;
@@ -121,7 +125,7 @@ public class SpatialObjectTabController
 	 */
 	@Override
 	public void spatialObjectSelectionChangedListener(SpatialObjectModel spatialObjectModel) {
-		if(spatialObjectModel == null) {
+		if (spatialObjectModel == null) {
 			changePanelContentIntoList();
 		} else {
 			changePanelContentIntoDetail(spatialObjectModel);
@@ -135,19 +139,19 @@ public class SpatialObjectTabController
 	 */
 	@Override
 	public void spatialObjectsReloadListener() {
-		if(selectedObject == null)
+		if (selectedObject == null)
 			changePanelContentIntoList();
 		else {
 			long id = selectedObject.getId();
 			selectedObject = null;
 			for (SpatialObjectModel model : getSpatialObjects()) {
-				if(model.getId().equals(id)) {
+				if (model.getId().equals(id)) {
 					selectedObject = model;
 					return;
 				}
 			}
 
-			if(selectedObject == null) {
+			if (selectedObject == null) {
 				changePanelContentIntoList();
 			}
 		}
@@ -157,12 +161,12 @@ public class SpatialObjectTabController
 	 * Saves selected object with new properties into database.
 	 */
 	public void detailSaveButtonAction() {
-		if(selectedObject == null) return;
+		if (selectedObject == null) return;
 
 		SpatialObjectTypeModel selectedObjectType = selectedObject.getType();
 		String typeName = spatialObjectDetail.getTypeComboBoxVallue();
-		for (SpatialObjectTypeModel type: getSpatialObjectTypes()) {
-			if(typeName.equals(type.getName())) {
+		for (SpatialObjectTypeModel type : getSpatialObjectTypes()) {
+			if (typeName.equals(type.getName())) {
 				selectedObjectType = type;
 			}
 		}
@@ -189,12 +193,34 @@ public class SpatialObjectTabController
 
 	@Override
 	public void modelChangedStateListener(BaseModel model, ModelState modelState) {
-		if((model instanceof SpatialObjectModel) && (modelState == ModelState.SAVED)) {
+		if ((model instanceof SpatialObjectModel) && (modelState == ModelState.SAVED)) {
 			selectedObject = (SpatialObjectModel) model;
 
 			changePanelContentIntoDetail(selectedObject);
 		} else {
 			changePanelContentIntoList();
 		}
+	}
+
+	public void recalculateShapeInfoAction() {
+		new AsyncTask() {
+			private double calculatedArea = 0.0;
+			private double calculatedLength = 0.0;
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				double[] shapeInfo = dataManager.getSpatialObjectAnalyticFunction(selectedObject);
+				calculatedArea = shapeInfo[0];
+				calculatedLength = shapeInfo[1];
+				return true;
+			}
+
+			@Override
+			protected void onDone(boolean success) {
+				if (success) {
+					spatialObjectDetail.setCalculatedInfo(calculatedArea, calculatedLength);
+				}
+			}
+		}.start();
 	}
 }
