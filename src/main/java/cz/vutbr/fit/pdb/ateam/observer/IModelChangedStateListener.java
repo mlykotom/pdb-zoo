@@ -10,8 +10,18 @@ public interface IModelChangedStateListener {
 	 * Possible model states
 	 */
 	enum ModelState {
-		SAVED,
-		DELETED
+		SAVED("SAVED"),
+		DELETED("SAVED");
+
+		String debugName;
+
+		ModelState(String name){
+			debugName = name;
+		}
+
+		public String getDebugName() {
+			return debugName;
+		}
 	};
 
 	/**

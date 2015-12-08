@@ -352,12 +352,11 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	 * @param modelState specifies what happened to the model (possibly SAVED, DELETED) see {@link ModelState}
 	 */
 	public void modelChangedStateListener(BaseModel model, ModelState modelState) {
-		if (!(model instanceof SpatialObjectModel)) return; // TODO for now we only handle SpatialObjects
+		if (!(model instanceof SpatialObjectModel)) return;
 
 		switch (modelState) {
 			case DELETED:
 				form.setUnselectedObject();
-				canvas.repaint();
 				break;
 
 			case SAVED:
@@ -366,5 +365,6 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 				}
 				break;
 		}
+		canvas.repaint();
 	}
 }

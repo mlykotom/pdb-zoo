@@ -1,6 +1,7 @@
 package cz.vutbr.fit.pdb.ateam.observer;
 
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
+import cz.vutbr.fit.pdb.ateam.utils.Logger;
 
 /**
  * Observer for spatial object reloading event
@@ -15,6 +16,7 @@ public class ModelChangedStateObservable extends SimpleObservable<IModelChangedS
 	}
 
 	public void notifyObservers(BaseModel model, IModelChangedStateListener.ModelState modelState) {
+		Logger.createLog(Logger.DEBUG_LOG, String.format("Notifying model changedState: ModelId=%d, state = %s", model.getId(), modelState.getDebugName()));
 		for (IModelChangedStateListener listener : getObservableList()) {
 			listener.modelChangedStateListener(model, modelState);
 		}

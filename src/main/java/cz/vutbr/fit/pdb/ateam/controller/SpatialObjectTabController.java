@@ -163,8 +163,7 @@ public class SpatialObjectTabController
 		String typeName = spatialObjectDetail.getTypeComboBoxVallue();
 		for (SpatialObjectTypeModel type: getSpatialObjectTypes()) {
 			if(typeName.equals(type.getName())) {
-				selectedObjectType.setId(type.getId());
-				selectedObjectType.setName(typeName);
+				selectedObjectType = type;
 			}
 		}
 

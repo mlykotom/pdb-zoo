@@ -11,7 +11,7 @@ import java.awt.geom.Point2D;
  * @author Tomas Mlynaric
  */
 public class SpatialLineStringModel extends SpatialObjectModel {
-	public static final int HIT_BOX_SIZE = 8;
+	public static final int HIT_BOX_SIZE = 10;
 
 	/**
 	 * Setups object and creates shape for graphic representation from jGeometry.
