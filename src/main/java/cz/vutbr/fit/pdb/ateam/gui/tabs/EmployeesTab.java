@@ -1,34 +1,44 @@
 package cz.vutbr.fit.pdb.ateam.gui.tabs;
 
-import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.intellij.uiDesigner.core.Spacer;
 import cz.vutbr.fit.pdb.ateam.controller.Controller;
 import cz.vutbr.fit.pdb.ateam.controller.EmployeesTabController;
 import cz.vutbr.fit.pdb.ateam.gui.BasePanel;
 import cz.vutbr.fit.pdb.ateam.gui.ContentPanel;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 
 /**
  * Created by Tomas Mlynaric on 21.10.2015.
  */
 public class EmployeesTab extends BasePanel {
-	private final ContentPanel mainPanel;
-	private final EmployeesTabController controller;
-	private JSpinner spinner1;
-	private JPanel rootPanel;
+	private final ContentPanel contentPanel;
 
-	public EmployeesTab(ContentPanel mainPanel) {
-		this.mainPanel = mainPanel;
-		add(rootPanel);
+	private final EmployeesTabController controller;
+
+	private JPanel rootPanel;
+	private JTabbedPane tabsPane;
+
+	public EmployeesTab(ContentPanel mainPanel, JTabbedPane tabsPane) {
+		this.tabsPane = tabsPane;
 		this.controller = new EmployeesTabController(this);
-	}  
+		this.contentPanel = mainPanel;
+		add(rootPanel);
+	}
 
 	@Override
 	public Controller getController() {
 		return this.controller;
+	}
+
+
+	public JTabbedPane getTabPanel() {
+		return tabsPane;
 	}
 
 	{
@@ -47,12 +57,8 @@ public class EmployeesTab extends BasePanel {
 	 */
 	private void $$$setupUI$$$() {
 		rootPanel = new JPanel();
-		rootPanel.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+		rootPanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
 		rootPanel.setBackground(new Color(-1));
-		spinner1 = new JSpinner();
-		rootPanel.add(spinner1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-		final Spacer spacer1 = new Spacer();
-		rootPanel.add(spacer1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
 	}
 
 	/**
@@ -61,5 +67,4 @@ public class EmployeesTab extends BasePanel {
 	public JComponent $$$getRootComponent$$$() {
 		return rootPanel;
 	}
-
 }
