@@ -268,11 +268,7 @@ public class EmployeesTabController extends Controller
 		if (selectedComponent == employeeTab){
 			fillUpEmployeesTable(dateToDisplay);
 		}
-
 	}
-
-
-
 
 	public void fillEmployeeDetailTable(){
 		EmployeeDetailTable table = new EmployeeDetailTable();
@@ -302,8 +298,14 @@ public class EmployeesTabController extends Controller
 	 */
 	public void showHistoryAction(boolean selected) {
 		if (selected == true){
-			employeeDetailPanel.showEmployeeDetailTable();
-		}else employeeDetailPanel.hideEmployeeDetailTable();
+			employeeDetailPanel.showHistoryShiftPane();
+		}else {
+			employeeDetailPanel.hideHistoryShiftPane();
+		}
+	}
+
+	public EmployeeModel getSelectedEmployeeModel(){
+		return selectedEmployeeModel;
 	}
 
 	public void editShiftAction() {

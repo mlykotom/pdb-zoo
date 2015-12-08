@@ -63,7 +63,7 @@ public class EmployeeDetailPanel extends BasePanel {
 
 	private void initUI() {
 		this.idField.setEnabled(false);
-		hideEmployeeDetailTable();
+//		hideEmployeeDetailTable();
 		discardButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -107,14 +107,18 @@ public class EmployeeDetailPanel extends BasePanel {
 
 		if (editMode == NEW_EMPLOYEE) {
 			showHistoryCheckBox.setVisible(false);
-			hideHistoryShiftPane();
 		}
+		hideHistoryShiftPane();
 
 		for (SpatialObjectModel spatialObject : spatialObjects) locationComboBox.addItem(spatialObject);
 	}
 
-	private void hideHistoryShiftPane() {
+	public void hideHistoryShiftPane() {
 		historyPane.setVisible(false);
+	}
+
+	public void showHistoryShiftPane() {
+		historyPane.setVisible(true);
 	}
 
 	public JComboBox getLocationComboBox() {
@@ -130,13 +134,13 @@ public class EmployeeDetailPanel extends BasePanel {
 		// TODO: place custom component creation code here
 	}
 
-	public void hideEmployeeDetailTable() {
-		this.tablePanel.setVisible(false);
-	}
+//	public void hideEmployeeDetailTable() {
+//		this.tablePanel.setVisible(false);
+//	}
 
-	public void showEmployeeDetailTable() {
-		this.tablePanel.setVisible(true);
-	}
+//	public void showEmployeeDetailTable() {
+//		this.tablePanel.setVisible(true);
+//	}
 
 	public String getNameTextFieldValue() {
 		return nameEditField.getText();
@@ -235,6 +239,7 @@ public class EmployeeDetailPanel extends BasePanel {
 		historyPane.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(3, 2, new Insets(0, 0, 0, 0), -1, -1));
 		rootPanel.add(historyPane, new com.intellij.uiDesigner.core.GridConstraints(13, 0, 1, 5, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		editButton = new JButton();
+		editButton.setEnabled(true);
 		editButton.setText("Edit");
 		historyPane.add(editButton, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final com.intellij.uiDesigner.core.Spacer spacer13 = new com.intellij.uiDesigner.core.Spacer();
