@@ -4,6 +4,8 @@
 
 DROP SEQUENCE Spatial_Object_Types_seq;
 DROP SEQUENCE Spatial_Objects_seq;
+DROP INDEX SPATIAL_OBJECTS_INDEX;
+DELETE FROM ALL_SDO_GEOM_METADATA WHERE TABLE_NAME = 'SPATIAL_OBJECTS';
 DROP TABLE Spatial_Objects;
 DROP TABLE Spatial_Object_Types;
 
@@ -21,12 +23,22 @@ CREATE TABLE Spatial_Object_Types (
 CREATE TABLE Spatial_Objects (
   ID       INT          NOT NULL,
   Name     VARCHAR(255) NOT NULL,
-  Type     INT          NOT NULL,
+  Type     INT          ,
   Geometry SDO_GEOMETRY NOT NULL,
 
   PRIMARY KEY (ID),
-  FOREIGN KEY (Type) REFERENCES Spatial_Object_Types (ID)
+  FOREIGN KEY (Type) REFERENCES Spatial_Object_Types (ID) -- ON DELETE SET NULL -- TODO should be here! or sth like this
 );
+
+-- metadata for spatial objects --
+INSERT INTO USER_SDO_GEOM_METADATA VALUES (
+  'SPATIAL_OBJECTS',
+  'GEOMETRY',
+  SDO_DIM_ARRAY(SDO_DIM_ELEMENT('X', 0, 640, 1), SDO_DIM_ELEMENT('Y', 0, 480, 1)),
+  NULL
+);
+
+CREATE INDEX SPATIAL_OBJECTS_INDEX ON SPATIAL_OBJECTS(GEOMETRY) INDEXTYPE IS MDSYS.SPATIAL_INDEX;
 
 -- ----------------------------------------------------------------------------------------
 -- CREATING SEQUENCES

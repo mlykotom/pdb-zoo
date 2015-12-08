@@ -142,7 +142,7 @@ public class DataManager {
 
 			resultSet = statement.executeQuery(sqlQuery);
 		} catch (SQLException ex) {
-			throw new DataManagerException("createDatabaseQuery: SQLException: " + ex.getMessage());
+			throw new DataManagerException("createDatabaseQuery: SQLException: " + ex.getMessage(), ex.getErrorCode());
 		}
 
 		return resultSet;
@@ -384,7 +384,16 @@ public class DataManager {
 
 			PreparedStatement preparedStatement = connection.prepareStatement(sqlPrep);
 			preparedStatement.setString(1, spatialObject.getName());
-			preparedStatement.setLong(2, spatialObject.getType().getId());
+			Long id = spatialObject.getType().getId();
+			if(id == null){
+				preparedStatement.setNull(2, Types.INTEGER);
+			}
+			else {
+				preparedStatement.setLong(2, spatialObject.getType().getId());
+			}
+
+
+
 			preparedStatement.setObject(3, JGeometry.store(connection, spatialObject.getGeometry()));
 
 			Logger.createLog(Logger.DEBUG_LOG, "Sending query: " + sqlPrep + " | name = '" + spatialObject.getName() + "', type = '" + spatialObject.getType().getId() + "', id = '" + spatialObject.getId() + "'");
@@ -481,7 +490,7 @@ public class DataManager {
 	 * @return Set of the SpacialObjectType, which contains all object types saved in the database
 	 * @throws DataManagerException when exception from createDatabaseQuery() is received
 	 */
-	public ArrayList<SpatialObjectTypeModel> reloadAllSpatialObjectTypes() throws DataManagerException {
+	public void reloadAllSpatialObjectTypes() throws DataManagerException {
 		ArrayList<SpatialObjectTypeModel> spacialTypes = new ArrayList<>();
 
 		String sqlQuery = "SELECT * FROM Spatial_Object_Types";
@@ -499,9 +508,30 @@ public class DataManager {
 		}
 
 		this.spatialObjectTypes = spacialTypes;
+	}
 
-		// TODO void???
-		return spacialTypes;
+	/**
+	 * Calculates area of spatial object
+	 * @param model
+	 * @return
+	 * @throws DataManagerException
+	 */
+	public double[] getSpatialObjectAnalyticFunction(SpatialObjectModel model) throws DataManagerException {
+		double area = 0.0, length = 0.0;
+
+		String sqlQuery = "SELECT SDO_GEOM.SDO_AREA(geometry, 1) AS Area, SDO_GEOM.SDO_LENGTH(geometry, 1) AS Length FROM SPATIAL_OBJECTS WHERE ID='" + model.getId() + "'";
+		ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+		try {
+			while (resultSet.next()) {
+				area = resultSet.getDouble("Area");
+				length = resultSet.getDouble("Length");
+			}
+		} catch (SQLException ex) {
+			throw new DataManagerException("getAllSpatialObjectTypes: SQLException: " + ex.getMessage());
+		}
+
+		return new double[]{area, length};
 	}
 
 	/**

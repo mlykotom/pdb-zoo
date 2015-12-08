@@ -10,5 +10,5 @@ public interface ISpatialObjectCreatingListener {
 	 * Fires when spatial objects are reloaded
 	 * @param type which should be set for creating
 	 */
-	void spatialObjectsCreatingListener(SpatialObjectModel.ModelType type);
+	void spatialObjectsCreatingListener(SpatialObjectModel.ModelShape type);
 }

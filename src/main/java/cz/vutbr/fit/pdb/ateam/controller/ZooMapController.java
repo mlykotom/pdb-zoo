@@ -5,16 +5,16 @@ import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapPanel;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
+import cz.vutbr.fit.pdb.ateam.model.Coordinate;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
-import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
 import cz.vutbr.fit.pdb.ateam.observer.*;
-import oracle.spatial.geometry.JGeometry;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.ArrayList;
 
 /**
  * Class controls all events occurred in ZooMapForm.
@@ -26,7 +26,28 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	private ZooMapPanel form;
 	private ZooMapCanvas canvas;
 	private SpatialObjectModel selectedObjectOnCanvas;
+	public SpatialObjectModel creatingModel;
 	public MouseHandler mouseHandler = new MouseHandler();
+
+	/**
+	 * Enum for canvas modes.
+	 * Canvas cursor is setup based on this mode
+	 */
+	public enum MouseMode {
+		CREATING(new Cursor(Cursor.CROSSHAIR_CURSOR)),
+		SELECTING(new Cursor(Cursor.HAND_CURSOR)),
+		MERGING(new Cursor(Cursor.HAND_CURSOR));
+
+		private Cursor cursor;
+
+		MouseMode(Cursor c) {
+			cursor = c;
+		}
+
+		public Cursor getCursor() {
+			return cursor;
+		}
+	}
 
 	/**
 	 * Constructor saves instance of the ZooMapForm as local
@@ -103,7 +124,6 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	 * Handler when mouse is scrolled in canvas - handles scaling spatial objects
 	 */
 	public MouseWheelListener scaleHandler = new MouseWheelListener() {
-		private static final int MOUSE_WHEEL_TIMER_DELAY = 500;
 		private SpatialObjectModel selectedObject;
 
 		public void mouseWheelMoved(MouseWheelEvent mouseEvent) {
@@ -132,71 +152,42 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		}
 	};
 
-	public enum MouseMode {
-		CREATING(new Cursor(Cursor.CROSSHAIR_CURSOR)),
-		SELECTING(new Cursor(Cursor.HAND_CURSOR));
-
-		private Cursor cursor;
-
-		MouseMode(Cursor c) {
-			cursor = c;
-		}
-
-		public Cursor getCursor() {
-			return cursor;
-		}
-	}
-
-
 	/**
 	 * Handler for mouse movement in canvas - handles moving objects
 	 */
-	class MouseHandler extends MouseAdapter {
+	public class MouseHandler extends MouseAdapter {
 		private int pressedX;
 		private int pressedY;
-		private SpatialObjectModel selectedObject;
 		private MouseMode mode = MouseMode.SELECTING;
-
-		private SpatialObjectModel.ModelType creatingModelType;
+		private SpatialObjectModel selectedObject;
+		private SpatialObjectModel.ModelShape creatingModelShape;
 		private int mouseClickCount = 0;
-		private int oldPressedX;
-		private int oldPressedY;
+		private ArrayList<Coordinate> pressedCoordinates = new ArrayList<>();
 
 		@Override
 		public void mouseClicked(MouseEvent mouseEvent) {
 			pressedX = mouseEvent.getX();
 			pressedY = mouseEvent.getY();
+
+			pressedCoordinates.add(new Coordinate(pressedX, pressedY));
 			mouseClickCount++;
 
 			switch (mode) {
 				case CREATING:
 					try {
 						// only count points
-						if (mouseClickCount % creatingModelType.getCreatingPointsCount() == 1) {
-							oldPressedX = pressedX;
-							oldPressedY = pressedY;
+						if (mouseClickCount < creatingModelShape.getPointsToRenderCount()) {
 							return;
 						}
 
-						// actually create object
-						JGeometry geom = SpatialObjectModel.createJGeometryFromModelType(creatingModelType, pressedX, pressedY, oldPressedX, oldPressedY);
-						SpatialObjectModel newObject = SpatialObjectModel.createFromJGeometry("<<new>>", dataManager.getSpatialObjectType(21L), geom); // TODO magic constant
-						getSpatialObjects().add(newObject);
-						SpatialObjectsReloadObservable.getInstance().notifyObservers();
-						oldPressedX = oldPressedY = mouseClickCount = 0;
-						setMode(MouseMode.SELECTING);
+						creatingModel = SpatialObjectModel.create(creatingModelShape, "<<new>>", pressedCoordinates);
 
-					} catch (DataManagerException | ModelException e) {
+						if (mouseClickCount == creatingModelShape.getTotalPointsCount()) {
+							finishCreatingAndSetSelectingModel();
+						}
+					} catch (ModelException e) {
 						e.printStackTrace();
 					}
-
-					break;
-
-				// creating has more priority than selecting
-				case SELECTING:
-					selectedObject = getObjectFromCanvas(pressedX, pressedY);
-					// selected object may be null, in this case every object is unselected
-					selectSpatialObject(selectedObject);
 					break;
 			}
 
@@ -209,9 +200,17 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		 * @param mouseEvent
 		 */
 		public void mousePressed(MouseEvent mouseEvent) {
+			if (mode != MouseMode.SELECTING) return;
+
 			pressedX = mouseEvent.getX();
 			pressedY = mouseEvent.getY();
+
+			// creating has more priority than selecting
 			selectedObject = getObjectFromCanvas(pressedX, pressedY);
+			// selected object may be null, in this case every object is unselected
+			selectSpatialObject(selectedObject);
+
+			canvas.repaint();
 		}
 
 		/**
@@ -239,7 +238,6 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		 * @param mouseEvent
 		 */
 		public void mouseReleased(MouseEvent mouseEvent) {
-			if (selectedObject == null) return; // TODO this shouldn't happen
 			selectedObject = null;
 		}
 
@@ -248,16 +246,34 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 			canvas.setCursor(mode.getCursor());
 		}
 
-		public void nullMouseClickCount() {
+		/**
+		 * Creating new shape
+		 *
+		 * @param creatingModelShape this shape will be set for creating
+		 */
+		public void setCreatingModel(SpatialObjectModel.ModelShape creatingModelShape) {
+			this.clearCreatingMode();
+			this.creatingModelShape = creatingModelShape;
+			this.setMode(MouseMode.CREATING);
+		}
+
+		public void finishCreatingAndSetSelectingModel() {
+			if (creatingModel != null) {
+				getSpatialObjects().add(creatingModel);
+				SpatialObjectsReloadObservable.getInstance().notifyObservers();
+			}
+
+			this.clearCreatingMode();
+			this.setMode(MouseMode.SELECTING);
+		}
+
+		public void clearCreatingMode() {
+			pressedCoordinates.clear();
+			this.creatingModelShape = null;
+			creatingModel = null;
 			mouseClickCount = 0;
 		}
-
-		public void setCreatingModelType(SpatialObjectModel.ModelType creatingModelType) {
-			this.creatingModelType = creatingModelType;
-		}
 	}
-
-
 
 	// --------------------------
 	// ------------- FORM ACTIONS
@@ -267,6 +283,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	 * Action when clicked on saveModel button
 	 */
 	public void saveSpatialObjectsAction() {
+		mouseHandler.finishCreatingAndSetSelectingModel();
 		saveModels(getSpatialObjects());
 	}
 
@@ -274,27 +291,12 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	 * Cancel any changes made to spatial objects by reloading all objects from DB
 	 */
 	public void cancelChangedSpatialObjectsAction() {
-		form.setUnselectedObject();
+		mouseHandler.clearCreatingMode();
 		reloadSpatialObjects();
 	}
 
-	/**
-	 * Deletes selected model
-	 */
-	public void deleteSelectedModelsAction() {
-		if (selectedObjectOnCanvas == null) return;
-		selectedObjectOnCanvas.setDeleted(true);
-		saveModels(selectedObjectOnCanvas); // TODO if want just delete without saving must implement reload canvas
-	}
-
-	/**
-	 * Adds new object to canvas
-	 * TODO temporary - should be in right tab
-	 * TODO should send object type
-	 */
-	public void createSpatialObjectAction() {
-		SpatialObjectModel.ModelType type = SpatialObjectModel.ModelType.CIRCLE; // TODO here change for what you want (select from combobox)
-		SpatialObjectCreatingObservable.getInstance().notifyObservers(type);
+	public void finishCreatingSpatialObjectAction() {
+		mouseHandler.finishCreatingAndSetSelectingModel();
 	}
 
 	// -----------------------
@@ -318,7 +320,6 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	@Override
 	public void spatialObjectSelectionChangedListener(SpatialObjectModel spatialObjectModel) {
 		if (spatialObjectModel == null) {
-			form.setUnselectedObject();
 			this.selectedObjectOnCanvas = null;
 			// unselects all objects
 			for (SpatialObjectModel object : getSpatialObjects()) {
@@ -326,20 +327,18 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 			}
 		} else {
 			spatialObjectModel.selectOnCanvas(true);
-			form.setSelecteObject(spatialObjectModel);
 			this.selectedObjectOnCanvas = spatialObjectModel;
 		}
 	}
 
 	/**
-	* Fires when spatial objects are reloaded
-	* @param type which should be set for creating
-	*/
+	 * Fires when spatial objects are reloaded
+	 *
+	 * @param type which should be set for creating
+	 */
 	@Override
-	public void spatialObjectsCreatingListener(SpatialObjectModel.ModelType type) {
-		mouseHandler.setCreatingModelType(type);
-		mouseHandler.nullMouseClickCount();
-		mouseHandler.setMode(MouseMode.CREATING);
+	public void spatialObjectsCreatingListener(SpatialObjectModel.ModelShape type) {
+		mouseHandler.setCreatingModel(type);
 	}
 
 	/**
@@ -350,19 +349,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	 * @param modelState specifies what happened to the model (possibly SAVED, DELETED) see {@link ModelState}
 	 */
 	public void modelChangedStateListener(BaseModel model, ModelState modelState) {
-		if (!(model instanceof SpatialObjectModel)) return; // TODO for now we only handle SpatialObjects
-
-		switch (modelState) {
-			case DELETED:
-				form.setUnselectedObject();
-				canvas.repaint();
-				break;
-
-			case SAVED:
-				if (((SpatialObjectModel) model).isSelected()) {
-					form.setSelecteObject(model);
-				}
-				break;
-		}
+		if (!(model instanceof SpatialObjectModel)) return;
+		canvas.repaint();
 	}
 }

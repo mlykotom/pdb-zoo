@@ -15,7 +15,7 @@ public class SpatialObjectCreatingObservable extends SimpleObservable<ISpatialOb
 		return instance;
 	}
 
-	public void notifyObservers(SpatialObjectModel.ModelType type) {
+	public void notifyObservers(SpatialObjectModel.ModelShape type) {
 		Logger.createLog(Logger.DEBUG_LOG, "Notifying that object is creating...");
 		for (ISpatialObjectCreatingListener listener : getObservableList()) {
 			listener.spatialObjectsCreatingListener(type);

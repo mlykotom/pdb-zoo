@@ -1,5 +1,6 @@
 package cz.vutbr.fit.pdb.ateam.model.spatial;
 
+import cz.vutbr.fit.pdb.ateam.model.Coordinate;
 import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
@@ -9,6 +10,7 @@ import oracle.spatial.geometry.JGeometry;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 
 /**
  * Abstract representation of object in spatial DB.
@@ -24,6 +26,9 @@ abstract public class SpatialObjectModel extends BaseModel {
 	protected Paint borderColor;
 	protected BasicStroke stroke;
 	private boolean isSelected = false;
+
+	public double area;
+	public double length;
 
 	private enum IsInMapAxis {
 		AXIS_Y,
@@ -58,23 +63,33 @@ abstract public class SpatialObjectModel extends BaseModel {
 		regenerateShape();
 	}
 
-	public enum ModelType {
-		// TODO might have properties for showing in "ComboBox"
-		POINT("point",1),
-		POLYGON("rectangle",2),
-		LINE("line",2), // TODO should have infinite
-		CIRCLE("circle",2);
+	public enum ModelShape {
+		POINT("point", 1),
+		POLYGON("rectangle", 2),
+		LINE("line", 2, -1),
+		CIRCLE("circle", 2);
 
-		private int creatingPointsCount;
+		private int pointsToRenderCount;
+		private int totalPointsCount;
 		private String name;
 
-		ModelType(String name ,int pointsCount) {
-			creatingPointsCount = pointsCount;
+		ModelShape(String name, int pointsToRenderCount, int totalPointsCount) {
+			this.pointsToRenderCount = pointsToRenderCount;
+			this.totalPointsCount = totalPointsCount;
 			this.name = name;
 		}
 
-		public int getCreatingPointsCount() {
-			return creatingPointsCount;
+		ModelShape(String name, int totalPointsCount) {
+			this.totalPointsCount = this.pointsToRenderCount = totalPointsCount;
+			this.name = name;
+		}
+
+		public int getTotalPointsCount() {
+			return totalPointsCount;
+		}
+
+		public int getPointsToRenderCount() {
+			return pointsToRenderCount;
 		}
 
 		public String getName() {
@@ -150,38 +165,56 @@ abstract public class SpatialObjectModel extends BaseModel {
 	}
 
 	/**
-	 * Creates JGeometry from {@link ModelType} so that we can make Model from it and render on canvas
-	 * @param type
-	 * @param pressedX
-	 * @param pressedY
-	 * @param oldPressedX
-	 * @param oldPressedY
-	 * @return model's geometry
+	 * Creates SpatialObject from {@link ModelShape} based on rules in ModelShape
+	 * @param shapeType
+	 * @param name
+	 * @param pressedCoordinates
+	 * @return
 	 * @throws ModelException
 	 */
-	public static JGeometry createJGeometryFromModelType(ModelType type, int pressedX, int pressedY, int oldPressedX, int oldPressedY) throws ModelException {
+	public static SpatialObjectModel create(ModelShape shapeType, String name, ArrayList<Coordinate> pressedCoordinates) throws ModelException {
 		JGeometry geom;
-		switch (type) {
+		Coordinate firstPoint, lastPoint;
+
+		switch (shapeType) {
+			case POINT:
+				firstPoint = pressedCoordinates.get(0);
+				geom = new JGeometry(firstPoint.x, firstPoint.y, 0);
+				break;
+
 			case POLYGON:
-				geom = new JGeometry(Utils.getMin(oldPressedX, pressedX), Utils.getMin(oldPressedY, pressedY), Utils.getMax(oldPressedX, pressedX), Utils.getMax(oldPressedY, pressedY), 0);
+				firstPoint = pressedCoordinates.get(0);
+				lastPoint = pressedCoordinates.get(1);
+				geom = new JGeometry(
+						Utils.getMin(firstPoint.x, lastPoint.x),
+						Utils.getMin(firstPoint.y, lastPoint.y),
+						Utils.getMax(firstPoint.x, lastPoint.x),
+						Utils.getMax(firstPoint.y, lastPoint.y),
+						0);
 				break;
 
 			case CIRCLE:
-				geom = JGeometry.createCircle(oldPressedX, oldPressedY, Math.sqrt(Math.pow(pressedX - oldPressedX, 2) + Math.pow(pressedY - oldPressedY, 2)), 0);
-				break;
+				firstPoint = pressedCoordinates.get(0);
+				lastPoint = pressedCoordinates.get(1);
+				geom = JGeometry.createCircle(
+						firstPoint.x,
+						firstPoint.y,
+						Math.sqrt(Math.pow(lastPoint.x - firstPoint.x, 2) + Math.pow(lastPoint.y - firstPoint.y, 2)),
+						0
+				);
 
-			case POINT:
-				geom = new JGeometry(pressedX, pressedY, 0);
 				break;
 
 			case LINE:
-				geom = JGeometry.createLinearLineString(new double[]{oldPressedX, oldPressedY, pressedX, pressedY}, 2, 0);
+				double[] points = Coordinate.fromListToArray(pressedCoordinates);
+				geom = JGeometry.createLinearLineString(points, 2, 0);
 				break;
 
 			default:
-				throw new ModelException("createJGeometryFromModelType(): Not existing model type");
+				throw new ModelException("create(): Not existing model type");
 		}
-		return geom;
+
+		return SpatialObjectModel.createFromJGeometry(name, SpatialObjectTypeModel.UnknownSpatialType, geom);
 	}
 
 	/**
@@ -268,7 +301,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 		try {
 			Rectangle2D boundRect = shape.getBounds2D();
 			double delta = 1 + (mouseWheelRotation * 0.05f);
-			delta = isScaledInMape(boundRect, delta);
+			delta = isScaledInMap(boundRect, delta);
 			JGeometry staticPoint = new JGeometry(boundRect.getCenterX(), boundRect.getCenterY(), 0);
 			geometry = geometry.affineTransforms(false, 0, 0, 0, true, staticPoint, delta, delta, 0, false, null, null, 0, 0, false, 0, 0, 0, 0, 0, 0, false, null, null, 0, false, new double[]{}, new double[]{});
 			setIsChanged(true);
@@ -330,7 +363,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 	 * @param delta     amount which will be scaled
 	 * @return changed delta amount
 	 */
-	private double isScaledInMape(Rectangle2D boundRect, double delta) {
+	private double isScaledInMap(Rectangle2D boundRect, double delta) {
 		double centerX = boundRect.getCenterX();
 		double halfWidth = boundRect.getWidth() / 2.0;
 		double centerY = boundRect.getCenterY();
@@ -416,6 +449,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 
 	public void setGeometry(JGeometry geometry) {
 		this.geometry = geometry;
+		this.regenerateShape();
 	}
 
 	@Override
