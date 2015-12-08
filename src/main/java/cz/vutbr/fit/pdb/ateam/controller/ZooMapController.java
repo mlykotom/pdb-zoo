@@ -180,12 +180,12 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 							return;
 						}
 
-						creatingModel = SpatialObjectModel.create(creatingModelShape, "<<new>>", dataManager.getSpatialObjectType(21L), pressedCoordinates);
+						creatingModel = SpatialObjectModel.create(creatingModelShape, "<<new>>", pressedCoordinates);
 
 						if (mouseClickCount == creatingModelShape.getTotalPointsCount()) {
 							finishCreatingAndSetSelectingModel();
 						}
-					} catch (DataManagerException | ModelException e) {
+					} catch (ModelException e) {
 						e.printStackTrace();
 					}
 					break;
@@ -267,7 +267,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 			this.setMode(MouseMode.SELECTING);
 		}
 
-		public void clearCreatingMode(){
+		public void clearCreatingMode() {
 			pressedCoordinates.clear();
 			this.creatingModelShape = null;
 			creatingModel = null;

@@ -384,7 +384,16 @@ public class DataManager {
 
 			PreparedStatement preparedStatement = connection.prepareStatement(sqlPrep);
 			preparedStatement.setString(1, spatialObject.getName());
-			preparedStatement.setLong(2, spatialObject.getType().getId());
+			Long id = spatialObject.getType().getId();
+			if(id == null){
+				preparedStatement.setNull(2, Types.INTEGER);
+			}
+			else {
+				preparedStatement.setLong(2, spatialObject.getType().getId());
+			}
+
+
+
 			preparedStatement.setObject(3, JGeometry.store(connection, spatialObject.getGeometry()));
 
 			Logger.createLog(Logger.DEBUG_LOG, "Sending query: " + sqlPrep + " | name = '" + spatialObject.getName() + "', type = '" + spatialObject.getType().getId() + "', id = '" + spatialObject.getId() + "'");

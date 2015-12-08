@@ -11,6 +11,8 @@ import java.awt.geom.Point2D;
  * @author Tomas Mlynaric
  */
 public class SpatialLineStringModel extends SpatialObjectModel {
+	public static final int HIT_BOX_SIZE = 8;
+
 	/**
 	 * Setups object and creates shape for graphic representation from jGeometry.
 	 * It's protected so that it's not possible to instantiate the class
@@ -36,27 +38,32 @@ public class SpatialLineStringModel extends SpatialObjectModel {
 
 	@Override
 	public Shape createShape() {
-		// TODO problem - will create polygon instead of line
-//		double[] points =  geometry.getOrdinatesArray();
-//		Path2D path = new Path2D.Double();
-//		path.moveTo(points[0], points[1]);
-//
-//		int i = 0; double lastX, lastY;
-//		for (int y = 2; y < points.length; y++) {
-//			lastX = points[y];
-//			lastY = points[y + 1];
-//
-//			if(i % 2 == 0){
-//			}
-//			else{
-//				lastY = points[y];
-//				path.lineTo(lastX, lastY);
-//			}
-//
-//			i++;
-//		}
+		double[] points =  geometry.getOrdinatesArray();
+		// line should have at least 2 points
+		if(points.length < 2) geometry.createShape();
 
-		return geometry.createShape();
+		Path2D path = new Path2D.Double();
+		path.moveTo(points[0], points[1]);
+
+		double pointX, pointY;
+
+		int i = 2;  // skip first point (2 coords) because its movedTo
+		while(i < points.length){
+			pointX = points[i++];
+			pointY = points[i++];
+
+			path.lineTo(pointX, pointY);
+		}
+
+		i-=2;   // skip last point (2 coords) because we are in this point
+		while(i > 0){
+			pointY = points[--i];
+			pointX = points[--i];
+
+			path.lineTo(pointX, pointY);
+		}
+
+		return path;
 	}
 
 	@Override
@@ -70,12 +77,6 @@ public class SpatialLineStringModel extends SpatialObjectModel {
 
 	@Override
 	public boolean isWithin(int x, int y) {
-		boolean isInBoundingBox = super.isWithin(x, y);
-
-		if(!isInBoundingBox) return false;
-
-		// TODO should be something different cause this will select bounding box instead of just line
-		// TODO possibly http://stackoverflow.com/questions/1797209/how-to-select-a-line ?
-		return true;
+		return shape.intersects(x - HIT_BOX_SIZE / 2,  y - HIT_BOX_SIZE / 2, HIT_BOX_SIZE, HIT_BOX_SIZE);
 	}
 }

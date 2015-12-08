@@ -23,11 +23,11 @@ CREATE TABLE Spatial_Object_Types (
 CREATE TABLE Spatial_Objects (
   ID       INT          NOT NULL,
   Name     VARCHAR(255) NOT NULL,
-  Type     INT          NOT NULL,
+  Type     INT          ,
   Geometry SDO_GEOMETRY NOT NULL,
 
   PRIMARY KEY (ID),
-  FOREIGN KEY (Type) REFERENCES Spatial_Object_Types (ID)
+  FOREIGN KEY (Type) REFERENCES Spatial_Object_Types (ID) -- ON DELETE SET NULL -- TODO should be here! or sth like this
 );
 
 -- metadata for spatial objects --

@@ -165,12 +165,11 @@ abstract public class SpatialObjectModel extends BaseModel {
 	 * Creates SpatialObject from {@link ModelShape} based on rules in ModelShape
 	 * @param shapeType
 	 * @param name
-	 * @param spatialType
 	 * @param pressedCoordinates
 	 * @return
 	 * @throws ModelException
 	 */
-	public static SpatialObjectModel create(ModelShape shapeType, String name, SpatialObjectTypeModel spatialType, ArrayList<Coordinate> pressedCoordinates) throws ModelException {
+	public static SpatialObjectModel create(ModelShape shapeType, String name, ArrayList<Coordinate> pressedCoordinates) throws ModelException {
 		JGeometry geom;
 		Coordinate firstPoint, lastPoint;
 
@@ -194,7 +193,12 @@ abstract public class SpatialObjectModel extends BaseModel {
 			case CIRCLE:
 				firstPoint = pressedCoordinates.get(0);
 				lastPoint = pressedCoordinates.get(1);
-				geom = JGeometry.createCircle(firstPoint.x, firstPoint.y, Math.sqrt(Math.pow(lastPoint.x - firstPoint.x, 2) + Math.pow(lastPoint.y - firstPoint.y, 2)), 0);
+				geom = JGeometry.createCircle(
+						firstPoint.x,
+						firstPoint.y,
+						Math.sqrt(Math.pow(lastPoint.x - firstPoint.x, 2) + Math.pow(lastPoint.y - firstPoint.y, 2)),
+						0
+				);
 
 				break;
 
@@ -207,7 +211,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 				throw new ModelException("create(): Not existing model type");
 		}
 
-		return SpatialObjectModel.createFromJGeometry(name, spatialType, geom);
+		return SpatialObjectModel.createFromJGeometry(name, SpatialObjectTypeModel.UnknownSpatialType, geom);
 	}
 
 	/**

@@ -9,6 +9,8 @@ abstract public class BaseModel {
 	protected String name;
 	protected boolean isChanged = false;
 	protected boolean isDeleted = false;
+	public static final long NULL_ID = -1L;
+
 
 	public BaseModel() {
 	}
@@ -78,7 +80,7 @@ abstract public class BaseModel {
 	}
 
 	public Long getId() {
-		return id;
+		return id == NULL_ID ? null : id;
 	}
 
 	public void setName(String name) {
