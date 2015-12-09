@@ -8,9 +8,9 @@ import cz.vutbr.fit.pdb.ateam.controller.EmployeesTabController;
 import cz.vutbr.fit.pdb.ateam.gui.BasePanel;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.EmployeesTab;
 import cz.vutbr.fit.pdb.ateam.utils.DateLabelFormatter;
-import org.jdatepicker.impl.JDatePanelImpl;
-import org.jdatepicker.impl.JDatePickerImpl;
-import org.jdatepicker.impl.UtilDateModel;
+import net.sourceforge.jdatepicker.impl.JDatePanelImpl;
+import net.sourceforge.jdatepicker.impl.JDatePickerImpl;
+import net.sourceforge.jdatepicker.impl.UtilDateModel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -82,9 +82,8 @@ public class EmployeeShiftEditPanel extends BasePanel {
 
 	private JDatePickerImpl addDatePicker() {
 		final UtilDateModel dateModel = new UtilDateModel();
-		Properties properties = new Properties();
 
-		final JDatePanelImpl datePanel = new JDatePanelImpl(dateModel, properties);
+		final JDatePanelImpl datePanel = new JDatePanelImpl(dateModel);
 
 		JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
 

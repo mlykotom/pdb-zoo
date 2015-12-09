@@ -6,9 +6,9 @@ import com.intellij.uiDesigner.core.Spacer;
 import cz.vutbr.fit.pdb.ateam.controller.Controller;
 import cz.vutbr.fit.pdb.ateam.controller.EmployeesTabController;
 import cz.vutbr.fit.pdb.ateam.gui.BasePanel;
-import org.jdatepicker.impl.JDatePanelImpl;
-import org.jdatepicker.impl.JDatePickerImpl;
-import org.jdatepicker.impl.UtilDateModel;
+import net.sourceforge.jdatepicker.impl.JDatePanelImpl;
+import net.sourceforge.jdatepicker.impl.JDatePickerImpl;
+import net.sourceforge.jdatepicker.impl.UtilDateModel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -85,13 +85,7 @@ public class EmployeesListPanel extends BasePanel {
 	 */
 	private void initializeDatePicker() {
 		final UtilDateModel dateModel = new UtilDateModel();
-		Properties properties = new Properties();
-
-//		properties.put("text.today", "Today");
-//		properties.put("text.month", "Month");
-//		properties.put("text.year", "Year");
-
-		final JDatePanelImpl datePanel = new JDatePanelImpl(dateModel, properties);
+		final JDatePanelImpl datePanel = new JDatePanelImpl(dateModel);
 
 		datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
 
