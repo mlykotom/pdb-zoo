@@ -159,14 +159,12 @@ abstract public class SpatialObjectModel extends BaseModel {
 
 			case POLYGON:
 				geom = JGeometry.createLinearPolygon(Coordinate.fromListToArray(pressedCoordinates), 2, 0);
+				geom.getElemInfo()[2] = 2003;
 				break;
 
-			case RECTANGLE_WITH_CIRCLE:
+			case RECTANGLE_WITH_HOLE:
 				JGeometry rectangle = createRectangleGeometry(pressedCoordinates.get(0), pressedCoordinates.get(1));
 				double[] rectangleOrdinates = rectangle.getOrdinatesArray();
-
-				int centerX = (int) ((rectangleOrdinates[2] + rectangleOrdinates[0]) / 2);
-				int centerY = (int) ((rectangleOrdinates[3] + rectangleOrdinates[1]) / 2);
 
 				double rectangleWidth = rectangleOrdinates[2] - rectangleOrdinates[0];
 				double rectangleHeight = rectangleOrdinates[3] - rectangleOrdinates[1];
@@ -181,6 +179,8 @@ abstract public class SpatialObjectModel extends BaseModel {
 					deltaY = (int) ((rectangleHeight / 2) * 0.6);
 				}
 
+				int centerX = (int) ((rectangleOrdinates[2] + rectangleOrdinates[0]) / 2);
+				int centerY = (int) ((rectangleOrdinates[3] + rectangleOrdinates[1]) / 2);
 				JGeometry circle = createCircleGeometry(new Coordinate(centerX, centerY), new Coordinate(centerX + deltaX, centerY + deltaY));
 
 				geom = new JGeometry(
@@ -188,7 +188,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 						NO_SRID,
 						new int[]{
 								1, 1003, 3, // rectangle
-								rectangleOrdinates.length + 1, 1003, 4 // circle
+								rectangleOrdinates.length + 1, 2003, 4 // circle
 						},
 						ArrayUtils.addAll(rectangleOrdinates, circle.getOrdinatesArray())
 				);
@@ -197,6 +197,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 			case LINE:
 				double[] points = Coordinate.fromListToArray(pressedCoordinates);
 				geom = JGeometry.createLinearLineString(points, 2, NO_SRID);
+
 				break;
 
 			default:

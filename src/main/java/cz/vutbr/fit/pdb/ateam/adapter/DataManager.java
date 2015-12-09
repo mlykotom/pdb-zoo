@@ -3,8 +3,8 @@ package cz.vutbr.fit.pdb.ateam.adapter;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
-import cz.vutbr.fit.pdb.ateam.model.multimedia.ImageModel;
 import cz.vutbr.fit.pdb.ateam.model.employee.EmployeeModel;
+import cz.vutbr.fit.pdb.ateam.model.multimedia.ImageModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
 import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
@@ -16,12 +16,11 @@ import oracle.ord.im.OrdImage;
 import oracle.spatial.geometry.JGeometry;
 import oracle.sql.ORAData;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.io.IOException;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Stack;
+import java.util.Date;
 
 /**
  * Class for communicating with the database.
@@ -295,10 +294,9 @@ public class DataManager {
 
 		if (model instanceof SpatialObjectModel) {
 			return saveSpatial((SpatialObjectModel) model);
-		}else if (model instanceof  EmployeeModel){
+		} else if (model instanceof EmployeeModel) {
 			return saveEmployee((EmployeeModel) model);
-		}
-		else if(model instanceof ImageModel) {
+		} else if (model instanceof ImageModel) {
 			return saveImage((ImageModel) model);
 		}
 		// TODO here specify model's saving methods!
@@ -312,10 +310,9 @@ public class DataManager {
 			String sqlPrep = null;
 			Boolean isNewEmployee = employee.isNew();
 
-			if (isNewEmployee){
+			if (isNewEmployee) {
 				sqlPrep = "INSERT INTO Employees (Name, Surname) VALUES(?, ?)";
-			}
-			else{
+			} else {
 				sqlPrep = "UPDATE Employees SET Name = ?, Surname = ? WHERE ID = ?";
 			}
 
@@ -405,7 +402,7 @@ public class DataManager {
 
 			ResultSet resultSet = createDatabaseQuery(selectSQL);
 
-			while(resultSet.next()) {
+			while (resultSet.next()) {
 				Long id = resultSet.getLong("destination");
 				ImageModel model = getImage(id);
 
@@ -430,7 +427,7 @@ public class DataManager {
 			selectSQL += " FOR UPDATE";
 			Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + selectSQL);
 			OracleResultSet rset = (OracleResultSet) stmt.executeQuery(selectSQL);
-			if(!rset.next()) {
+			if (!rset.next()) {
 				throw new DataManagerException("Object with id=[" + id + "] not found!");
 			}
 			String name = rset.getString("name");
@@ -455,7 +452,7 @@ public class DataManager {
 
 			connection.setAutoCommit(false);
 
-			if(model.isNew()) {
+			if (model.isNew()) {
 				Statement statement = connection.createStatement();
 				String insertSQL = "";
 				insertSQL += "INSERT INTO " + model.getTableName() + " (name, photo) ";
@@ -477,7 +474,7 @@ public class DataManager {
 			selectSQL += " FOR UPDATE";
 			Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + selectSQL);
 			OracleResultSet rset = (OracleResultSet) stmt.executeQuery(selectSQL);
-			if(!rset.next()) {
+			if (!rset.next()) {
 				throw new DataManagerException("Object with id=[" + model.getId() + "] not found!");
 			}
 			OrdImage image = (OrdImage) rset.getORAData("photo", OrdImage.getORADataFactory());
@@ -486,7 +483,7 @@ public class DataManager {
 
 			model.setImage(image);
 
-			if(model.getImageByteArray() != null) {
+			if (model.getImageByteArray() != null) {
 				model.getImage().loadDataFromByteArray(model.getImageByteArray());
 				model.getImage().setProperties();
 			}
@@ -562,13 +559,11 @@ public class DataManager {
 			PreparedStatement preparedStatement = connection.prepareStatement(sqlPrep);
 			preparedStatement.setString(1, spatialObject.getName());
 			Long id = spatialObject.getType().getId();
-			if(id == BaseModel.NULL_ID){
+			if (id == BaseModel.NULL_ID) {
 				preparedStatement.setNull(2, Types.INTEGER);
-			}
-			else {
+			} else {
 				preparedStatement.setLong(2, spatialObject.getType().getId());
 			}
-
 
 
 			preparedStatement.setObject(3, JGeometry.store(connection, spatialObject.getGeometry()));
@@ -652,10 +647,10 @@ public class DataManager {
 	public SpatialObjectTypeModel getSpatialObjectType(Long typeID) throws DataManagerException {
 		if (typeID == null) throw new DataManagerException("getType: Null typeID received");
 
-		if(spatialObjectTypes == null) reloadAllSpatialObjectTypes();
+		if (spatialObjectTypes == null) reloadAllSpatialObjectTypes();
 
-		for(SpatialObjectTypeModel type: spatialObjectTypes) {
-			if(type.getId().equals(typeID)) return type;
+		for (SpatialObjectTypeModel type : spatialObjectTypes) {
+			if (type.getId().equals(typeID)) return type;
 		}
 
 		return null;
@@ -691,6 +686,7 @@ public class DataManager {
 
 	/**
 	 * Calculates area of spatial object
+	 *
 	 * @param model
 	 * @return
 	 * @throws DataManagerException
@@ -702,6 +698,7 @@ public class DataManager {
 		ResultSet resultSet = createDatabaseQuery(sqlQuery);
 
 		try {
+			// TODO somehow not having while, but only for one line
 			while (resultSet.next()) {
 				area = resultSet.getDouble("Area");
 				length = resultSet.getDouble("Length");
@@ -714,6 +711,32 @@ public class DataManager {
 	}
 
 	/**
+	 * Counts minimal distance between two spatialObjectModels
+	 *
+	 * @param spatialLeft
+	 * @param spatialRight
+	 * @return distance
+	 * @throws DataManagerException
+	 */
+	public double getDistanceToOtherSpatialObject(SpatialObjectModel spatialLeft, SpatialObjectModel spatialRight) throws DataManagerException {
+		double distance;
+
+		String sqlQuery = "SELECT SDO_GEOM.SDO_DISTANCE(L.Geometry, R.Geometry, 1) AS Distance FROM SPATIAL_OBJECTS L, SPATIAL_OBJECTS R WHERE L.ID = '" + spatialLeft.getId() + "' AND R.ID = '" + spatialRight.getId() + "'";
+		ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+		try {
+			if (!resultSet.next())
+				throw new DataManagerException("Distance with id=[" + spatialLeft.getId() + "] not found!");
+			distance = resultSet.getDouble("Distance");
+
+		} catch (SQLException ex) {
+			throw new DataManagerException("getAllSpatialObjectTypes: SQLException: " + ex.getMessage());
+		}
+
+		return distance;
+	}
+
+	/**
 	 * Is used to get cached data from SpatialObjectTypes Table.
 	 *
 	 * @return list of SpatialObjectTypes
@@ -722,6 +745,17 @@ public class DataManager {
 		return spatialObjectTypes;
 	}
 
+	public SpatialObjectModel getSpatialObjectModelWithID(long id) {
+		for (SpatialObjectModel model : this.spatialObjects) {
+			if (model.getId() == id)
+				return model;
+		}
+		return null;
+	}
+
+	// -----------------------------------------
+	// ------------- METHODS FOR EMPLOYEES -----
+	// -----------------------------------------
 
 	/**
 	 * Method returns all spatial objects types from the database.
@@ -752,13 +786,6 @@ public class DataManager {
 		// TODO void???
 		return employees;
 	}
-
-
-	// -----------------------------------------
-	// ------------- METHODS FOR EMPLOYEES -----
-	// -----------------------------------------
-
-
 
 	/**
 	 * Is used to get cached data from Employees Table.
@@ -824,6 +851,7 @@ public class DataManager {
 		asyncTask.start();
 		return employees;
 	}
+
 	public ArrayList<EmployeeModel> getEmployeeHistory(final long employeeID) throws DataManagerException {
 		final ArrayList<EmployeeModel> employees = new ArrayList<EmployeeModel>();
 		AsyncTask asyncTask = new AsyncTask() {
@@ -860,12 +888,4 @@ public class DataManager {
 		asyncTask.start();
 		return employees;
 	}
-	public SpatialObjectModel getSpatialObjectModelWithID(long id){
-		for (SpatialObjectModel model : this.spatialObjects) {
-			if (model.getId() == id )
-				return model;
-		}
-		return null;
-	}
-
 }

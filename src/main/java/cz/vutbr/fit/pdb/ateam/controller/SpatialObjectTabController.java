@@ -70,7 +70,8 @@ public class SpatialObjectTabController
 	 */
 	private void changePanelContentIntoDetail(SpatialObjectModel spatialObjectModel) {
 		Utils.changePanelContent(spatialObjectsTab, spatialObjectDetail);
-		spatialObjectDetail.setCalculatedInfo(!spatialObjectModel.isNew(), null, null);
+		spatialObjectDetail.setEnableControlComponents(!spatialObjectModel.isNew());
+		spatialObjectDetail.setCalculatedInfo(null, null);
 		spatialObjectDetail.setTypeComboBoxModel(getSpatialObjectTypes());
 		spatialObjectDetail.setSpatialObject(spatialObjectModel);
 		selectedObject = spatialObjectModel;
@@ -208,6 +209,7 @@ public class SpatialObjectTabController
 
 			@Override
 			protected Boolean doInBackground() throws Exception {
+				// TODO not having exception, but warning dialog
 				double[] shapeInfo = dataManager.getSpatialObjectAnalyticFunction(selectedObject);
 				calculatedArea = shapeInfo[0];
 				calculatedLength = shapeInfo[1];
@@ -217,7 +219,29 @@ public class SpatialObjectTabController
 			@Override
 			protected void onDone(boolean success) {
 				if (success) {
-					spatialObjectDetail.setCalculatedInfo(!selectedObject.isNew(), calculatedArea, calculatedLength);
+					spatialObjectDetail.setEnableControlComponents(!selectedObject.isNew());
+					spatialObjectDetail.setCalculatedInfo(calculatedArea, calculatedLength);
+				}
+			}
+		}.start();
+	}
+
+	public void recalculateDistanceToObject(final SpatialObjectModel spatialObjectTo) {
+		new AsyncTask(){
+			private double calculatedDistance = 0.0;
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				// TODO not having exception, but warning dialog
+				calculatedDistance = dataManager.getDistanceToOtherSpatialObject(selectedObject, spatialObjectTo);
+				return true;
+			}
+
+			@Override
+			protected void onDone(boolean success) {
+				if(success){
+					spatialObjectDetail.setEnableControlComponents(!selectedObject.isNew());
+					spatialObjectDetail.setCalculatedDistanceTo(calculatedDistance);
 				}
 			}
 		}.start();

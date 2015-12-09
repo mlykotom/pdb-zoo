@@ -10,7 +10,7 @@ public enum SpatialModelShape {
 	RECTANGLE("rectangle", 2),
 	CIRCLE("circle", 2),
 	POLYGON("polygon", 2, -1),
-	RECTANGLE_WITH_CIRCLE("rectangle with circle", 2);
+	RECTANGLE_WITH_HOLE("rectangle with hole", 2);
 
 	private int pointsToRenderCount;
 	private int totalPointsCount;
