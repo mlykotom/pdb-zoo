@@ -506,11 +506,13 @@ public class DataManager {
 			}
 
 			Statement stmt = connection.createStatement();
-			String selectSQL = "";
-			selectSQL += "SELECT photo ";
-			selectSQL += "FROM " + model.getTableName() + " ";
-			selectSQL += "WHERE id=" + model.getId() + " ";
-			selectSQL += " FOR UPDATE";
+
+			String selectSQL = ""
+				+ "SELECT photo "
+				+ "FROM " + model.getTableName() + " "
+				+ "WHERE id=" + model.getId() + " "
+				+ " FOR UPDATE";
+
 			Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + selectSQL);
 			OracleResultSet rset = (OracleResultSet) stmt.executeQuery(selectSQL);
 			if (!rset.next()) {
