@@ -6,9 +6,11 @@ package cz.vutbr.fit.pdb.ateam.model.spatial;
  */
 public enum SpatialModelShape {
 	POINT("point(s)", 1, -1),
-	POLYGON("rectangle", 2),
 	LINE("line", 2, -1),
-	CIRCLE("circle", 2);
+	RECTANGLE("rectangle", 2),
+	CIRCLE("circle", 2),
+	POLYGON("polygon", 2, -1),
+	RECTANGLE_WITH_CIRCLE("rectangle with circle", 2);
 
 	private int pointsToRenderCount;
 	private int totalPointsCount;

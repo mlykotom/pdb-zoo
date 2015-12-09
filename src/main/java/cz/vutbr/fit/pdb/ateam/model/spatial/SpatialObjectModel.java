@@ -1,12 +1,13 @@
 package cz.vutbr.fit.pdb.ateam.model.spatial;
 
-import cz.vutbr.fit.pdb.ateam.model.Coordinate;
 import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
+import cz.vutbr.fit.pdb.ateam.model.Coordinate;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
 import oracle.spatial.geometry.JGeometry;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -14,12 +15,14 @@ import java.util.ArrayList;
 
 /**
  * Abstract representation of object in spatial DB.
+ *
  * @author Tomas Mlynaric
  */
 abstract public class SpatialObjectModel extends BaseModel {
 	private static final Paint DEFAULT_BORDER_COLOR = Color.BLACK;
 	private static final BasicStroke DEFAULT_STROKE = new BasicStroke(1);
 	protected static final int INTERSECT_BOX_SIZE = 10;
+	public static final int NO_SRID = 0;
 
 	protected JGeometry geometry;
 	protected Shape shape;
@@ -102,8 +105,6 @@ abstract public class SpatialObjectModel extends BaseModel {
 				break;
 
 			case JGeometry.GTYPE_MULTIPOLYGON:
-				// TODO should be different!
-			case JGeometry.GTYPE_COLLECTION:
 				newModel = new SpatialMultiPolygonModel(name, spatialType, geometry);
 				break;
 
@@ -136,53 +137,105 @@ abstract public class SpatialObjectModel extends BaseModel {
 	 */
 	public static SpatialObjectModel create(SpatialModelShape shapeType, ArrayList<Coordinate> pressedCoordinates) throws ModelException {
 		JGeometry geom;
-		Coordinate firstPoint, lastPoint;
-
 		switch (shapeType) {
 			case POINT:
 				// creating collection of points
-				if(pressedCoordinates.size() > shapeType.getPointsToRenderCount()){
+				if (pressedCoordinates.size() > shapeType.getPointsToRenderCount()) {
 					Object[] arrayOfArrayDoubles = Coordinate.fromListToArrayOfArray(pressedCoordinates);
-					geom = JGeometry.createMultiPoint(arrayOfArrayDoubles, 2, 0);
+					geom = JGeometry.createMultiPoint(arrayOfArrayDoubles, 2, NO_SRID);
 				} else {
-					firstPoint = pressedCoordinates.get(0);
-					geom = new JGeometry(firstPoint.x, firstPoint.y, 0);
+					Coordinate firstPoint = pressedCoordinates.get(0);
+					geom = new JGeometry(firstPoint.x, firstPoint.y, NO_SRID);
 				}
 				break;
 
-			case POLYGON:
-				firstPoint = pressedCoordinates.get(0);
-				lastPoint = pressedCoordinates.get(1);
-				geom = new JGeometry(
-						Utils.getMin(firstPoint.x, lastPoint.x),
-						Utils.getMin(firstPoint.y, lastPoint.y),
-						Utils.getMax(firstPoint.x, lastPoint.x),
-						Utils.getMax(firstPoint.y, lastPoint.y),
-						0);
+			case RECTANGLE:
+				geom = createRectangleGeometry(pressedCoordinates.get(0), pressedCoordinates.get(1));
 				break;
 
 			case CIRCLE:
-				firstPoint = pressedCoordinates.get(0);
-				lastPoint = pressedCoordinates.get(1);
-				geom = JGeometry.createCircle(
-						firstPoint.x,
-						firstPoint.y,
-						Math.sqrt(Math.pow(lastPoint.x - firstPoint.x, 2) + Math.pow(lastPoint.y - firstPoint.y, 2)),
-						0
-				);
+				geom = createCircleGeometry(pressedCoordinates.get(0), pressedCoordinates.get(1));
+				break;
 
+			case POLYGON:
+				geom = JGeometry.createLinearPolygon(Coordinate.fromListToArray(pressedCoordinates), 2, 0);
+				break;
+
+			case RECTANGLE_WITH_CIRCLE:
+				JGeometry rectangle = createRectangleGeometry(pressedCoordinates.get(0), pressedCoordinates.get(1));
+				double[] rectangleOrdinates = rectangle.getOrdinatesArray();
+
+				int centerX = (int) ((rectangleOrdinates[2] + rectangleOrdinates[0]) / 2);
+				int centerY = (int) ((rectangleOrdinates[3] + rectangleOrdinates[1]) / 2);
+
+				double rectangleWidth = rectangleOrdinates[2] - rectangleOrdinates[0];
+				double rectangleHeight = rectangleOrdinates[3] - rectangleOrdinates[1];
+
+				int deltaX, deltaY;
+				if(rectangleWidth < rectangleHeight){
+					deltaX = (int) ((rectangleWidth / 2) * 0.6);
+					deltaY = 0;
+				}
+				else{
+					deltaX = 0;
+					deltaY = (int) ((rectangleHeight / 2) * 0.6);
+				}
+
+				JGeometry circle = createCircleGeometry(new Coordinate(centerX, centerY), new Coordinate(centerX + deltaX, centerY + deltaY));
+
+				geom = new JGeometry(
+						JGeometry.GTYPE_MULTIPOLYGON,
+						NO_SRID,
+						new int[]{
+								1, 1003, 3, // rectangle
+								rectangleOrdinates.length + 1, 1003, 4 // circle
+						},
+						ArrayUtils.addAll(rectangleOrdinates, circle.getOrdinatesArray())
+				);
 				break;
 
 			case LINE:
 				double[] points = Coordinate.fromListToArray(pressedCoordinates);
-				geom = JGeometry.createLinearLineString(points, 2, 0);
+				geom = JGeometry.createLinearLineString(points, 2, NO_SRID);
 				break;
 
 			default:
 				throw new ModelException("create(): Not existing model type");
 		}
 
-		return SpatialObjectModel.createFromJGeometry("<< New >>", SpatialObjectTypeModel.UnknownSpatialType, geom);
+		return SpatialObjectModel.createFromJGeometry(BaseModel.NEW_MODEL_NAME, SpatialObjectTypeModel.UnknownSpatialType, geom);
+	}
+
+	/**
+	 * Helper method for creating rectangle JGeometry from 2 points
+	 *
+	 * @param minCoordinate
+	 * @param maxCoordinate
+	 * @return
+	 */
+	private static JGeometry createRectangleGeometry(Coordinate minCoordinate, Coordinate maxCoordinate) {
+		return new JGeometry(
+				Utils.getMin(minCoordinate.x, maxCoordinate.x),
+				Utils.getMin(minCoordinate.y, maxCoordinate.y),
+				Utils.getMax(minCoordinate.x, maxCoordinate.x),
+				Utils.getMax(minCoordinate.y, maxCoordinate.y),
+				NO_SRID);
+	}
+
+	/**
+	 * Helper method for creating circle JGeometry from 2 points
+	 *
+	 * @param centerPoint
+	 * @param borderPoint
+	 * @return
+	 */
+	private static JGeometry createCircleGeometry(Coordinate centerPoint, Coordinate borderPoint) {
+		return JGeometry.createCircle(
+				centerPoint.x,
+				centerPoint.y,
+				Math.sqrt(Math.pow(borderPoint.x - centerPoint.x, 2) + Math.pow(borderPoint.y - centerPoint.y, 2)),
+				NO_SRID
+		);
 	}
 
 	/**

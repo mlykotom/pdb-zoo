@@ -181,6 +181,10 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 						}
 
 						creatingModel = SpatialObjectModel.create(creatingModelShape, pressedCoordinates);
+						// if we had limited shape, we can finish creating
+						if(mouseClickCount == creatingModelShape.getTotalPointsCount()){
+							finishCreatingAndSetSelectingModel();
+						}
 					} catch (ModelException e) {
 						e.printStackTrace();
 					}
@@ -330,6 +334,14 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	 */
 	@Override
 	public void spatialObjectsCreatingListener(SpatialModelShape type, boolean isFinished) {
+		// if canceled we set selecting mode back
+		if(type == null){
+			mouseHandler.clearCreatingMode();
+			mouseHandler.setMode(MouseMode.SELECTING);
+			SpatialObjectsReloadObservable.getInstance().notifyObservers();
+			return;
+		}
+
 		if(isFinished){
 			mouseHandler.finishCreatingAndSetSelectingModel();
 		}
