@@ -72,6 +72,7 @@ public class SpatialObjectTabController
 		Utils.changePanelContent(spatialObjectsTab, spatialObjectDetail);
 		spatialObjectDetail.setEnableControlComponents(!spatialObjectModel.isNew());
 		spatialObjectDetail.setCalculatedInfo(null, null);
+		spatialObjectDetail.setCalculatedDistanceTo(null);
 		spatialObjectDetail.setTypeComboBoxModel(getSpatialObjectTypes());
 		spatialObjectDetail.setSpatialObject(spatialObjectModel);
 		selectedObject = spatialObjectModel;

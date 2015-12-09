@@ -5,7 +5,6 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import cz.vutbr.fit.pdb.ateam.controller.ZooMapController;
 import cz.vutbr.fit.pdb.ateam.gui.ContentPanel;
-import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,7 +21,7 @@ public class ZooMapPanel extends JPanel {
 	private JPanel rootPanel;
 	private JPanel mapPanel;
 	private JButton saveButton;
-	private JButton cancelButton;
+	private JButton discardReloadButton;
 	private JPanel objectsControlWrapper;
 
 	public ZooMapPanel(ContentPanel mainPanel) {
@@ -44,10 +43,10 @@ public class ZooMapPanel extends JPanel {
 			}
 		});
 
-		cancelButton.addActionListener(new ActionListener() {
+		discardReloadButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent actionEvent) {
-				controller.cancelChangedSpatialObjectsAction();
+				controller.discardChangedSpatialObjectsAction();
 			}
 		});
 	}
@@ -77,9 +76,9 @@ public class ZooMapPanel extends JPanel {
 		objectsControlWrapper = new JPanel();
 		objectsControlWrapper.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
 		rootPanel.add(objectsControlWrapper, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-		cancelButton = new JButton();
-		cancelButton.setText("Discard + Reload");
-		objectsControlWrapper.add(cancelButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		discardReloadButton = new JButton();
+		discardReloadButton.setText("Discard + Reload");
+		objectsControlWrapper.add(discardReloadButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		saveButton = new JButton();
 		saveButton.setText("Save all");
 		objectsControlWrapper.add(saveButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));

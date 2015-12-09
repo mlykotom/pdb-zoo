@@ -18,12 +18,9 @@ public class CreatingBuildingHelper extends JPanel {
 	private JPanel rootPanel;
 	private JButton finishCreatingShapeButton;
 	private JButton cancelCreatingShapeButton;
-	private SpatialModelShape modelShape;
 
 	public CreatingBuildingHelper(final SpatialModelShape modelShape) {
-		this.modelShape = modelShape;
 		final SpatialObjectCreatingObservable observable = SpatialObjectCreatingObservable.getInstance();
-
 
 		finishCreatingShapeButton.addActionListener(new ActionListener() {
 			@Override
