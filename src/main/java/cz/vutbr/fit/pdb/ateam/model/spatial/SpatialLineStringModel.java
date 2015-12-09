@@ -3,16 +3,12 @@ package cz.vutbr.fit.pdb.ateam.model.spatial;
 import oracle.spatial.geometry.JGeometry;
 
 import java.awt.*;
-import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
 
 /**
  * @author Tomas Mlynaric
  */
 public class SpatialLineStringModel extends SpatialObjectModel {
-	public static final int HIT_BOX_SIZE = 10;
-
 	/**
 	 * Setups object and creates shape for graphic representation from jGeometry.
 	 * It's protected so that it's not possible to instantiate the class
@@ -67,16 +63,7 @@ public class SpatialLineStringModel extends SpatialObjectModel {
 	}
 
 	@Override
-	public void render(Graphics2D g2D) {
-		Shape shape = getShape();
-		g2D.setPaint(getType().getColor());
-		g2D.setStroke(stroke);
-		g2D.setPaint(borderColor);
-		g2D.draw(shape);
-	}
-
-	@Override
 	public boolean isWithin(int x, int y) {
-		return shape.intersects(x - HIT_BOX_SIZE / 2,  y - HIT_BOX_SIZE / 2, HIT_BOX_SIZE, HIT_BOX_SIZE);
+		return shape.intersects(x - INTERSECT_BOX_SIZE / 2,  y - INTERSECT_BOX_SIZE / 2, INTERSECT_BOX_SIZE, INTERSECT_BOX_SIZE);
 	}
 }

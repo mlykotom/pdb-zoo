@@ -71,12 +71,22 @@ public class SpatialObjectDetail extends BasePanel {
 		typeComboBox.setModel(model);
 	}
 
-	public void setCalculatedInfo(Double area, Double length) {
+	/**
+	 * Set calculated informations and enable state for button
+	 * @param enabled
+	 * @param area
+	 * @param length
+	 */
+	public void setCalculatedInfo(boolean enabled, Double area, Double length) {
+		calculateShapeInfoButton.setEnabled(enabled);
 		shapeAreaLabel.setText(area == null ? "--" : doubleFormatter.format(area));
 		shapeLengthLabel.setText(length == null ? "--" : doubleFormatter.format(length));
 	}
 
 	private void initUI() {
+		// disable because of NOT calculating not inserted models
+		calculateShapeInfoButton.setEnabled(false);
+
 		calculateShapeInfoButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

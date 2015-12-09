@@ -6,7 +6,7 @@ import com.intellij.uiDesigner.core.Spacer;
 import cz.vutbr.fit.pdb.ateam.controller.Controller;
 import cz.vutbr.fit.pdb.ateam.controller.SpatialObjectTabController;
 import cz.vutbr.fit.pdb.ateam.gui.BasePanel;
-import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
+import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialModelShape;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,7 +20,7 @@ public class SpatialObjectsList extends BasePanel {
 	private JPanel rootPanel;
 	private JPanel createBuildingPanel;
 	private JPanel tablePanel;
-	private JComboBox<SpatialObjectModel.ModelShape> shapeComboBox;
+	private JComboBox<SpatialModelShape> shapeComboBox;
 	private JButton createBuildingButton;
 	private JTable spatialObjectsTable;
 	private SpatialObjectTabController controller;
@@ -42,16 +42,16 @@ public class SpatialObjectsList extends BasePanel {
 		});
 	}
 
-	public SpatialObjectModel.ModelShape getComboBoxValue() {
-		return (SpatialObjectModel.ModelShape) shapeComboBox.getSelectedItem();
+	public SpatialModelShape getComboBoxValue() {
+		return (SpatialModelShape) shapeComboBox.getSelectedItem();
 	}
 
 	private void initComboBox() {
-		DefaultComboBoxModel<SpatialObjectModel.ModelShape> comboBoxModel = (DefaultComboBoxModel<SpatialObjectModel.ModelShape>) shapeComboBox.getModel();
+		DefaultComboBoxModel<SpatialModelShape> comboBoxModel = (DefaultComboBoxModel<SpatialModelShape>) shapeComboBox.getModel();
 
-		SpatialObjectModel.ModelShape[] modelShapes = SpatialObjectModel.ModelShape.class.getEnumConstants();
+		SpatialModelShape[] modelShapes = SpatialModelShape.class.getEnumConstants();
 
-		for (SpatialObjectModel.ModelShape modelShape : modelShapes) {
+		for (SpatialModelShape modelShape : modelShapes) {
 			comboBoxModel.addElement(modelShape);
 		}
 

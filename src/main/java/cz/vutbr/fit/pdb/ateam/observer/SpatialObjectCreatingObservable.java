@@ -1,6 +1,6 @@
 package cz.vutbr.fit.pdb.ateam.observer;
 
-import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
+import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialModelShape;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
 
 /**
@@ -15,10 +15,10 @@ public class SpatialObjectCreatingObservable extends SimpleObservable<ISpatialOb
 		return instance;
 	}
 
-	public void notifyObservers(SpatialObjectModel.ModelShape type) {
+	public void notifyObservers(SpatialModelShape type, boolean isFinished) {
 		Logger.createLog(Logger.DEBUG_LOG, "Notifying that object is creating...");
 		for (ISpatialObjectCreatingListener listener : getObservableList()) {
-			listener.spatialObjectsCreatingListener(type);
+			listener.spatialObjectsCreatingListener(type, isFinished);
 		}
 	}
 }

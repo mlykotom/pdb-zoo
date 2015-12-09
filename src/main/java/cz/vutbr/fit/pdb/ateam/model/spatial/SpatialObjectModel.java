@@ -14,11 +14,12 @@ import java.util.ArrayList;
 
 /**
  * Abstract representation of object in spatial DB.
- * Created by Tomas Mlynaric on 20.10.2015.
+ * @author Tomas Mlynaric
  */
 abstract public class SpatialObjectModel extends BaseModel {
 	private static final Paint DEFAULT_BORDER_COLOR = Color.BLACK;
 	private static final BasicStroke DEFAULT_STROKE = new BasicStroke(1);
+	protected static final int INTERSECT_BOX_SIZE = 10;
 
 	protected JGeometry geometry;
 	protected Shape shape;
@@ -26,9 +27,6 @@ abstract public class SpatialObjectModel extends BaseModel {
 	protected Paint borderColor;
 	protected BasicStroke stroke;
 	private boolean isSelected = false;
-
-	public double area;
-	public double length;
 
 	private enum IsInMapAxis {
 		AXIS_Y,
@@ -62,46 +60,6 @@ abstract public class SpatialObjectModel extends BaseModel {
 		this.borderColor = getDefaultBorderColor();
 		regenerateShape();
 	}
-
-	public enum ModelShape {
-		POINT("point", 1),
-		POLYGON("rectangle", 2),
-		LINE("line", 2, -1),
-		CIRCLE("circle", 2);
-
-		private int pointsToRenderCount;
-		private int totalPointsCount;
-		private String name;
-
-		ModelShape(String name, int pointsToRenderCount, int totalPointsCount) {
-			this.pointsToRenderCount = pointsToRenderCount;
-			this.totalPointsCount = totalPointsCount;
-			this.name = name;
-		}
-
-		ModelShape(String name, int totalPointsCount) {
-			this.totalPointsCount = this.pointsToRenderCount = totalPointsCount;
-			this.name = name;
-		}
-
-		public int getTotalPointsCount() {
-			return totalPointsCount;
-		}
-
-		public int getPointsToRenderCount() {
-			return pointsToRenderCount;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		@Override
-		public String toString() {
-			return getName();
-		}
-	}
-
 
 	/**
 	 * Creates specific SpatialObject based on data from DB (raw JGeometry data)
@@ -139,6 +97,10 @@ abstract public class SpatialObjectModel extends BaseModel {
 		SpatialObjectModel newModel;
 
 		switch (geometry.getType()) {
+			case JGeometry.GTYPE_MULTIPOINT:
+				newModel = new SpatialMultiPointModel(name, spatialType, geometry);
+				break;
+
 			case JGeometry.GTYPE_MULTIPOLYGON:
 				// TODO should be different!
 			case JGeometry.GTYPE_COLLECTION:
@@ -158,28 +120,34 @@ abstract public class SpatialObjectModel extends BaseModel {
 				break;
 
 			default:
-				throw new ModelException("createFromJGeometry: Not existing type of SpatialObjectModel");
+				throw new ModelException("createFromJGeometry: Not existing type of SpatialObjectModel, specified: " + geometry.getType());
 		}
 
 		return newModel;
 	}
 
 	/**
-	 * Creates SpatialObject from {@link ModelShape} based on rules in ModelShape
+	 * Creates SpatialObject from {@link SpatialModelShape} based on rules in ModelShape
+	 *
 	 * @param shapeType
-	 * @param name
 	 * @param pressedCoordinates
 	 * @return
 	 * @throws ModelException
 	 */
-	public static SpatialObjectModel create(ModelShape shapeType, String name, ArrayList<Coordinate> pressedCoordinates) throws ModelException {
+	public static SpatialObjectModel create(SpatialModelShape shapeType, ArrayList<Coordinate> pressedCoordinates) throws ModelException {
 		JGeometry geom;
 		Coordinate firstPoint, lastPoint;
 
 		switch (shapeType) {
 			case POINT:
-				firstPoint = pressedCoordinates.get(0);
-				geom = new JGeometry(firstPoint.x, firstPoint.y, 0);
+				// creating collection of points
+				if(pressedCoordinates.size() > shapeType.getPointsToRenderCount()){
+					Object[] arrayOfArrayDoubles = Coordinate.fromListToArrayOfArray(pressedCoordinates);
+					geom = JGeometry.createMultiPoint(arrayOfArrayDoubles, 2, 0);
+				} else {
+					firstPoint = pressedCoordinates.get(0);
+					geom = new JGeometry(firstPoint.x, firstPoint.y, 0);
+				}
 				break;
 
 			case POLYGON:
@@ -214,7 +182,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 				throw new ModelException("create(): Not existing model type");
 		}
 
-		return SpatialObjectModel.createFromJGeometry(name, SpatialObjectTypeModel.UnknownSpatialType, geom);
+		return SpatialObjectModel.createFromJGeometry("<< New >>", SpatialObjectTypeModel.UnknownSpatialType, geom);
 	}
 
 	/**
@@ -454,6 +422,6 @@ abstract public class SpatialObjectModel extends BaseModel {
 
 	@Override
 	public String toString() {
-		return "#"+ id + " " + getType().getName() + ": " + name;
+		return "#" + id + " " + getType().getName() + ": " + name;
 	}
 }

@@ -1,11 +1,11 @@
 package cz.vutbr.fit.pdb.ateam.controller;
 
-import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapPanel;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import cz.vutbr.fit.pdb.ateam.model.Coordinate;
+import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialModelShape;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.observer.*;
 
@@ -160,7 +160,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		private int pressedY;
 		private MouseMode mode = MouseMode.SELECTING;
 		private SpatialObjectModel selectedObject;
-		private SpatialObjectModel.ModelShape creatingModelShape;
+		private SpatialModelShape creatingModelShape;
 		private int mouseClickCount = 0;
 		private ArrayList<Coordinate> pressedCoordinates = new ArrayList<>();
 
@@ -180,11 +180,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 							return;
 						}
 
-						creatingModel = SpatialObjectModel.create(creatingModelShape, "<<new>>", pressedCoordinates);
-
-						if (mouseClickCount == creatingModelShape.getTotalPointsCount()) {
-							finishCreatingAndSetSelectingModel();
-						}
+						creatingModel = SpatialObjectModel.create(creatingModelShape, pressedCoordinates);
 					} catch (ModelException e) {
 						e.printStackTrace();
 					}
@@ -251,7 +247,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		 *
 		 * @param creatingModelShape this shape will be set for creating
 		 */
-		public void setCreatingModel(SpatialObjectModel.ModelShape creatingModelShape) {
+		public void setCreatingModel(SpatialModelShape creatingModelShape) {
 			this.clearCreatingMode();
 			this.creatingModelShape = creatingModelShape;
 			this.setMode(MouseMode.CREATING);
@@ -295,10 +291,6 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		reloadSpatialObjects();
 	}
 
-	public void finishCreatingSpatialObjectAction() {
-		mouseHandler.finishCreatingAndSetSelectingModel();
-	}
-
 	// -----------------------
 	// ------------- LISTENERS
 	// -----------------------
@@ -337,8 +329,13 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	 * @param type which should be set for creating
 	 */
 	@Override
-	public void spatialObjectsCreatingListener(SpatialObjectModel.ModelShape type) {
-		mouseHandler.setCreatingModel(type);
+	public void spatialObjectsCreatingListener(SpatialModelShape type, boolean isFinished) {
+		if(isFinished){
+			mouseHandler.finishCreatingAndSetSelectingModel();
+		}
+		else {
+			mouseHandler.setCreatingModel(type);
+		}
 	}
 
 	/**

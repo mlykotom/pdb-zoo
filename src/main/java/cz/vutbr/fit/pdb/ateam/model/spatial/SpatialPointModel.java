@@ -11,7 +11,7 @@ import java.awt.geom.Ellipse2D;
  */
 public class SpatialPointModel extends SpatialObjectModel {
 
-	private static final double SPATIAL_POINT_SIZE = 10;
+	protected static final double SPATIAL_POINT_SIZE = 8;
 
 	public SpatialPointModel(String name, SpatialObjectTypeModel type, JGeometry geometry) {
 		super(name, type, geometry);

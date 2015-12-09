@@ -80,7 +80,7 @@ abstract public class BaseModel {
 	}
 
 	public Long getId() {
-		return id == NULL_ID ? null : id;
+		return id;
 	}
 
 	public void setName(String name) {

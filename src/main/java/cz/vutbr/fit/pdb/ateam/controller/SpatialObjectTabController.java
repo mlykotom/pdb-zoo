@@ -6,14 +6,13 @@ import cz.vutbr.fit.pdb.ateam.gui.tabs.SpatialObjectsTab;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.details.SpatialObjectDetail;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.lists.SpatialObjectsList;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
+import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialModelShape;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
 import cz.vutbr.fit.pdb.ateam.observer.*;
 import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.List;
 
 /**
@@ -71,7 +70,7 @@ public class SpatialObjectTabController
 	 */
 	private void changePanelContentIntoDetail(SpatialObjectModel spatialObjectModel) {
 		Utils.changePanelContent(spatialObjectsTab, spatialObjectDetail);
-		spatialObjectDetail.setCalculatedInfo(null, null);
+		spatialObjectDetail.setCalculatedInfo(!spatialObjectModel.isNew(), null, null);
 		spatialObjectDetail.setTypeComboBoxModel(getSpatialObjectTypes());
 		spatialObjectDetail.setSpatialObject(spatialObjectModel);
 		selectedObject = spatialObjectModel;
@@ -186,8 +185,8 @@ public class SpatialObjectTabController
 	}
 
 	public void createBuildingButton() {
-		SpatialObjectModel.ModelShape shapeType = spatialObjectList.getComboBoxValue();
-		SpatialObjectCreatingObservable.getInstance().notifyObservers(shapeType);
+		SpatialModelShape shapeType = spatialObjectList.getComboBoxValue();
+		SpatialObjectCreatingObservable.getInstance().notifyObservers(shapeType, false);
 		Utils.changePanelContent(spatialObjectsTab, new CreatingBuildingHelper(shapeType));
 	}
 
@@ -218,7 +217,7 @@ public class SpatialObjectTabController
 			@Override
 			protected void onDone(boolean success) {
 				if (success) {
-					spatialObjectDetail.setCalculatedInfo(calculatedArea, calculatedLength);
+					spatialObjectDetail.setCalculatedInfo(!selectedObject.isNew(), calculatedArea, calculatedLength);
 				}
 			}
 		}.start();

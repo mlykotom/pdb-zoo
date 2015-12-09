@@ -562,7 +562,7 @@ public class DataManager {
 			PreparedStatement preparedStatement = connection.prepareStatement(sqlPrep);
 			preparedStatement.setString(1, spatialObject.getName());
 			Long id = spatialObject.getType().getId();
-			if(id == null){
+			if(id == BaseModel.NULL_ID){
 				preparedStatement.setNull(2, Types.INTEGER);
 			}
 			else {
@@ -669,6 +669,8 @@ public class DataManager {
 	 */
 	public void reloadAllSpatialObjectTypes() throws DataManagerException {
 		ArrayList<SpatialObjectTypeModel> spacialTypes = new ArrayList<>();
+
+		spacialTypes.add(SpatialObjectTypeModel.UnknownSpatialType);
 
 		String sqlQuery = "SELECT * FROM Spatial_Object_Types";
 		ResultSet resultSet = createDatabaseQuery(sqlQuery);
