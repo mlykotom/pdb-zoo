@@ -10,6 +10,7 @@ import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialModelShape;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.observer.*;
 import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
+import cz.vutbr.fit.pdb.ateam.utils.Logger;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -45,6 +46,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		SpatialObjectCreatingObservable.getInstance().subscribe(this);
 		ModelChangedStateObservable.getInstance().subscribe(this);
 		this.form = zooMapPanel;
+		setRootPanel(form);
 	}
 
 	/**
@@ -187,7 +189,8 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 							finishCreatingAndSetSelectingModel();
 						}
 					} catch (ModelException e) {
-						e.printStackTrace();
+						Logger.createLog(Logger.ERROR_LOG, "ModelException: " + e.getMessage());
+						showDialog(ERROR_MESSAGE, "Can not create building!");
 					}
 					break;
 			}
@@ -310,7 +313,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	/**
 	 * Calculates general info
 	 */
-	public void calculateGeneralInfoAciton() {
+	public void calculateGeneralInfoAction() {
 		new AsyncTask() {
 			double wholePathLength = 0.0;
 
@@ -319,8 +322,8 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 				try {
 					wholePathLength = dataManager.getWholeLengthBySpatialTypeName("Path");
 				} catch (DataManagerException e) {
-					// TODO not having exception, but warning dialog
-					e.printStackTrace();
+					Logger.createLog(Logger.ERROR_LOG, e.getMessage());
+					return false;
 				}
 				return true;
 			}
@@ -329,6 +332,8 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 			protected void onDone(boolean success) {
 				if (success) {
 					form.setCalculatedGeneralInfo(wholePathLength);
+				} else {
+					showDialog(ERROR_MESSAGE, "Problem occurred while calculating data!");
 				}
 			}
 		}.start();

@@ -12,6 +12,7 @@ import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
 import cz.vutbr.fit.pdb.ateam.observer.*;
 import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
+import cz.vutbr.fit.pdb.ateam.utils.Logger;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
 
 /**
@@ -50,6 +51,8 @@ public class SpatialObjectTabController extends Controller
 		ModelChangedStateObservable.getInstance().subscribe(this);
 
 		changePanelContentIntoList();
+
+		setRootPanel(spatialObjectsTab);
 	}
 
 	/**
@@ -216,8 +219,7 @@ public class SpatialObjectTabController extends Controller
 					calculatedLength = shapeInfo[1];
 					return true;
 				} catch (DataManagerException e) {
-					e.printStackTrace();
-					// TODO not having exception, but warning dialog
+					Logger.createLog(Logger.ERROR_LOG, e.getMessage());
 					return false;
 				}
 			}
@@ -227,6 +229,8 @@ public class SpatialObjectTabController extends Controller
 				if (success) {
 					spatialObjectDetail.setEnableControlComponents(!selectedObject.isNew());
 					spatialObjectDetail.setCalculatedInfo(calculatedArea, calculatedLength);
+				} else {
+					showDialog(ERROR_MESSAGE, "Can not calculate data!");
 				}
 			}
 		}.start();
@@ -242,8 +246,7 @@ public class SpatialObjectTabController extends Controller
 					calculatedDistance = dataManager.getDistanceToOtherSpatialObject(selectedObject, spatialObjectTo);
 					return true;
 				} catch (DataManagerException e) {
-					// TODO not having exception, but warning dialog
-					e.printStackTrace();
+					Logger.createLog(Logger.ERROR_LOG, e.getMessage());
 					return false;
 				}
 			}
@@ -253,6 +256,8 @@ public class SpatialObjectTabController extends Controller
 				if (success) {
 					spatialObjectDetail.setEnableControlComponents(!selectedObject.isNew());
 					spatialObjectDetail.setCalculatedDistanceTo(calculatedDistance);
+				} else {
+					showDialog(ERROR_MESSAGE, "Can not calculate data!");
 				}
 			}
 		}.start();

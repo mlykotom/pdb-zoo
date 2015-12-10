@@ -9,6 +9,8 @@ import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
  * @Author Tomas Hanus
  */
 public class MainPanelController extends Controller {
+	// TODO delete class???
+
 	private final MainFrame frame;
 
 	public MainPanelController(MainFrame mainFrame) {

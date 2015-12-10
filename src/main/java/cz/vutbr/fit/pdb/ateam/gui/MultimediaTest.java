@@ -69,7 +69,7 @@ public class MultimediaTest extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					if (model == null) {
-						// TODO save model first
+						// TODO save model first ERROR MESSAGE
 						return;
 					}
 
@@ -87,7 +87,7 @@ public class MultimediaTest extends JPanel {
 				try {
 					byte[] bytes = imagePanel.getByteArray();
 					if (bytes == null) {
-						// TODO open something first
+						// TODO open something first ERROR MESSAGE
 						return;
 					}
 
@@ -124,12 +124,12 @@ public class MultimediaTest extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					if (model == null) {
-						// TODO open image and save or load model first
+						// TODO open image and save or load model first ERROR MESSAGE
 						return;
 					}
 
 					if (model.getId() == 0L) {
-						// TODO model needs to be saved first
+						// TODO model needs to be saved first ERROR MESSAGE
 						return;
 					}
 
