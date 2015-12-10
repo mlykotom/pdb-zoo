@@ -206,6 +206,9 @@ public class SpatialObjectTabController extends Controller
 		}
 	}
 
+	/**
+	 * Recalculates area and length of specified object
+	 */
 	public void recalculateShapeInfoAction() {
 		new AsyncTask() {
 			private double calculatedArea = 0.0;
@@ -236,7 +239,12 @@ public class SpatialObjectTabController extends Controller
 		}.start();
 	}
 
-	public void recalculateDistanceToObject(final SpatialObjectModel spatialObjectTo) {
+	/**
+	 * Recalculates distance to specified object
+	 *
+	 * @param spatialObjectTo {@link SpatialObjectModel} which will be counted distance to
+	 */
+	public void recalculateDistanceToObjectAction(final SpatialObjectModel spatialObjectTo) {
 		new AsyncTask() {
 			private double calculatedDistance = 0.0;
 
@@ -256,6 +264,7 @@ public class SpatialObjectTabController extends Controller
 				if (success) {
 					spatialObjectDetail.setEnableControlComponents(!selectedObject.isNew());
 					spatialObjectDetail.setCalculatedDistanceTo(calculatedDistance);
+					SpatialObjectMultiSelectionChangeObservable.getInstance().notifyObservers(spatialObjectTo);
 				} else {
 					showDialog(ERROR_MESSAGE, "Can not calculate data!");
 				}

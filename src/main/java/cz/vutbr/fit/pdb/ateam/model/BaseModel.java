@@ -27,7 +27,7 @@ abstract public class BaseModel {
 	/**
 	 * Serves for manipulating with any model in DataManager
 	 *
-	 * @return
+	 * @return SQL table name
 	 */
 	abstract public String getTableName();
 

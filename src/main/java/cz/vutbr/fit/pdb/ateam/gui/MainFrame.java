@@ -9,7 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
- * cz.vutbr.fit.pdb.ateam.Main Frame for the whole application.
+ * Main Frame for the whole application.
  * <p/>
  * All windows of the application are opened in this frame
  * as a JPanel. This frame contains only navigation menu.

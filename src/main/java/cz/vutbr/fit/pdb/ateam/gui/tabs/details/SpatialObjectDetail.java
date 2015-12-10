@@ -112,7 +112,8 @@ public class SpatialObjectDetail extends BasePanel {
 		calculateDistanceButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				controller.recalculateDistanceToObject((SpatialObjectModel) spatialObjectsComboBox.getSelectedItem());
+				SpatialObjectModel obj = (SpatialObjectModel) spatialObjectsComboBox.getSelectedItem();
+				controller.recalculateDistanceToObjectAction(obj);
 			}
 		});
 

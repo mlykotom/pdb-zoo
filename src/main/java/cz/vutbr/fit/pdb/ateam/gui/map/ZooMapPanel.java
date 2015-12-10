@@ -27,6 +27,7 @@ public class ZooMapPanel extends BasePanel {
 	private JPanel objectsControlWrapper;
 	private JButton calculateGeneralInfoButton;
 	private JLabel wholePathLengthLabel;
+	private JButton selectAllButton;
 
 	public ZooMapPanel(ContentPanel mainPanel) {
 		this.mainPanel = mainPanel;
@@ -64,6 +65,13 @@ public class ZooMapPanel extends BasePanel {
 				controller.discardChangedSpatialObjectsAction();
 			}
 		});
+
+		selectAllButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				controller.test();
+			}
+		});
 	}
 
 	/**
@@ -99,7 +107,7 @@ public class ZooMapPanel extends BasePanel {
 		rootPanel.add(mapPanel, new GridConstraints(0, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		mapPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(-16777216)), null));
 		objectsControlWrapper = new JPanel();
-		objectsControlWrapper.setLayout(new GridLayoutManager(3, 1, new Insets(0, 0, 0, 0), -1, -1));
+		objectsControlWrapper.setLayout(new GridLayoutManager(4, 1, new Insets(0, 0, 0, 0), -1, -1));
 		rootPanel.add(objectsControlWrapper, new GridConstraints(1, 2, 2, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		discardReloadButton = new JButton();
 		discardReloadButton.setText("Discard + Reload");
@@ -107,8 +115,11 @@ public class ZooMapPanel extends BasePanel {
 		saveButton = new JButton();
 		saveButton.setText("Save all objects");
 		objectsControlWrapper.add(saveButton, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		selectAllButton = new JButton();
+		selectAllButton.setText("Select all");
+		objectsControlWrapper.add(selectAllButton, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final Spacer spacer1 = new Spacer();
-		objectsControlWrapper.add(spacer1, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+		objectsControlWrapper.add(spacer1, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
 		final Spacer spacer2 = new Spacer();
 		rootPanel.add(spacer2, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
 		final JPanel panel1 = new JPanel();

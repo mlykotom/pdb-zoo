@@ -31,17 +31,33 @@ abstract public class SpatialObjectModel extends BaseModel {
 	protected BasicStroke stroke;
 	private boolean isSelected = false;
 
+	/**
+	 * Helper enum for checking map boundaries
+	 */
 	private enum IsInMapAxis {
-		AXIS_Y,
-		AXIS_X
+		AXIS_Y, AXIS_X
 	}
 
-	protected BasicStroke getDefaultStroke() {
-		return DEFAULT_STROKE;
-	}
+	/**
+	 * Enum for selection types (specifies color of selection)
+	 */
+	public enum SelectionType {
+		DEFAULT(Color.RED),
+		MULTI(Color.ORANGE);
 
-	protected Paint getDefaultBorderColor() {
-		return DEFAULT_BORDER_COLOR;
+		private Color color;
+
+		SelectionType(String colorHex) {
+			this.color = Color.decode(colorHex);
+		}
+
+		SelectionType(Color color) {
+			this.color = color;
+		}
+
+		public Color getColor() {
+			return color;
+		}
 	}
 
 	/**
@@ -208,9 +224,9 @@ abstract public class SpatialObjectModel extends BaseModel {
 	/**
 	 * Helper method for creating rectangle JGeometry from 2 points
 	 *
-	 * @param minCoordinate
-	 * @param maxCoordinate
-	 * @return
+	 * @param minCoordinate coordinates for first point
+	 * @param maxCoordinate coordinates for last point
+	 * @return rectangle's JGeometry
 	 */
 	private static JGeometry createRectangleGeometry(Coordinate minCoordinate, Coordinate maxCoordinate) {
 		return new JGeometry(
@@ -224,9 +240,9 @@ abstract public class SpatialObjectModel extends BaseModel {
 	/**
 	 * Helper method for creating circle JGeometry from 2 points
 	 *
-	 * @param centerPoint
-	 * @param borderPoint
-	 * @return
+	 * @param centerPoint coordinates of center point of circle
+	 * @param borderPoint coordinates of on circles border
+	 * @return circle's JGeometry
 	 */
 	private static JGeometry createCircleGeometry(Coordinate centerPoint, Coordinate borderPoint) {
 		return JGeometry.createCircle(
@@ -274,25 +290,6 @@ abstract public class SpatialObjectModel extends BaseModel {
 		return getShape().contains(x, y);
 	}
 
-	public enum SelectionType {
-		DEFAULT("#4F6CB2"),
-		MULTI("#E6A438");
-
-		private Color color;
-
-		SelectionType(String colorHex) {
-			this.color = Color.decode(colorHex);
-		}
-
-		SelectionType(Color color) {
-			this.color = color;
-		}
-
-		public Color getColor() {
-			return color;
-		}
-	}
-
 	/**
 	 * Determines graphics while is selected or not
 	 *
@@ -302,6 +299,12 @@ abstract public class SpatialObjectModel extends BaseModel {
 		selectOnCanvas(isSelected, SelectionType.DEFAULT);
 	}
 
+	/**
+	 * Selects this model on canvas with specified type
+	 *
+	 * @param isSelected whether is selected or not
+	 * @param type       selection type (color)
+	 */
 	public void selectOnCanvas(boolean isSelected, SelectionType type) {
 		if (isSelected) {
 			this.isSelected = true;
@@ -317,8 +320,8 @@ abstract public class SpatialObjectModel extends BaseModel {
 	/**
 	 * Moves object some pixels defined by parameters
 	 *
-	 * @param deltaX
-	 * @param deltaY
+	 * @param deltaX amount how much was moved on axis X
+	 * @param deltaY amount how much was moved on axis Y
 	 */
 	public boolean moveOnCanvas(int deltaX, int deltaY) {
 		try {
@@ -359,9 +362,9 @@ abstract public class SpatialObjectModel extends BaseModel {
 	/**
 	 * Checks boundaries of shape if is in map base on which axis calculates
 	 *
-	 * @param boundRect
+	 * @param boundRect boundary rectangle
 	 * @param delta     delta X or Y
-	 * @param axisType
+	 * @param axisType  checking in which axis direction
 	 * @return changed delta based on if is in map
 	 */
 	private int isMovedInMap(Rectangle2D boundRect, double delta, IsInMapAxis axisType) {
@@ -402,7 +405,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 	/**
 	 * Recalculates scale amount by objects' boundary rentangle's ordinates and size
 	 *
-	 * @param boundRect
+	 * @param boundRect boundary rectangle which is countet for general shapes
 	 * @param delta     amount which will be scaled
 	 * @return changed delta amount
 	 */
@@ -451,6 +454,25 @@ abstract public class SpatialObjectModel extends BaseModel {
 
 	// ---- GETTERS && SETTERS ---- //
 
+	/**
+	 * Gets stroke type
+	 *
+	 * @return DEFAULT_STROKE or can be overwritten in children class
+	 */
+	protected BasicStroke getDefaultStroke() {
+		return DEFAULT_STROKE;
+	}
+
+
+	/**
+	 * Gets border type
+	 *
+	 * @return DEFAULT_BORDER_COLOR or can be overwritten in children class
+	 */
+	protected Paint getDefaultBorderColor() {
+		return DEFAULT_BORDER_COLOR;
+	}
+
 	@Override
 	public String getTableName() {
 		return "Spatial_Objects";
@@ -458,10 +480,6 @@ abstract public class SpatialObjectModel extends BaseModel {
 
 	public boolean isSelected() {
 		return isSelected;
-	}
-
-	public void setSelected(boolean selected) {
-		isSelected = selected;
 	}
 
 	public Shape getShape() {
@@ -488,11 +506,6 @@ abstract public class SpatialObjectModel extends BaseModel {
 
 	public JGeometry getGeometry() {
 		return geometry;
-	}
-
-	public void setGeometry(JGeometry geometry) {
-		this.geometry = geometry;
-		this.regenerateShape();
 	}
 
 	@Override
