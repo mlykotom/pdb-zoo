@@ -826,7 +826,7 @@ public class DataManager {
 
 
 	public ArrayList<EmployeeModel> getEmployeesAtDate(final Date date) throws DataManagerException {
-		final ArrayList<EmployeeModel> employees = new ArrayList<EmployeeModel>();
+		final ArrayList<EmployeeModel> employees = new ArrayList<>();
 		AsyncTask asyncTask = new AsyncTask() {
 			@Override
 			protected void onDone(boolean success) {
@@ -881,7 +881,7 @@ public class DataManager {
 	}
 
 	public ArrayList<EmployeeModel> getEmployeeHistory(final long employeeID) throws DataManagerException {
-		final ArrayList<EmployeeModel> employees = new ArrayList<EmployeeModel>();
+		final ArrayList<EmployeeModel> employees = new ArrayList<>();
 		AsyncTask asyncTask = new AsyncTask() {
 			@Override
 			protected void onDone(boolean success) {

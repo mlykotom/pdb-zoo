@@ -22,7 +22,7 @@ public class SpatialMultiPointModel extends SpatialPointModel {
 		GeneralPath p = new GeneralPath();
 
 		for(Point2D point : points){
-			Ellipse2D el = new Ellipse2D.Double(point.getX(), point.getY(), SPATIAL_POINT_SIZE, SPATIAL_POINT_SIZE);
+			Ellipse2D el = new Ellipse2D.Double(point.getX() - SPATIAL_POINT_SIZE / 2, point.getY() - SPATIAL_POINT_SIZE / 2, SPATIAL_POINT_SIZE, SPATIAL_POINT_SIZE);
 			p.append(el, false);
 		}
 

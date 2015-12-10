@@ -30,7 +30,7 @@ public class SpatialObjectDetail extends BasePanel {
 	private JLabel shapeAreaLabel;
 	private JPanel areaWrapper;
 	private JLabel shapeLengthLabel;
-	private JComboBox spatialObjectsComboBox;
+	private JComboBox<SpatialObjectModel> spatialObjectsComboBox;
 	private JLabel distanceToObjectLabel;
 	private JButton calculateDistanceButton;
 	private JLabel squareMetersLabel;

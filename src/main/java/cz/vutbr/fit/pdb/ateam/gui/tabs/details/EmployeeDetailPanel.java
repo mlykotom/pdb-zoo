@@ -35,7 +35,7 @@ public class EmployeeDetailPanel extends BasePanel {
 	private JTextField surnameEditField;
 	private JButton saveButton;
 	private JButton discardButton;
-	private JComboBox locationComboBox;
+	private JComboBox<SpatialObjectModel> locationComboBox;
 	private JTextField idField;
 	private JLabel employeeDetailHeader;
 	private JCheckBox showHistoryCheckBox;

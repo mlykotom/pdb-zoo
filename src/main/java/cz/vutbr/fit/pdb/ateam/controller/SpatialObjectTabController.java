@@ -210,9 +210,8 @@ public class SpatialObjectTabController extends Controller
 
 			@Override
 			protected Boolean doInBackground() {
-				double[] shapeInfo = new double[0];
 				try {
-					shapeInfo = dataManager.getSpatialObjectAnalyticFunction(selectedObject);
+					double[] shapeInfo = dataManager.getSpatialObjectAnalyticFunction(selectedObject);
 					calculatedArea = shapeInfo[0];
 					calculatedLength = shapeInfo[1];
 					return true;

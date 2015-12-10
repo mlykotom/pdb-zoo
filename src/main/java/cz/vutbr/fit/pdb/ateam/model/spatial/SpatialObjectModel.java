@@ -75,7 +75,7 @@ abstract public class SpatialObjectModel extends BaseModel {
 	 * @throws ModelException
 	 */
 	public static SpatialObjectModel loadFromDB(Long id, String name, SpatialObjectTypeModel spatialType, byte[] rawGeometry) throws ModelException {
-		JGeometry geometry = null;
+		JGeometry geometry;
 		try {
 			geometry = JGeometry.load(rawGeometry);
 		} catch (Exception e) {
@@ -169,11 +169,10 @@ abstract public class SpatialObjectModel extends BaseModel {
 				double rectangleHeight = rectangleOrdinates[3] - rectangleOrdinates[1];
 
 				int deltaX, deltaY;
-				if(rectangleWidth < rectangleHeight){
+				if (rectangleWidth < rectangleHeight) {
 					deltaX = (int) ((rectangleWidth / 2) * 0.6);
 					deltaY = 0;
-				}
-				else{
+				} else {
 					deltaX = 0;
 					deltaY = (int) ((rectangleHeight / 2) * 0.6);
 				}
@@ -275,15 +274,38 @@ abstract public class SpatialObjectModel extends BaseModel {
 		return getShape().contains(x, y);
 	}
 
+	public enum SelectionType {
+		DEFAULT("#4F6CB2"),
+		MULTI("#E6A438");
+
+		private Color color;
+
+		SelectionType(String colorHex) {
+			this.color = Color.decode(colorHex);
+		}
+
+		SelectionType(Color color) {
+			this.color = color;
+		}
+
+		public Color getColor() {
+			return color;
+		}
+	}
+
 	/**
 	 * Determines graphics while is selected or not
 	 *
-	 * @param selected whether this model is selected or not
+	 * @param isSelected whether this model is selected or not
 	 */
-	public void selectOnCanvas(boolean selected) {
-		if (selected) {
+	public void selectOnCanvas(boolean isSelected) {
+		selectOnCanvas(isSelected, SelectionType.DEFAULT);
+	}
+
+	public void selectOnCanvas(boolean isSelected, SelectionType type) {
+		if (isSelected) {
 			this.isSelected = true;
-			borderColor = Color.decode("#4F6CB2");
+			borderColor = type.getColor();
 			stroke = new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 		} else {
 			this.isSelected = false;
