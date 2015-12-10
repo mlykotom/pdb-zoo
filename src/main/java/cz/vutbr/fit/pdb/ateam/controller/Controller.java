@@ -12,6 +12,7 @@ import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectsReloadObservable;
 import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +28,12 @@ import java.util.List;
  * @author Jakub Tutko
  */
 public class Controller {
+	protected static final int INFO_MESSAGE = 0;
+	protected static final int WARNING_MESSAGE = 1;
+	protected static final int ERROR_MESSAGE = 2;
+
 	protected DataManager dataManager;
+	protected JPanel rootPanel = null;
 
 	/**
 	 * Saves static DataManager instance into local variable.
@@ -61,12 +67,18 @@ public class Controller {
 
 			@Override
 			protected void onDone(boolean success) {
-				for (BaseModel model : deletedModels) {
-					ModelChangedStateObservable.getInstance().notifyObservers(model, IModelChangedStateListener.ModelState.DELETED);
-				}
+				if(!success) {
+					showDialog(INFO_MESSAGE, "No data has changed!");
+				} else {
+					for (BaseModel model : deletedModels) {
+						ModelChangedStateObservable.getInstance().notifyObservers(model, IModelChangedStateListener.ModelState.DELETED);
+					}
 
-				for (BaseModel model : savedModels) {
-					ModelChangedStateObservable.getInstance().notifyObservers(model, IModelChangedStateListener.ModelState.SAVED);
+					for (BaseModel model : savedModels) {
+						ModelChangedStateObservable.getInstance().notifyObservers(model, IModelChangedStateListener.ModelState.SAVED);
+					}
+
+					showDialog(INFO_MESSAGE, "Data saved!");
 				}
 			}
 
@@ -84,7 +96,7 @@ public class Controller {
 							savedModels.add(model);
 						}
 					} catch (DataManagerException e) {
-						e.printStackTrace();
+						Logger.createLog(Logger.ERROR_LOG, e.getMessage());
 						// TODO how to handle exceptions?
 					}
 				}
@@ -112,7 +124,11 @@ public class Controller {
 		AsyncTask task = new AsyncTask() {
 			@Override
 			protected void onDone(boolean success) {
-				SpatialObjectsReloadObservable.getInstance().notifyObservers();
+				if(success) {
+					SpatialObjectsReloadObservable.getInstance().notifyObservers();
+				} else {
+					showDialog(ERROR_MESSAGE, "Can not reload data!");
+				}
 			}
 
 			@Override
@@ -186,4 +202,45 @@ public class Controller {
 		return dataManager.getEmployees();
 	}
 
+	/**
+	 * Displays dialog with given message in the middle of the given JPanel, based on type.
+	 *
+	 * @param type type of the dialog (INFO, WARNING, ERROR)
+	 * @param message message with description of the error
+	 */
+	protected void showDialog(int type, String message) {
+		String subject;
+		int jOptPaneType;
+
+		switch (type) {
+			case INFO_MESSAGE:
+				subject = "Info";
+				jOptPaneType = JOptionPane.INFORMATION_MESSAGE;
+				break;
+
+			case WARNING_MESSAGE:
+				subject = "Warning";
+				jOptPaneType = JOptionPane.WARNING_MESSAGE;
+				break;
+
+			case ERROR_MESSAGE:
+				subject = "Error";
+				jOptPaneType = JOptionPane.ERROR_MESSAGE;
+				break;
+
+			default:
+				return;
+		}
+
+		JOptionPane.showMessageDialog(rootPanel, message, subject, jOptPaneType);
+	}
+
+	/**
+	 * Sets root panel for showing error dialog.
+	 *
+	 * @param rootPanel root JPanel
+	 */
+	protected void setRootPanel(JPanel rootPanel) {
+		this.rootPanel = rootPanel;
+	}
 }

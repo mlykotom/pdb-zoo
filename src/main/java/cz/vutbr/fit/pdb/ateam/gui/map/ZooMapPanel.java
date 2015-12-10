@@ -47,7 +47,7 @@ public class ZooMapPanel extends BasePanel {
 		calculateGeneralInfoButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				controller.calculateGeneralInfoAciton();
+				controller.calculateGeneralInfoAction();
 			}
 		});
 

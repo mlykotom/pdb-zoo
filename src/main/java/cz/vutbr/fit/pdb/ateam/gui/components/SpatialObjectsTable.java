@@ -4,10 +4,7 @@ import cz.vutbr.fit.pdb.ateam.controller.SpatialObjectTableController;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 
 import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
+import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

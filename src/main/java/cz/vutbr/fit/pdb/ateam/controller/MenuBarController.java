@@ -22,13 +22,6 @@ public class MenuBarController extends Controller {
 	}
 
 	/**
-	 * HomeMenu in MenuBar opens home screen of the application.
-	 */
-	public void homeMenuAction() {
-		// TODO: change to show menuJPanel
-	}
-
-	/**
 	 * LogoutMenu in MenuBar logout user and opens LoginForm.
 	 */
 	public void logoutMenuAction() {
