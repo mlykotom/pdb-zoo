@@ -159,7 +159,6 @@ abstract public class SpatialObjectModel extends BaseModel {
 
 			case POLYGON:
 				geom = JGeometry.createLinearPolygon(Coordinate.fromListToArray(pressedCoordinates), 2, 0);
-				geom.getElemInfo()[2] = 2003;
 				break;
 
 			case RECTANGLE_WITH_HOLE:

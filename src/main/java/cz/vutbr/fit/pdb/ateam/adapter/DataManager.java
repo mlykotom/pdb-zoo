@@ -725,15 +725,43 @@ public class DataManager {
 		ResultSet resultSet = createDatabaseQuery(sqlQuery);
 
 		try {
-			if (!resultSet.next())
+			if (!resultSet.next()) {
 				throw new DataManagerException("Distance with id=[" + spatialLeft.getId() + "] not found!");
+			}
 			distance = resultSet.getDouble("Distance");
-
 		} catch (SQLException ex) {
 			throw new DataManagerException("getAllSpatialObjectTypes: SQLException: " + ex.getMessage());
 		}
 
 		return distance;
+	}
+
+	/**
+	 * Gets length of all spatial objects by type name
+	 * @param typeName e.g. usage - Path
+	 * @return sum of object's length
+	 * @throws DataManagerException
+	 */
+	public double getWholeLengthBySpatialTypeName(String typeName) throws DataManagerException {
+		double length;
+
+		String sqlQuery = "" +
+				"SELECT SUM(SDO_GEOM.SDO_LENGTH(geometry, 1)) WholePathLength " +
+				"FROM SPATIAL_OBJECTS JOIN SPATIAL_OBJECT_TYPES ON SPATIAL_OBJECTS.TYPE = SPATIAL_OBJECT_TYPES.ID " +
+				"WHERE SPATIAL_OBJECT_TYPES.NAME LIKE '" + typeName + "'";
+
+		ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+		try {
+			if (!resultSet.next()) {
+				throw new DataManagerException("Problem with loading whole path length not loaded!");
+			}
+			length = resultSet.getDouble("WholePathLength");
+		} catch (SQLException ex) {
+			throw new DataManagerException("getAllSpatialObjectTypes: SQLException: " + ex.getMessage());
+		}
+
+		return length;
 	}
 
 	/**

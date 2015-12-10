@@ -1,5 +1,6 @@
 package cz.vutbr.fit.pdb.ateam.controller;
 
+import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapPanel;
@@ -8,6 +9,7 @@ import cz.vutbr.fit.pdb.ateam.model.Coordinate;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialModelShape;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.observer.*;
+import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -242,6 +244,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 
 		/**
 		 * Sets mode of canvas and sets cursor which will be used based on this mode
+		 *
 		 * @param mode based on {@link MouseMode}
 		 */
 		private void setMode(MouseMode mode) {
@@ -302,6 +305,33 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	public void discardChangedSpatialObjectsAction() {
 		mouseHandler.clearCreatingMode();
 		reloadSpatialObjects();
+	}
+
+	/**
+	 * Calculates general info
+	 */
+	public void calculateGeneralInfoAciton() {
+		new AsyncTask() {
+			double wholePathLength = 0.0;
+
+			@Override
+			protected Boolean doInBackground(){
+				try {
+					wholePathLength = dataManager.getWholeLengthBySpatialTypeName("Path");
+				} catch (DataManagerException e) {
+					// TODO not having exception, but warning dialog
+					e.printStackTrace();
+				}
+				return true;
+			}
+
+			@Override
+			protected void onDone(boolean success) {
+				if (success) {
+					form.setCalculatedGeneralInfo(wholePathLength);
+				}
+			}
+		}.start();
 	}
 
 	// -----------------------

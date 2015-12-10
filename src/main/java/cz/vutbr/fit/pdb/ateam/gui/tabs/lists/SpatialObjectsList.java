@@ -37,7 +37,7 @@ public class SpatialObjectsList extends BasePanel {
 		createBuildingButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				controller.createBuildingButton();
+				controller.createBuildingButtonAction();
 			}
 		});
 	}
