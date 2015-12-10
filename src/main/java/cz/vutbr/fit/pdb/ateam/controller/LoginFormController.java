@@ -92,6 +92,6 @@ public class LoginFormController extends Controller {
 	 * Button closes the application.
 	 */
 	public void quitButtonAction() {
-		Utils.closeApplication();
+		System.exit(0);
 	}
 }
