@@ -65,7 +65,7 @@ public class SpatialObjectsTable extends JTable {
 
 
 		public SpatialObjectModel getSpatialObjectModel(int rowIndex) {
-			return objectsList.get(rowIndex);
+			return objectsList.get(getRowSorter().convertRowIndexToModel(rowIndex));
 		}
 
 		@Override
