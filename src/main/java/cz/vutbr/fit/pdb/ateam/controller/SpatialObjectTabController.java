@@ -1,5 +1,6 @@
 package cz.vutbr.fit.pdb.ateam.controller;
 
+import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.gui.components.SpatialObjectsTable;
 import cz.vutbr.fit.pdb.ateam.gui.help.CreatingBuildingHelper;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.SpatialObjectsTab;
@@ -13,14 +14,13 @@ import cz.vutbr.fit.pdb.ateam.observer.*;
 import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
 
-import java.util.List;
-
 /**
- * Created by Jakub on 24.10.2015.
+ * Controller for spatial objects tab
+ *
+ * @author Jakub Tutko
+ * @author Tomas Mlynaric
  */
-public class SpatialObjectTabController
-		extends
-		Controller
+public class SpatialObjectTabController extends Controller
 		implements
 		ISpatialObjectSelectionChangedListener,
 		SpatialObjectTableController,
@@ -70,7 +70,9 @@ public class SpatialObjectTabController
 	 */
 	private void changePanelContentIntoDetail(SpatialObjectModel spatialObjectModel) {
 		Utils.changePanelContent(spatialObjectsTab, spatialObjectDetail);
-		spatialObjectDetail.setCalculatedInfo(!spatialObjectModel.isNew(), null, null);
+		spatialObjectDetail.setEnableControlComponents(!spatialObjectModel.isNew());
+		spatialObjectDetail.setCalculatedInfo(null, null);
+		spatialObjectDetail.setCalculatedDistanceTo(null);
 		spatialObjectDetail.setTypeComboBoxModel(getSpatialObjectTypes());
 		spatialObjectDetail.setSpatialObject(spatialObjectModel);
 		selectedObject = spatialObjectModel;
@@ -81,12 +83,8 @@ public class SpatialObjectTabController
 	 */
 	private void fillUpSpatialObjectsTable() {
 		SpatialObjectsTable table = new SpatialObjectsTable(this);
-		List<SpatialObjectModel> models;
 
-		// TODO fill models by parameter from controller not the other way
-		models = getSpatialObjects();
-
-		for (SpatialObjectModel model : models) {
+		for (SpatialObjectModel model : getSpatialObjects()) {
 			table.addSpatialObjectModel(model);
 		}
 
@@ -184,7 +182,11 @@ public class SpatialObjectTabController
 		spatialObjectsTableDeleteAction(model);
 	}
 
-	public void createBuildingButton() {
+	/**
+	 * Action when clicking on creating building button.
+	 * Shows helper page with finish,cancel button + notifies about attempt of creation
+	 */
+	public void createBuildingButtonAction() {
 		SpatialModelShape shapeType = spatialObjectList.getComboBoxValue();
 		SpatialObjectCreatingObservable.getInstance().notifyObservers(shapeType, false);
 		Utils.changePanelContent(spatialObjectsTab, new CreatingBuildingHelper(shapeType));
@@ -207,17 +209,50 @@ public class SpatialObjectTabController
 			private double calculatedLength = 0.0;
 
 			@Override
-			protected Boolean doInBackground() throws Exception {
-				double[] shapeInfo = dataManager.getSpatialObjectAnalyticFunction(selectedObject);
-				calculatedArea = shapeInfo[0];
-				calculatedLength = shapeInfo[1];
-				return true;
+			protected Boolean doInBackground() {
+				try {
+					double[] shapeInfo = dataManager.getSpatialObjectAnalyticFunction(selectedObject);
+					calculatedArea = shapeInfo[0];
+					calculatedLength = shapeInfo[1];
+					return true;
+				} catch (DataManagerException e) {
+					e.printStackTrace();
+					// TODO not having exception, but warning dialog
+					return false;
+				}
 			}
 
 			@Override
 			protected void onDone(boolean success) {
 				if (success) {
-					spatialObjectDetail.setCalculatedInfo(!selectedObject.isNew(), calculatedArea, calculatedLength);
+					spatialObjectDetail.setEnableControlComponents(!selectedObject.isNew());
+					spatialObjectDetail.setCalculatedInfo(calculatedArea, calculatedLength);
+				}
+			}
+		}.start();
+	}
+
+	public void recalculateDistanceToObject(final SpatialObjectModel spatialObjectTo) {
+		new AsyncTask() {
+			private double calculatedDistance = 0.0;
+
+			@Override
+			protected Boolean doInBackground() {
+				try {
+					calculatedDistance = dataManager.getDistanceToOtherSpatialObject(selectedObject, spatialObjectTo);
+					return true;
+				} catch (DataManagerException e) {
+					// TODO not having exception, but warning dialog
+					e.printStackTrace();
+					return false;
+				}
+			}
+
+			@Override
+			protected void onDone(boolean success) {
+				if (success) {
+					spatialObjectDetail.setEnableControlComponents(!selectedObject.isNew());
+					spatialObjectDetail.setCalculatedDistanceTo(calculatedDistance);
 				}
 			}
 		}.start();

@@ -63,6 +63,7 @@ public class ZooMapCanvas extends BasePanel {
 		super.paint(g);
 
 		Graphics2D g2D = (Graphics2D) g;
+		g2D.setBackground(CANVAS_DEFAULT_COLOR);
 		g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
@@ -80,8 +81,6 @@ public class ZooMapCanvas extends BasePanel {
 		if(renderLatest != null) renderLatest.render(g2D);
 
 		if(controller.creatingModel != null) controller.creatingModel.render(g2D);
-
-		g2D.setPaint(CANVAS_DEFAULT_COLOR);
 	}
 
 	@Override

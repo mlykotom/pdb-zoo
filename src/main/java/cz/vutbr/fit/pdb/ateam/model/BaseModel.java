@@ -5,6 +5,7 @@ package cz.vutbr.fit.pdb.ateam.model;
  * Created by Tomas Mlynaric on 20.10.2015.
  */
 abstract public class BaseModel {
+	public static final String NEW_MODEL_NAME = "<< New >>";
 	protected long id;
 	protected String name;
 	protected boolean isChanged = false;
@@ -25,6 +26,7 @@ abstract public class BaseModel {
 
 	/**
 	 * Serves for manipulating with any model in DataManager
+	 *
 	 * @return
 	 */
 	abstract public String getTableName();
@@ -75,7 +77,7 @@ abstract public class BaseModel {
 	}
 
 	// TODO shouln't be this way, because we can easily change object's primary key!
-	public void setId(Long id){
+	public void setId(Long id) {
 		this.id = id;
 	}
 

@@ -13,8 +13,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 
 /**
@@ -32,10 +30,12 @@ public class SpatialObjectDetail extends BasePanel {
 	private JLabel shapeAreaLabel;
 	private JPanel areaWrapper;
 	private JLabel shapeLengthLabel;
+	private JComboBox<SpatialObjectModel> spatialObjectsComboBox;
+	private JLabel distanceToObjectLabel;
+	private JButton calculateDistanceButton;
+	private JLabel squareMetersLabel;
 	private SpatialObjectTabController controller;
 	private SpatialObjectModel spatialObject;
-
-	private static NumberFormat doubleFormatter = new DecimalFormat("#0.00");
 
 	public SpatialObjectDetail(SpatialObjectTabController controller) {
 		this.controller = controller;
@@ -73,19 +73,48 @@ public class SpatialObjectDetail extends BasePanel {
 
 	/**
 	 * Set calculated informations and enable state for button
-	 * @param enabled
+	 *
 	 * @param area
 	 * @param length
 	 */
-	public void setCalculatedInfo(boolean enabled, Double area, Double length) {
-		calculateShapeInfoButton.setEnabled(enabled);
+	public void setCalculatedInfo(Double area, Double length) {
 		shapeAreaLabel.setText(area == null ? "--" : doubleFormatter.format(area));
 		shapeLengthLabel.setText(length == null ? "--" : doubleFormatter.format(length));
 	}
 
+
+	public void setCalculatedDistanceTo(Double calculatedDistanceTo) {
+		this.distanceToObjectLabel.setText(calculatedDistanceTo == null ? "--" : doubleFormatter.format(calculatedDistanceTo));
+	}
+
+	/**
+	 * Method for disabling/enabling buttons which can be performed only on objects which are saved in DB
+	 *
+	 * @param isEnabled
+	 */
+	public void setEnableControlComponents(boolean isEnabled) {
+		calculateShapeInfoButton.setEnabled(isEnabled);
+		calculateDistanceButton.setEnabled(isEnabled);
+	}
+
+	/**
+	 * Initializes UI components
+	 */
 	private void initUI() {
+		squareMetersLabel.setText("<html>m<sup>2</sup></html>");
 		// disable because of NOT calculating not inserted models
-		calculateShapeInfoButton.setEnabled(false);
+		setEnableControlComponents(false);
+
+		for (SpatialObjectModel model : controller.getSpatialObjects()) {
+			spatialObjectsComboBox.addItem(model);
+		}
+
+		calculateDistanceButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				controller.recalculateDistanceToObject((SpatialObjectModel) spatialObjectsComboBox.getSelectedItem());
+			}
+		});
 
 		calculateShapeInfoButton.addActionListener(new ActionListener() {
 			@Override
@@ -157,7 +186,7 @@ public class SpatialObjectDetail extends BasePanel {
 		rootPanel.add(label4, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		idTextField = new JTextField();
 		idTextField.setEditable(false);
-		rootPanel.add(idTextField, new GridConstraints(1, 1, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+		rootPanel.add(idTextField, new GridConstraints(1, 1, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
 		nameTextField = new JTextField();
 		rootPanel.add(nameTextField, new GridConstraints(2, 1, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
 		typeComboBox = new JComboBox();
@@ -166,46 +195,84 @@ public class SpatialObjectDetail extends BasePanel {
 		rootPanel.add(typeComboBox, new GridConstraints(3, 1, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		cancelButton = new JButton();
 		cancelButton.setText("Cancel");
-		rootPanel.add(cancelButton, new GridConstraints(6, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		rootPanel.add(cancelButton, new GridConstraints(4, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		deleteButton = new JButton();
 		deleteButton.setText("Delete");
-		rootPanel.add(deleteButton, new GridConstraints(6, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		rootPanel.add(deleteButton, new GridConstraints(4, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		saveButton = new JButton();
 		saveButton.setText("Save");
-		rootPanel.add(saveButton, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		rootPanel.add(saveButton, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		final JPanel panel1 = new JPanel();
+		panel1.setLayout(new GridLayoutManager(2, 3, new Insets(0, 0, 0, 0), -1, -1));
+		rootPanel.add(panel1, new GridConstraints(6, 1, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		panel1.setBorder(BorderFactory.createTitledBorder("Distance to other object"));
+		final JLabel label5 = new JLabel();
+		label5.setText("Select object");
+		panel1.add(label5, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		final JLabel label6 = new JLabel();
+		label6.setText("Distance");
+		panel1.add(label6, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		final JPanel panel2 = new JPanel();
+		panel2.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+		panel1.add(panel2, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		distanceToObjectLabel = new JLabel();
+		distanceToObjectLabel.setText("--");
+		panel2.add(distanceToObjectLabel);
+		final JLabel label7 = new JLabel();
+		label7.setText("m");
+		panel2.add(label7);
+		spatialObjectsComboBox = new JComboBox();
+		panel1.add(spatialObjectsComboBox, new GridConstraints(0, 1, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		final JPanel panel3 = new JPanel();
+		panel3.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+		panel1.add(panel3, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		calculateDistanceButton = new JButton();
+		calculateDistanceButton.setText("Calculate");
+		panel3.add(calculateDistanceButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		final Spacer spacer1 = new Spacer();
+		panel3.add(spacer1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+		final JPanel panel4 = new JPanel();
+		panel4.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
+		panel4.setToolTipText("");
+		rootPanel.add(panel4, new GridConstraints(5, 1, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		panel4.setBorder(BorderFactory.createTitledBorder("Informations about object"));
 		areaWrapper = new JPanel();
 		areaWrapper.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
 		areaWrapper.setFont(new Font(areaWrapper.getFont().getName(), Font.BOLD, areaWrapper.getFont().getSize()));
-		rootPanel.add(areaWrapper, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		panel4.add(areaWrapper, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		areaWrapper.setBorder(BorderFactory.createTitledBorder("Area"));
-		final JPanel panel1 = new JPanel();
-		panel1.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-		areaWrapper.add(panel1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		final JPanel panel5 = new JPanel();
+		panel5.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		areaWrapper.add(panel5, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		shapeAreaLabel = new JLabel();
 		shapeAreaLabel.setText("--");
-		panel1.add(shapeAreaLabel);
-		final JLabel label5 = new JLabel();
-		label5.setText("m2");
-		panel1.add(label5);
-		final JPanel panel2 = new JPanel();
-		panel2.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-		panel2.setFont(new Font(panel2.getFont().getName(), Font.BOLD, panel2.getFont().getSize()));
-		rootPanel.add(panel2, new GridConstraints(4, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-		panel2.setBorder(BorderFactory.createTitledBorder("Length"));
-		final JPanel panel3 = new JPanel();
-		panel3.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-		panel2.add(panel3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		panel5.add(shapeAreaLabel);
+		squareMetersLabel = new JLabel();
+		squareMetersLabel.setText("m2");
+		squareMetersLabel.putClientProperty("html.disable", Boolean.FALSE);
+		panel5.add(squareMetersLabel);
+		final JPanel panel6 = new JPanel();
+		panel6.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+		panel6.setFont(new Font(panel6.getFont().getName(), Font.BOLD, panel6.getFont().getSize()));
+		panel4.add(panel6, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		panel6.setBorder(BorderFactory.createTitledBorder("Length"));
+		final JPanel panel7 = new JPanel();
+		panel7.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		panel6.add(panel7, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		shapeLengthLabel = new JLabel();
 		shapeLengthLabel.setText("--");
-		panel3.add(shapeLengthLabel);
-		final JLabel label6 = new JLabel();
-		label6.setText("m");
-		panel3.add(label6);
+		panel7.add(shapeLengthLabel);
+		final JLabel label8 = new JLabel();
+		label8.setText("m");
+		panel7.add(label8);
+		final JPanel panel8 = new JPanel();
+		panel8.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+		panel4.add(panel8, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		calculateShapeInfoButton = new JButton();
-		calculateShapeInfoButton.setText("Recalculate");
-		rootPanel.add(calculateShapeInfoButton, new GridConstraints(4, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-		final Spacer spacer1 = new Spacer();
-		rootPanel.add(spacer1, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+		calculateShapeInfoButton.setText("Calculate");
+		panel8.add(calculateShapeInfoButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		final Spacer spacer2 = new Spacer();
+		panel8.add(spacer2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
 	}
 
 	/**

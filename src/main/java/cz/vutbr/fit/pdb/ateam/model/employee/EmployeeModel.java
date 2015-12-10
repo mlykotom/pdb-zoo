@@ -87,5 +87,5 @@ public class EmployeeModel extends BaseModel {
 
 	public String getTemporalTableName() {
 		return "Employees_Shift";
-	};
+	}
 }

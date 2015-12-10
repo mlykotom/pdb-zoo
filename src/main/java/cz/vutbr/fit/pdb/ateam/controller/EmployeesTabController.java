@@ -92,7 +92,7 @@ public class EmployeesTabController extends Controller
 		table.setColumnsWidth();
 		List<EmployeeModel> models;
 
-		models = new ArrayList<EmployeeModel>();
+		models = new ArrayList<>();
 		try {
 			models = dataManager.getEmployeesAtDate(dateToDisplay);
 		} catch (DataManagerException e) {
@@ -276,7 +276,7 @@ public class EmployeesTabController extends Controller
 
 		List<EmployeeModel> models;
 
-		models = new ArrayList<EmployeeModel>();
+		models = new ArrayList<>();
 		try {
 			models = dataManager.getEmployeeHistory(selectedEmployeeModel.getId());
 		} catch (DataManagerException e) {

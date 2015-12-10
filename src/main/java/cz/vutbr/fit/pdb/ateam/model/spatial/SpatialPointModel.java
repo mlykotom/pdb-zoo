@@ -20,7 +20,7 @@ public class SpatialPointModel extends SpatialObjectModel {
 	@Override
 	public Shape createShape() {
 		double[] ordinates = geometry.getPoint();
-		return new Ellipse2D.Double(ordinates[0], ordinates[1], SPATIAL_POINT_SIZE, SPATIAL_POINT_SIZE);
+		return new Ellipse2D.Double(ordinates[0] - SPATIAL_POINT_SIZE / 2, ordinates[1] - SPATIAL_POINT_SIZE / 2, SPATIAL_POINT_SIZE, SPATIAL_POINT_SIZE);
 	}
 
 	/**

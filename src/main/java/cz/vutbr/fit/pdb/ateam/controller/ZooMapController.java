@@ -1,5 +1,6 @@
 package cz.vutbr.fit.pdb.ateam.controller;
 
+import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapPanel;
@@ -8,6 +9,7 @@ import cz.vutbr.fit.pdb.ateam.model.Coordinate;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialModelShape;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.observer.*;
+import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -28,26 +30,6 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	private SpatialObjectModel selectedObjectOnCanvas;
 	public SpatialObjectModel creatingModel;
 	public MouseHandler mouseHandler = new MouseHandler();
-
-	/**
-	 * Enum for canvas modes.
-	 * Canvas cursor is setup based on this mode
-	 */
-	public enum MouseMode {
-		CREATING(new Cursor(Cursor.CROSSHAIR_CURSOR)),
-		SELECTING(new Cursor(Cursor.HAND_CURSOR)),
-		MERGING(new Cursor(Cursor.HAND_CURSOR));
-
-		private Cursor cursor;
-
-		MouseMode(Cursor c) {
-			cursor = c;
-		}
-
-		public Cursor getCursor() {
-			return cursor;
-		}
-	}
 
 	/**
 	 * Constructor saves instance of the ZooMapForm as local
@@ -153,6 +135,25 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	};
 
 	/**
+	 * Enum for canvas modes.
+	 * Canvas cursor is setup based on this mode
+	 */
+	public enum MouseMode {
+		CREATING(new Cursor(Cursor.CROSSHAIR_CURSOR)),
+		SELECTING(new Cursor(Cursor.HAND_CURSOR));
+
+		private Cursor cursor;
+
+		MouseMode(Cursor c) {
+			cursor = c;
+		}
+
+		public Cursor getCursor() {
+			return cursor;
+		}
+	}
+
+	/**
 	 * Handler for mouse movement in canvas - handles moving objects
 	 */
 	public class MouseHandler extends MouseAdapter {
@@ -181,6 +182,10 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 						}
 
 						creatingModel = SpatialObjectModel.create(creatingModelShape, pressedCoordinates);
+						// if we had limited shape, we can finish creating
+						if (mouseClickCount == creatingModelShape.getTotalPointsCount()) {
+							finishCreatingAndSetSelectingModel();
+						}
 					} catch (ModelException e) {
 						e.printStackTrace();
 					}
@@ -237,7 +242,12 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 			selectedObject = null;
 		}
 
-		public void setMode(MouseMode mode) {
+		/**
+		 * Sets mode of canvas and sets cursor which will be used based on this mode
+		 *
+		 * @param mode based on {@link MouseMode}
+		 */
+		private void setMode(MouseMode mode) {
 			this.mode = mode;
 			canvas.setCursor(mode.getCursor());
 		}
@@ -253,6 +263,9 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 			this.setMode(MouseMode.CREATING);
 		}
 
+		/**
+		 * Finishes creating of model (adds to cached models) and set to selecting model
+		 */
 		public void finishCreatingAndSetSelectingModel() {
 			if (creatingModel != null) {
 				getSpatialObjects().add(creatingModel);
@@ -263,6 +276,9 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 			this.setMode(MouseMode.SELECTING);
 		}
 
+		/**
+		 * Sets properties so that can be perform new clean creating
+		 */
 		public void clearCreatingMode() {
 			pressedCoordinates.clear();
 			this.creatingModelShape = null;
@@ -286,9 +302,36 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	/**
 	 * Cancel any changes made to spatial objects by reloading all objects from DB
 	 */
-	public void cancelChangedSpatialObjectsAction() {
+	public void discardChangedSpatialObjectsAction() {
 		mouseHandler.clearCreatingMode();
 		reloadSpatialObjects();
+	}
+
+	/**
+	 * Calculates general info
+	 */
+	public void calculateGeneralInfoAciton() {
+		new AsyncTask() {
+			double wholePathLength = 0.0;
+
+			@Override
+			protected Boolean doInBackground(){
+				try {
+					wholePathLength = dataManager.getWholeLengthBySpatialTypeName("Path");
+				} catch (DataManagerException e) {
+					// TODO not having exception, but warning dialog
+					e.printStackTrace();
+				}
+				return true;
+			}
+
+			@Override
+			protected void onDone(boolean success) {
+				if (success) {
+					form.setCalculatedGeneralInfo(wholePathLength);
+				}
+			}
+		}.start();
 	}
 
 	// -----------------------
@@ -330,10 +373,17 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	 */
 	@Override
 	public void spatialObjectsCreatingListener(SpatialModelShape type, boolean isFinished) {
-		if(isFinished){
-			mouseHandler.finishCreatingAndSetSelectingModel();
+		// if canceled we set selecting mode back
+		if (type == null) {
+			mouseHandler.clearCreatingMode();
+			mouseHandler.setMode(MouseMode.SELECTING);
+			SpatialObjectsReloadObservable.getInstance().notifyObservers();
+			return;
 		}
-		else {
+
+		if (isFinished) {
+			mouseHandler.finishCreatingAndSetSelectingModel();
+		} else {
 			mouseHandler.setCreatingModel(type);
 		}
 	}

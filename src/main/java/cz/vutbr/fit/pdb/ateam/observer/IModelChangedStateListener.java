@@ -22,7 +22,7 @@ public interface IModelChangedStateListener {
 		public String getDebugName() {
 			return debugName;
 		}
-	};
+	}
 
 	/**
 	 * Listener for any model saved to DB.

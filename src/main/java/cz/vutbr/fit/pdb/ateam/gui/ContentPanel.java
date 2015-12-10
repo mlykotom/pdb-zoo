@@ -1,5 +1,8 @@
 package cz.vutbr.fit.pdb.ateam.gui;
 
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
+import com.intellij.uiDesigner.core.Spacer;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapPanel;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.AnimalsTab;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.EmployeesTab;
@@ -9,19 +12,19 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * cz.vutbr.fit.pdb.ateam.Main panel with GUI form containing left panel (MAP) and right panel (TABS - Detail)
- * Created by Tomas Mlynaric on 20.10.2015.
+ * Main panel with GUI form containing left panel (MAP) and right panel (TABS - Detail)
+ *
+ * @author Tomas Mlynaric
  */
 public class ContentPanel extends JPanel {
 	private JPanel rootPanel;
-	private JPanel detailWrapper;
-	private JPanel mapWrapper;
+	private JTabbedPane mapTabbedPane;
+	private JTabbedPane detailTabbedPane;
 
-	// TODO private + getters?
-	public ZooMapPanel mapPanelContent;
-	public SpatialObjectsTab spatialObjectsTab;
-	public AnimalsTab animalsTab;
-	public EmployeesTab employeesTab;
+	private ZooMapPanel mapPanelContent;
+	private SpatialObjectsTab spatialObjectsTab;
+	private AnimalsTab animalsTab;
+	private EmployeesTab employeesTab;
 
 	public ContentPanel() {
 		add(rootPanel);
@@ -33,27 +36,16 @@ public class ContentPanel extends JPanel {
 	 * (pointer to this is because it's possible they will have to communicate with each other)
 	 */
 	private void initUI() {
-		// map panel (left)
 		mapPanelContent = new ZooMapPanel(this);
-		mapWrapper.add(mapPanelContent);
-
-		final JTabbedPane detailTabsPane = new JTabbedPane();
-		// tab panels (right)
 		spatialObjectsTab = new SpatialObjectsTab(this);
 		animalsTab = new AnimalsTab(this);
-		employeesTab = new EmployeesTab(this, detailTabsPane);
-
-		detailTabsPane.addTab("Objects", spatialObjectsTab);
-		detailTabsPane.addTab("Animals", animalsTab);
-		detailTabsPane.addTab("Employees", employeesTab);
-		detailWrapper.add(detailTabsPane);
-
-//		detailTabsPane.addChangeListener(new ChangeListener() {
-//			@Override
-//			public void stateChanged(ChangeEvent e) {
-//				controller.tabChangeAction(detailTabsPane.getSelectedComponent());
-//			}
-//		});
+		employeesTab = new EmployeesTab(this, detailTabbedPane);
+		// map tabs
+		mapTabbedPane.addTab("ZOO map", mapPanelContent);
+		// detail tabs
+		detailTabbedPane.addTab("Objects", spatialObjectsTab);
+		detailTabbedPane.addTab("Animals", animalsTab);
+		detailTabbedPane.addTab("Employees", employeesTab);
 	}
 
 	public ZooMapPanel getMapPanelContent() {
@@ -76,13 +68,12 @@ public class ContentPanel extends JPanel {
 	 */
 	private void $$$setupUI$$$() {
 		rootPanel = new JPanel();
-		rootPanel.setLayout(new BorderLayout(0, 0));
-		mapWrapper = new JPanel();
-		mapWrapper.setLayout(new BorderLayout(0, 0));
-		rootPanel.add(mapWrapper, BorderLayout.WEST);
-		detailWrapper = new JPanel();
-		detailWrapper.setLayout(new BorderLayout(0, 0));
-		rootPanel.add(detailWrapper, BorderLayout.CENTER);
+		rootPanel.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+		mapTabbedPane = new JTabbedPane();
+		mapTabbedPane.setTabPlacement(1);
+		rootPanel.add(mapTabbedPane, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		detailTabbedPane = new JTabbedPane();
+		rootPanel.add(detailTabbedPane, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 	}
 
 	/**
