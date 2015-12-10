@@ -347,6 +347,36 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		}.start();
 	}
 
+	public void selectAllEntrancesAction() {
+		new AsyncTask() {
+			public final Long FENCE_ID = 258L; // TODO select object not id
+			private List<SpatialObjectModel> selectedObjects = new ArrayList<>();
+
+			@Override
+			protected Boolean doInBackground() {
+				SpatialObjectModel fence = BaseModel.findById(FENCE_ID, getSpatialObjects());
+
+				try {
+					List<Long> spatialIds = dataManager.getAllSpatialObjectsIdsWhichRelatesTo(fence);
+					for (Long id : spatialIds) {
+						SpatialObjectModel foundModel = BaseModel.findById(id, getSpatialObjects());
+						selectedObjects.add(foundModel);
+					}
+					return true;
+				} catch (DataManagerException e) {
+					e.printStackTrace();
+					// TODO
+					return false;
+				}
+			}
+
+			@Override
+			protected void onDone(boolean success) {
+				SpatialObjectMultiSelectionChangeObservable.getInstance().notifyObservers(selectedObjects);
+			}
+		}.start();
+	}
+
 	// -----------------------
 	// ------------- LISTENERS
 	// -----------------------
@@ -386,17 +416,13 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 	public void spatialObjectMultiSelectionChangedListener(List<SpatialObjectModel> objects) {
 		unselectAllObjects();
 
-		if(this.selectedObjectOnCanvas != null) selectedObjectOnCanvas.selectOnCanvas(true);
+		if (this.selectedObjectOnCanvas != null) selectedObjectOnCanvas.selectOnCanvas(true);
 
-		for(SpatialObjectModel obj : objects){
+		for (SpatialObjectModel obj : objects) {
 			obj.selectOnCanvas(true, SpatialObjectModel.SelectionType.MULTI);
 		}
 
 		canvas.repaint();
-	}
-
-	public void test() {
-		SpatialObjectMultiSelectionChangeObservable.getInstance().notifyObservers(getSpatialObjects());
 	}
 
 	/**

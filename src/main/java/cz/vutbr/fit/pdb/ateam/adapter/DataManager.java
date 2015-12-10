@@ -21,6 +21,7 @@ import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Class for communicating with the database.
@@ -762,6 +763,36 @@ public class DataManager {
 		}
 
 		return length;
+	}
+
+	/**
+	 * Get all ids of objects which are related to the specified object
+	 * @param spatialLeft object which is relating to
+	 * @return list of related objects ids
+	 * @throws DataManagerException
+	 */
+	public List<Long> getAllSpatialObjectsIdsWhichRelatesTo(SpatialObjectModel spatialLeft) throws DataManagerException {
+		List<Long> spatialIds = new ArrayList<>();
+
+		String sqlQuery = "" +
+				"SELECT R.Id, SDO_GEOM.RELATE(L.GEOMETRY, 'determine', R.GEOMETRY, 1) AS Rel " +
+				"FROM SPATIAL_OBJECTS L, SPATIAL_OBJECTS R " +
+				"WHERE L.ID = " + spatialLeft.getId() + " " +
+				"AND (SDO_GEOM.RELATE(L.GEOMETRY, 'determine', R.GEOMETRY, 1) = 'OVERLAPBDYDISJOINT' " +
+				"OR SDO_GEOM.RELATE(L.GEOMETRY, 'determine', R.GEOMETRY, 1) = 'CONTAINS')";
+
+		ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+		try {
+			while (resultSet.next()) {
+				Long spatialId = resultSet.getLong("Id");
+				spatialIds.add(spatialId);
+			}
+		} catch (SQLException ex) {
+			throw new DataManagerException("getAllSpatialObjectTypes: SQLException: " + ex.getMessage());
+		}
+
+		return spatialIds;
 	}
 
 	/**
