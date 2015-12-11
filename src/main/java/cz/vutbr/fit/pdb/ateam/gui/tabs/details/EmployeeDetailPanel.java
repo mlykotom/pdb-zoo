@@ -51,6 +51,10 @@ public class EmployeeDetailPanel extends BasePanel {
 		initUI();
 	}
 
+	/**
+	 * Set add Employee Shift History table to table panel on EmployeeDetail Panel
+	 * @param table
+	 */
 	public void setEmployeeDetailTable(JTable table) {
 		employeeDetailTable = table;
 		tablePanel.removeAll();
@@ -107,7 +111,11 @@ public class EmployeeDetailPanel extends BasePanel {
 		}
 		hideHistoryShiftPane();
 
-		for (SpatialObjectModel spatialObject : spatialObjects) locationComboBox.addItem(spatialObject);
+		for (SpatialObjectModel spatialObject : spatialObjects) {
+			locationComboBox.addItem(spatialObject);
+			if (spatialObject.getId() == employee.getLocation()) locationComboBox.setSelectedItem(spatialObject);
+		}
+
 	}
 
 	/**

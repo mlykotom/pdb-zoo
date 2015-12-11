@@ -348,26 +348,28 @@ public class DataManager {
 
 	private void saveEmployeeTemporalData(EmployeeModel employee, boolean isNewEmployee) throws SQLException {
 		String sqlPrepTemp = null;
-		if (isNewEmployee)
-			sqlPrepTemp = "INSERT INTO Employees_Shift (EmplID, Location, dFrom, dTo) VALUES(?, ?, ?, ?)";
-		else {
-			//TODO implement
-		}
-
-		java.sql.Date dateFrom = new java.sql.Date(employee.getDateFrom().getTime());
-		java.sql.Date dateTo = new java.sql.Date(employee.getDateTo().getTime());
-
-		PreparedStatement preparedTemporalStatement = connection.prepareStatement(sqlPrepTemp);
-		preparedTemporalStatement.setLong(1, employee.getId());
-		preparedTemporalStatement.setLong(2, employee.getLocation());
-		preparedTemporalStatement.setDate(3, dateFrom);
-		preparedTemporalStatement.setDate(4, dateTo);
-
-		Logger.createLog(Logger.DEBUG_LOG, "Sending query: " + sqlPrepTemp + " | name = '" + employee.getName() + "', surname = '" + employee.getSurname() + "', id = '" + employee.getId() + "'");
-		if (isNewEmployee) {
-			this.executeTemporalInsertAndSetId(preparedTemporalStatement, employee);
-		} else {
-		}
+		updateEmployeeShifts(employee.getId(), employee.getDateFrom(), employee.getDateTo(), employee.getLocation());
+//		if (isNewEmployee)
+//		sqlPrepTemp = "INSERT INTO Employees_Shift (EmplID, Location, dFrom, dTo) VALUES(?, ?, ?, ?)";
+//		else {
+//			//TODO implement
+//		}
+//
+//
+//		java.sql.Date dateFrom = new java.sql.Date(employee.getDateFrom().getTime());
+//		java.sql.Date dateTo = new java.sql.Date(employee.getDateTo().getTime());
+//
+//		PreparedStatement preparedTemporalStatement = connection.prepareStatement(sqlPrepTemp);
+//		preparedTemporalStatement.setLong(1, employee.getId());
+//		preparedTemporalStatement.setLong(2, employee.getLocation());
+//		preparedTemporalStatement.setDate(3, dateFrom);
+//		preparedTemporalStatement.setDate(4, dateTo);
+//
+//		Logger.createLog(Logger.DEBUG_LOG, "Sending query: " + sqlPrepTemp + " | name = '" + employee.getName() + "', surname = '" + employee.getSurname() + "', id = '" + employee.getId() + "'");
+//		if (isNewEmployee) {
+//			this.executeTemporalInsertAndSetId(preparedTemporalStatement, employee);
+//		} else {
+//		}
 	}
 
 

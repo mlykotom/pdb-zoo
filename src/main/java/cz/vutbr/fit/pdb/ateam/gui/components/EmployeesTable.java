@@ -87,7 +87,7 @@ public class EmployeesTable extends JTable {
 
 
 		public EmployeeModel getEmployeeModel(int rowIndex) {
-			return objectsList.get(rowIndex);
+			return objectsList.get(getRowSorter().convertRowIndexToModel(rowIndex));
 		}
 
 		@Override
