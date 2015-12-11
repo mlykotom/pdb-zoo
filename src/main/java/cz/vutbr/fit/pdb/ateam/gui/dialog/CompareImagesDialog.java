@@ -9,7 +9,8 @@ import cz.vutbr.fit.pdb.ateam.utils.Utils;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class CompareImagesDialog extends JDialog {
 	private static final int WINDOW_WIDTH = 600;

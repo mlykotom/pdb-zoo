@@ -1,6 +1,6 @@
 package cz.vutbr.fit.pdb.ateam.model;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Generic model containing data which should be in any model in system
@@ -110,7 +110,7 @@ abstract public class BaseModel {
 	 * @param <T> any model inheriting from BaseModel
 	 * @return null if not found, otherwise found model
 	 */
-	public static <T extends BaseModel> T findById(Long Id, List<T> hayStack){
+	public static <T extends BaseModel> T findById(Long Id, Collection<T> hayStack){
 		if(Id == null) return null;
 
 		for (T obj: hayStack) {

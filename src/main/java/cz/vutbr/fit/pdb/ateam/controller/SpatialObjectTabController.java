@@ -77,6 +77,7 @@ public class SpatialObjectTabController extends Controller
 	private void changePanelContentIntoDetail(SpatialObjectModel spatialObjectModel) {
 		Utils.changePanelContent(spatialObjectsTab, spatialObjectDetail);
 		spatialObjectDetail.setEnableControlComponents(!spatialObjectModel.isNew());
+		spatialObjectDetail.setzIndexSpinnerValue(spatialObjectModel.getzIndex());
 		spatialObjectDetail.setCalculatedInfo(null, null);
 		spatialObjectDetail.setCalculatedDistanceTo(null);
 		spatialObjectDetail.setTypeComboBoxModel(getSpatialObjectTypes());
@@ -165,6 +166,7 @@ public class SpatialObjectTabController extends Controller
 	 */
 	public void detailSaveButtonAction() {
 		if (selectedObject == null) return;
+		selectedObject.setzIndex(spatialObjectDetail.getZIndexSpinnerValue());
 		selectedObject.setName(spatialObjectDetail.getNameTextFieldValue());
 		selectedObject.setSpatialObjectType(spatialObjectDetail.getTypeComboBoxVallue());
 		selectedObject.setIsChanged(true);

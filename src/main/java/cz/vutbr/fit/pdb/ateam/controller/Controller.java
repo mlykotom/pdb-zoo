@@ -14,6 +14,7 @@ import cz.vutbr.fit.pdb.ateam.utils.Logger;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -58,7 +59,7 @@ public class Controller {
 	 *
 	 * @param models list of models to saveModel
 	 */
-	public void saveModels(final List<? extends BaseModel> models) {
+	public void saveModels(final Collection<? extends BaseModel> models) {
 
 		new AsyncTask() {
 			// models which were changed, these will be notified to listeners
@@ -67,26 +68,28 @@ public class Controller {
 
 			@Override
 			protected void onDone(boolean success) {
-				if(!success) {
+				ModelChangedStateObservable changedStateObservable = ModelChangedStateObservable.getInstance();
+				if (!success) {
 					showDialog(INFO_MESSAGE, "No data has changed!");
-				} else {
-					for (BaseModel model : deletedModels) {
-						ModelChangedStateObservable.getInstance().notifyObservers(model, IModelChangedStateListener.ModelState.DELETED);
-					}
-
-					for (BaseModel model : savedModels) {
-						ModelChangedStateObservable.getInstance().notifyObservers(model, IModelChangedStateListener.ModelState.SAVED);
-					}
-
-					showDialog(INFO_MESSAGE, "Data saved!");
+					return;
 				}
+
+				for (BaseModel model : deletedModels) {
+					changedStateObservable.notifyObservers(model, IModelChangedStateListener.ModelState.DELETED);
+				}
+
+				for (BaseModel model : savedModels) {
+					changedStateObservable.notifyObservers(model, IModelChangedStateListener.ModelState.SAVED);
+				}
+
+				Collections.sort(getSpatialObjects());
 			}
 
 			@Override
-			protected Boolean doInBackground(){
+			protected Boolean doInBackground() {
 				for (BaseModel model : models) {
 					try {
-						if(model.isDeleted()){
+						if (model.isDeleted()) {
 							dataManager.deleteModel(model);
 							deletedModels.add(model); // error could only happen when exception
 							continue;
@@ -124,7 +127,7 @@ public class Controller {
 		AsyncTask task = new AsyncTask() {
 			@Override
 			protected void onDone(boolean success) {
-				if(success) {
+				if (success) {
 					SpatialObjectsReloadObservable.getInstance().notifyObservers();
 				} else {
 					showDialog(ERROR_MESSAGE, "Can not reload data!");
@@ -153,7 +156,7 @@ public class Controller {
 	 *
 	 * @return cached spatial objects data from dataManager
 	 */
-	public ArrayList<SpatialObjectModel> getSpatialObjects() {
+	public List<SpatialObjectModel> getSpatialObjects() {
 		return dataManager.getSpatialObjects();
 	}
 
@@ -162,7 +165,7 @@ public class Controller {
 	 *
 	 * @return cached spatial objects data from dataManager
 	 */
-	public ArrayList<SpatialObjectTypeModel> getSpatialObjectTypes() {
+	public List<SpatialObjectTypeModel> getSpatialObjectTypes() {
 		return dataManager.getSpatialObjectTypes();
 	}
 
@@ -198,14 +201,14 @@ public class Controller {
 	 *
 	 * @return cached employees data from dataManager
 	 */
-	public ArrayList<EmployeeModel> getEmployees() {
+	public List<EmployeeModel> getEmployees() {
 		return dataManager.getEmployees();
 	}
 
 	/**
 	 * Displays dialog with given message in the middle of the given JPanel, based on type.
 	 *
-	 * @param type type of the dialog (INFO, WARNING, ERROR)
+	 * @param type    type of the dialog (INFO, WARNING, ERROR)
 	 * @param message message with description of the error
 	 */
 	protected void showDialog(int type, String message) {

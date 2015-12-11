@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -31,6 +32,8 @@ import java.util.List;
  * and static method getInstance() should be called
  * instead of the constructor.
  *
+ * @author Tomas Hanus
+ * @author Tomas Mlynaric
  * @author Jakub Tutko
  */
 public class DataManager {
@@ -38,9 +41,9 @@ public class DataManager {
 
 	private Connection connection;
 
-	private ArrayList<SpatialObjectModel> spatialObjects;
-	private ArrayList<SpatialObjectTypeModel> spatialObjectTypes;
-	private ArrayList<EmployeeModel> employees;
+	private List<SpatialObjectModel> spatialObjects;
+	private List<SpatialObjectTypeModel> spatialObjectTypes;
+	private List<EmployeeModel> employees;
 
 
 	public static final int SQL_FUNCTION_WITHIN_DISTANCE = 1;
@@ -89,6 +92,7 @@ public class DataManager {
 	public void disconnectDatabase() {
 		this.spatialObjectTypes = null;
 		this.spatialObjects = null;
+		// TODO should null other cached objects
 
 		if (connection != null) {
 			try {
@@ -292,7 +296,6 @@ public class DataManager {
 		}
 
 		if (!model.isChanged()) {
-			System.out.println("AKCEEEEEEEEEEEEEEEEEEEEEEEEE");
 			return false;
 		}
 
@@ -556,28 +559,28 @@ public class DataManager {
 		}
 
 		try {
-			String sqlPrep = null;
-			sqlPrep = spatialObject.isNew() ?
-					"INSERT INTO Spatial_Objects (Name, Type, Geometry) VALUES(?, ?, ?)" :
-					"UPDATE Spatial_Objects SET Name = ?, Type = ?, Geometry = ? WHERE ID = ?";
+			String sqlPrep = spatialObject.isNew() ?
+					"INSERT INTO Spatial_Objects (Name, Type, Geometry, ZIndex) VALUES(?, ?, ?, ?)" :
+					"UPDATE Spatial_Objects SET Name = ?, Type = ?, Geometry = ?, ZIndex = ? WHERE ID = ?";
 
 			PreparedStatement preparedStatement = connection.prepareStatement(sqlPrep);
+
 			preparedStatement.setString(1, spatialObject.getName());
 			Long id = spatialObject.getType().getId();
 			if (id == BaseModel.NULL_ID) {
 				preparedStatement.setNull(2, Types.INTEGER);
 			} else {
-				preparedStatement.setLong(2, spatialObject.getType().getId());
+				preparedStatement.setLong(2, id);
 			}
 
-
 			preparedStatement.setObject(3, JGeometry.store(connection, spatialObject.getGeometry()));
+			preparedStatement.setInt(4, spatialObject.getzIndex());
 
 			Logger.createLog(Logger.DEBUG_LOG, "Sending query: " + sqlPrep + " | name = '" + spatialObject.getName() + "', type = '" + spatialObject.getType().getId() + "', id = '" + spatialObject.getId() + "'");
 			if (spatialObject.isNew()) {
 				this.executeInsertAndSetId(preparedStatement, spatialObject);
 			} else {
-				preparedStatement.setLong(4, spatialObject.getId());
+				preparedStatement.setLong(5, spatialObject.getId());
 				preparedStatement.executeUpdate();
 			}
 
@@ -597,8 +600,8 @@ public class DataManager {
 	 * @throws DataManagerException when exception from createDatabaseQuery() is received or
 	 *                              when SQLException is caught
 	 */
-	public ArrayList<SpatialObjectModel> reloadAllSpatialObjects() throws DataManagerException {
-		ArrayList<SpatialObjectModel> spatialObjects = new ArrayList<>();
+	public List<SpatialObjectModel> reloadAllSpatialObjects() throws DataManagerException {
+		List<SpatialObjectModel> spatialObjects = new ArrayList<>();
 
 		String sqlQuery = "SELECT * FROM Spatial_Objects";
 		ResultSet resultSet = createDatabaseQuery(sqlQuery);
@@ -609,14 +612,17 @@ public class DataManager {
 					Long id = resultSet.getLong("ID");
 					Long typeID = resultSet.getLong("Type");
 					String name = resultSet.getString("Name");
+					int zIndex = resultSet.getInt("ZIndex");
 					SpatialObjectTypeModel spatialType = getSpatialObjectType(typeID);
 
 					byte[] rawGeometry = resultSet.getBytes("Geometry");
-					spatialObjects.add(SpatialObjectModel.loadFromDB(id, name, spatialType, rawGeometry));
+					spatialObjects.add(SpatialObjectModel.loadFromDB(id, zIndex, name, spatialType, rawGeometry));
 				} catch (ModelException mE) {
 					Logger.createLog(Logger.ERROR_LOG, mE.getMessage());
 				}
 			}
+			// sorts collection by zIndex
+			Collections.sort(spatialObjects);
 		} catch (SQLException ex) {
 			throw new DataManagerException("reloadAllSpatialObjects: SQLException: " + ex.getMessage());
 		} catch (DataManagerException ex) {
@@ -636,7 +642,7 @@ public class DataManager {
 	 *
 	 * @return list of SpatialObjects
 	 */
-	public ArrayList<SpatialObjectModel> getSpatialObjects() {
+	public List<SpatialObjectModel> getSpatialObjects() {
 		return this.spatialObjects;
 	}
 
@@ -806,7 +812,7 @@ public class DataManager {
 	 *
 	 * @return list of SpatialObjectTypes
 	 */
-	public ArrayList<SpatialObjectTypeModel> getSpatialObjectTypes() {
+	public List<SpatialObjectTypeModel> getSpatialObjectTypes() {
 		return spatialObjectTypes;
 	}
 
@@ -816,7 +822,7 @@ public class DataManager {
 
 	// TODO should be used DataManager.findById()
 	public SpatialObjectModel getSpatialObjectModelWithID(long id) {
-		for (SpatialObjectModel model : this.spatialObjects) {
+		for (SpatialObjectModel model : getSpatialObjects()) {
 			if (model.getId() == id)
 				return model;
 		}
@@ -858,7 +864,7 @@ public class DataManager {
 	 *
 	 * @return list of Employees
 	 */
-	public ArrayList<EmployeeModel> getEmployees() {
+	public List<EmployeeModel> getEmployees() {
 		return employees;
 	}
 

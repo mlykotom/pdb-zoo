@@ -18,12 +18,13 @@ import java.util.ArrayList;
  *
  * @author Tomas Mlynaric
  */
-abstract public class SpatialObjectModel extends BaseModel {
+abstract public class SpatialObjectModel extends BaseModel implements Comparable<SpatialObjectModel> {
 	private static final Paint DEFAULT_BORDER_COLOR = Color.BLACK;
 	private static final BasicStroke DEFAULT_STROKE = new BasicStroke(1);
 	protected static final int INTERSECT_BOX_SIZE = 10;
 	public static final int NO_SRID = 0;
 
+	protected int zIndex;
 	protected JGeometry geometry;
 	protected Shape shape;
 	protected SpatialObjectTypeModel spatialObjectType;
@@ -84,13 +85,14 @@ abstract public class SpatialObjectModel extends BaseModel {
 	 * Creates specific SpatialObject based on data from DB (raw JGeometry data)
 	 *
 	 * @param id          specific id
+	 * @param zIndex      specifies which object should be above other
 	 * @param name        name of spatial object
 	 * @param spatialType reference to {@link SpatialObjectTypeModel}
 	 * @param rawGeometry data from DB query result
 	 * @return new model with ID! (if saved, updates in DB)
 	 * @throws ModelException
 	 */
-	public static SpatialObjectModel loadFromDB(Long id, String name, SpatialObjectTypeModel spatialType, byte[] rawGeometry) throws ModelException {
+	public static SpatialObjectModel loadFromDB(Long id, int zIndex, String name, SpatialObjectTypeModel spatialType, byte[] rawGeometry) throws ModelException {
 		JGeometry geometry;
 		try {
 			geometry = JGeometry.load(rawGeometry);
@@ -98,8 +100,8 @@ abstract public class SpatialObjectModel extends BaseModel {
 			throw new ModelException("loadFromDB: JGeometry data problem");
 		}
 		SpatialObjectModel model = createFromJGeometry(name, spatialType, geometry);
-		// id is set here so that we can create model without Id (new model)
-		model.id = id;
+		model.zIndex = zIndex;
+		model.id = id; 		// id is set here so that we can create model without Id (new model)
 		return model;
 	}
 
@@ -511,5 +513,27 @@ abstract public class SpatialObjectModel extends BaseModel {
 	@Override
 	public String toString() {
 		return "#" + id + " " + getType().getName() + ": " + name;
+	}
+
+	public int getzIndex() {
+		return zIndex;
+	}
+
+	public void setzIndex(int zIndex) {
+		this.zIndex = zIndex;
+	}
+
+	@Override
+	public int compareTo(SpatialObjectModel o) {
+		if (zIndex > o.getzIndex())
+			return 1;
+		else if (zIndex < o.getzIndex())
+			return -1;
+		else if (zIndex == o.getzIndex() && getId() > o.getId())
+			return 1;
+		else if (zIndex == o.getzIndex() && getId() < o.getId())
+			return -1;
+
+		return 0;
 	}
 }
