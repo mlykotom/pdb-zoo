@@ -1,5 +1,6 @@
 package cz.vutbr.fit.pdb.ateam.controller;
 
+import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
 import cz.vutbr.fit.pdb.ateam.exception.ControllerException;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.gui.components.EmployeeDetailTable;
@@ -254,7 +255,7 @@ public class EmployeesTabController extends Controller
 	 * Shows date picker to choose the date of records you want to display in EmployeesListPanel table
 	 */
 	public void showHistorySwitchAction() {
-		employeesListPanel.switchToPast(Utils.removeTime(Calendar.getInstance().getTime()));
+		employeesListPanel.switchToPast();
 //		dateToDisplay = Utils.removeTime(Calendar.getInstance().getTime());
 	}
 
@@ -309,11 +310,22 @@ public class EmployeesTabController extends Controller
 	}
 
 	public void editShiftAction() {
-		this.employeeShiftEditPanel = new EmployeeShiftEditPanel(employeesTab);
+		ArrayList<SpatialObjectModel> locations = getSpatialObjects();
+		this.employeeShiftEditPanel = new EmployeeShiftEditPanel(employeesTab, locations);
 		Utils.changePanelContent(this.employeesTab, this.employeeShiftEditPanel);
 	}
 
 	public void discardEditEmployeeShiftAction() {
 		Utils.changePanelContent(this.employeesTab, this.employeeDetailPanel);
+	}
+
+	public void confirmUpdateDeleteAction(boolean isHistoryUpdate) {
+		if (isHistoryUpdate){
+			DataManager.getInstance().updateEmployeeShifts(selectedEmployeeModel.getId(), employeeShiftEditPanel.getDateFrom(), employeeShiftEditPanel.getDateTo(), employeeShiftEditPanel.getSelectedLocation());
+		}else { // if it's not edit action, it's DELETE action
+			DataManager.getInstance().deleteEmployeeShifts(selectedEmployeeModel.getId(), employeeShiftEditPanel.getDateFrom(), employeeShiftEditPanel.getDateTo());
+		}
+		editEmployeeDetail(selectedEmployeeModel, EmployeeDetailPanel.EDIT_EMPLOYEE);
+		this.employeeDetailPanel.showHistoryShiftPane();
 	}
 }

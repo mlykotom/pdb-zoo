@@ -859,6 +859,11 @@ public class DataManager {
 		return employees;
 	}
 
+
+	// -----------------------------------------
+	// ------------- METHODS FOR EMPLOYEES -----
+	// -----------------------------------------
+
 	/**
 	 * Is used to get cached data from Employees Table.
 	 *
@@ -903,7 +908,6 @@ public class DataManager {
 //				psSelectRecord = connection.prepareStatement(sqlQuery);
 //				ResultSet resultSet = psSelectRecord.executeQuery();
 
-				System.out.println("dasdasadadasdasdasdasdafasd");
 				try {
 					while (resultSet.next()) {
 						Long id = resultSet.getLong("EmployeeID");
@@ -922,6 +926,63 @@ public class DataManager {
 		};
 		asyncTask.start();
 		return employees;
+	}
+
+	public boolean updateEmployeeShifts(final Long employeeID, final Date arDateFrom, final Date arDateTo, final Long location) {
+		AsyncTask asyncTask = new AsyncTask() {
+			@Override
+			protected void onDone(boolean success) {
+				//
+			}
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				java.sql.Date dateFrom = new java.sql.Date(arDateFrom.getTime());
+				java.sql.Date dateTo = new java.sql.Date(arDateTo.getTime());
+
+				CallableStatement cstmt = connection.prepareCall ("BEGIN updateEmployeeTable(?, ?, ?, ?); END;");
+
+				cstmt.setLong(1, employeeID);
+				cstmt.setDate(2, dateFrom);
+				cstmt.setDate(3, dateTo);
+				cstmt.setLong(4, location);
+
+				cstmt.execute();
+
+				return true;
+			}
+		};
+		asyncTask.start();
+		return true;
+	}
+
+
+	public boolean deleteEmployeeShifts(final Long employeeID, final Date arDateFrom, final Date arDateTo){
+
+		AsyncTask asyncTask = new AsyncTask() {
+			@Override
+			protected void onDone(boolean success) {
+				//
+			}
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				java.sql.Date dateFrom = new java.sql.Date(arDateFrom.getTime());
+				java.sql.Date dateTo = new java.sql.Date(arDateTo.getTime());
+
+				CallableStatement cstmt = connection.prepareCall ("BEGIN deleteEmployeeShiftTable(?, ?, ?); END;");
+
+				cstmt.setLong(1, employeeID);
+				cstmt.setDate(2, dateFrom);
+				cstmt.setDate(3, dateTo);
+
+				cstmt.execute();
+
+				return true;
+			}
+		};
+		asyncTask.start();
+		return true;
 	}
 
 	public ArrayList<EmployeeModel> getEmployeeHistory(final long employeeID) throws DataManagerException {

@@ -43,7 +43,6 @@ public class EmployeeDetailPanel extends BasePanel {
 	private JPanel historyPane;
 	private EmployeesTab tab;
 	private int employeeDetailPanelMode;
-	private Long locationComboBoxValue;
 
 	public EmployeeDetailPanel(EmployeesTab panel) {
 		this.tab = panel;
@@ -62,7 +61,6 @@ public class EmployeeDetailPanel extends BasePanel {
 
 	private void initUI() {
 		this.idField.setEnabled(false);
-//		hideEmployeeDetailTable();
 		discardButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -112,11 +110,19 @@ public class EmployeeDetailPanel extends BasePanel {
 		for (SpatialObjectModel spatialObject : spatialObjects) locationComboBox.addItem(spatialObject);
 	}
 
+	/**
+	 * This method hides Shift History Pane.
+	 */
 	public void hideHistoryShiftPane() {
 		historyPane.setVisible(false);
 	}
 
+	/**
+	 * Method shows History Shift Pane. If 'ShowHistory' checkbox isn't selected it is selected by this method.
+	 */
 	public void showHistoryShiftPane() {
+		if (!showHistoryCheckBox.isSelected()) showHistoryCheckBox.setSelected(true);
+
 		historyPane.setVisible(true);
 	}
 

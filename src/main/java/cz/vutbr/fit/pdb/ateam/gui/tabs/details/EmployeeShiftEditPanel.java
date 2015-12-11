@@ -7,6 +7,7 @@ import cz.vutbr.fit.pdb.ateam.controller.Controller;
 import cz.vutbr.fit.pdb.ateam.controller.EmployeesTabController;
 import cz.vutbr.fit.pdb.ateam.gui.BasePanel;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.EmployeesTab;
+import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.utils.DateLabelFormatter;
 import net.sourceforge.jdatepicker.impl.JDatePanelImpl;
 import net.sourceforge.jdatepicker.impl.JDatePickerImpl;
@@ -16,7 +17,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Calendar;
+
+import java.util.Date;
+import java.util.Properties;
 
 /**
  * Created by Tomas on 12/6/2015.
@@ -25,6 +30,7 @@ public class EmployeeShiftEditPanel extends BasePanel {
 
 	private final EmployeesTabController controller;
 	private EmployeesTab tab;
+	private ArrayList<SpatialObjectModel> locations;
 	private JPanel rootPanel;
 	private JRadioButton editRadioButton;
 	private JRadioButton deleteRadioButton;
@@ -38,14 +44,18 @@ public class EmployeeShiftEditPanel extends BasePanel {
 	private JLabel nameLabel;
 	private JPanel employeeTitlePane;
 	private JLabel surnameLabel;
+	private Date dateFrom;
 
-	public EmployeeShiftEditPanel(EmployeesTab employeesTab) {
+	public EmployeeShiftEditPanel(EmployeesTab employeesTab, ArrayList<SpatialObjectModel> locations) {
 		this.tab = employeesTab;
+		this.locations = locations;
 		this.controller = (EmployeesTabController) employeesTab.getController();
 		add(rootPanel);
 
 		initUI();
 	}
+
+
 
 	private void initUI() {
 		this.nameLabel.setText(controller.getSelectedEmployeeModel().getName());
@@ -66,6 +76,14 @@ public class EmployeeShiftEditPanel extends BasePanel {
 		this.shiftToDatePickerPanel.removeAll();
 		this.shiftToDatePickerPanel.add(shiftToDatePicker);
 
+		for (SpatialObjectModel location : locations) shiftLocationComboBox.addItem(location);
+
+		this.confirmButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				controller.confirmUpdateDeleteAction(editRadioButton.isSelected());
+			}
+		});
 		this.discardButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -182,5 +200,17 @@ public class EmployeeShiftEditPanel extends BasePanel {
 	 */
 	public JComponent $$$getRootComponent$$$() {
 		return rootPanel;
+	}
+
+	public Date getDateFrom() {
+		return (Date)this.shiftFromDatePicker.getModel().getValue();
+	}
+
+	public Date getDateTo() {
+		return (Date)this.shiftToDatePicker.getModel().getValue();
+	}
+
+	public Long getSelectedLocation() {
+		return ((SpatialObjectModel)this.shiftLocationComboBox.getSelectedItem()).getId();
 	}
 }
