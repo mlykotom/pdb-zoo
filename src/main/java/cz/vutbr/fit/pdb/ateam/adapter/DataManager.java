@@ -42,6 +42,10 @@ public class DataManager {
 	private ArrayList<SpatialObjectTypeModel> spatialObjectTypes;
 	private ArrayList<EmployeeModel> employees;
 
+
+	public static final int SQL_FUNCTION_WITHIN_DISTANCE = 1;
+	public static final int SQL_FUNCTION_SDO_RELATE = 2;
+
 	/**
 	 * Method returns instance of the DataManager object, which was
 	 * instantiated at the application start. This way singleton pattern
@@ -688,40 +692,36 @@ public class DataManager {
 	/**
 	 * Calculates area of spatial object
 	 *
-	 * @param model
-	 * @return
+	 * @param spatialLeft informations will be calculated for this object
+	 * @return array with area, length data
 	 * @throws DataManagerException
 	 */
-	public double[] getSpatialObjectAnalyticFunction(SpatialObjectModel model) throws DataManagerException {
-		double area = 0.0, length = 0.0;
-
-		String sqlQuery = "SELECT SDO_GEOM.SDO_AREA(geometry, 1) AS Area, SDO_GEOM.SDO_LENGTH(geometry, 1) AS Length FROM SPATIAL_OBJECTS WHERE ID='" + model.getId() + "'";
+	public double[] getSpatialObjectAnalyticFunction(SpatialObjectModel spatialLeft) throws DataManagerException {
+		String sqlQuery = "SELECT SDO_GEOM.SDO_AREA(geometry, 1) AS Area, SDO_GEOM.SDO_LENGTH(geometry, 1) AS Length FROM SPATIAL_OBJECTS WHERE ID='" + spatialLeft.getId() + "'";
 		ResultSet resultSet = createDatabaseQuery(sqlQuery);
 
 		try {
-			// TODO somehow not having while, but only for one line
-			while (resultSet.next()) {
-				area = resultSet.getDouble("Area");
-				length = resultSet.getDouble("Length");
+			if (!resultSet.next()) {
+				throw new DataManagerException("Analytic informations about object with id=[" + spatialLeft.getId() + "] not found!");
 			}
+			double area = resultSet.getDouble("Area");
+			double length = resultSet.getDouble("Length");
+			return new double[]{area, length};
 		} catch (SQLException ex) {
 			throw new DataManagerException("getAllSpatialObjectTypes: SQLException: " + ex.getMessage());
 		}
 
-		return new double[]{area, length};
 	}
 
 	/**
 	 * Counts minimal distance between two spatialObjectModels
 	 *
-	 * @param spatialLeft
-	 * @param spatialRight
+	 * @param spatialLeft  first object (counting from)
+	 * @param spatialRight object counting to
 	 * @return distance
 	 * @throws DataManagerException
 	 */
 	public double getDistanceToOtherSpatialObject(SpatialObjectModel spatialLeft, SpatialObjectModel spatialRight) throws DataManagerException {
-		double distance;
-
 		String sqlQuery = "SELECT SDO_GEOM.SDO_DISTANCE(L.Geometry, R.Geometry, 1) AS Distance FROM SPATIAL_OBJECTS L, SPATIAL_OBJECTS R WHERE L.ID = '" + spatialLeft.getId() + "' AND R.ID = '" + spatialRight.getId() + "'";
 		ResultSet resultSet = createDatabaseQuery(sqlQuery);
 
@@ -729,12 +729,10 @@ public class DataManager {
 			if (!resultSet.next()) {
 				throw new DataManagerException("Distance with id=[" + spatialLeft.getId() + "] not found!");
 			}
-			distance = resultSet.getDouble("Distance");
+			return resultSet.getDouble("Distance");
 		} catch (SQLException ex) {
 			throw new DataManagerException("getAllSpatialObjectTypes: SQLException: " + ex.getMessage());
 		}
-
-		return distance;
 	}
 
 	/**
@@ -745,8 +743,6 @@ public class DataManager {
 	 * @throws DataManagerException
 	 */
 	public double getWholeLengthBySpatialTypeName(String typeName) throws DataManagerException {
-		double length;
-
 		String sqlQuery = "" +
 				"SELECT SUM(SDO_GEOM.SDO_LENGTH(geometry, 1)) WholePathLength " +
 				"FROM SPATIAL_OBJECTS JOIN SPATIAL_OBJECT_TYPES ON SPATIAL_OBJECTS.TYPE = SPATIAL_OBJECT_TYPES.ID " +
@@ -758,68 +754,51 @@ public class DataManager {
 			if (!resultSet.next()) {
 				throw new DataManagerException("Problem with loading whole path length not loaded!");
 			}
-			length = resultSet.getDouble("WholePathLength");
+			return resultSet.getDouble("WholePathLength");
 		} catch (SQLException ex) {
 			throw new DataManagerException("getAllSpatialObjectTypes: SQLException: " + ex.getMessage());
 		}
-
-		return length;
 	}
 
 	/**
-	 * Get all ids of objects which are related to the specified object
+	 * Get all spatial objects based on sql function type.
 	 *
-	 * @param spatialLeft object which is relating to
-	 * @return list of related objects
+	 * @param functionType {@link #SQL_FUNCTION_WITHIN_DISTANCE}, {@link #SQL_FUNCTION_SDO_RELATE}
+	 * @param spatialLeft  model which is function determining from
+	 * @param additional   parameter
+	 * @return list of spatial objects which are affected by function
 	 * @throws DataManagerException
 	 */
-	public List<SpatialObjectModel> getAllSpatialObjectsIdsWhichRelatesTo(SpatialObjectModel spatialLeft) throws DataManagerException {
-		List<SpatialObjectModel> resultModels = new ArrayList<>();
+	public List<SpatialObjectModel> getAllSpatialObjectsFromFunction(int functionType, SpatialObjectModel spatialLeft, Integer additional) throws DataManagerException {
+		String sqlQuery = "SELECT R.ID FROM SPATIAL_OBJECTS L, SPATIAL_OBJECTS R WHERE L.ID = " + spatialLeft.getId() + " AND ";
+		switch (functionType) {
+			case SQL_FUNCTION_WITHIN_DISTANCE:
+				sqlQuery += "SDO_WITHIN_DISTANCE(L.Geometry, R.GEOMETRY, 'distance=" + additional + "') = 'TRUE'";
+				break;
 
-		String sqlQuery = "" +
-				"SELECT R.ID " +
-				"FROM SPATIAL_OBJECTS L, SPATIAL_OBJECTS R " +
-				"WHERE L.ID = " + spatialLeft.getId() + " AND L.ID != R.ID " +
-				"AND SDO_RELATE(L.GEOMETRY, R.GEOMETRY, 'mask=ANYINTERACT') = 'TRUE'";
+			case SQL_FUNCTION_SDO_RELATE:
+				sqlQuery += "L.ID != R.ID AND SDO_RELATE(L.GEOMETRY, R.GEOMETRY, 'mask=ANYINTERACT') = 'TRUE'";
+				break;
+
+			default:
+				throw new DataManagerException("getAllSpatialObjectsFromFunction(): NO EXISTING FUNCTION TYPE");
+		}
 
 		ResultSet resultSet = createDatabaseQuery(sqlQuery);
-
 		try {
+			List<SpatialObjectModel> resultModels = new ArrayList<>();
+			// iterating all found rows
 			while (resultSet.next()) {
 				Long spatialId = resultSet.getLong("Id");
 				SpatialObjectModel foundModel = BaseModel.findById(spatialId, getSpatialObjects());
-				if(foundModel == null) continue;
+				if (foundModel == null) continue;
 				resultModels.add(foundModel);
 			}
+
+			return resultModels;
 		} catch (SQLException ex) {
-			throw new DataManagerException("getAllSpatialObjectTypes: SQLException: " + ex.getMessage());
+			throw new DataManagerException("getAllSpatialObjectsFromFunction: SQLException: " + ex.getMessage());
 		}
-
-		return resultModels;
-	}
-
-	public List<SpatialObjectModel> getAllSpatialObjectsWithinDistance(SpatialObjectModel spatialLeft, int distance) throws DataManagerException {
-		List<SpatialObjectModel> resultModels = new ArrayList<>();
-
-		String sqlQuery = "" +
-				"SELECT R.ID " +
-				"FROM SPATIAL_OBJECTS L, SPATIAL_OBJECTS R " +
-				"WHERE L.ID = " + spatialLeft.getId() +" AND SDO_WITHIN_DISTANCE(L.Geometry, R.GEOMETRY, 'distance=" + distance + "') = 'TRUE'";
-
-		ResultSet resultSet = createDatabaseQuery(sqlQuery);
-
-		try {
-			while (resultSet.next()) {
-				Long spatialId = resultSet.getLong("Id");
-				SpatialObjectModel foundModel = BaseModel.findById(spatialId, getSpatialObjects());
-				if(foundModel == null) continue;
-				resultModels.add(foundModel);
-			}
-		} catch (SQLException ex) {
-			throw new DataManagerException("getAllSpatialObjectTypes: SQLException: " + ex.getMessage());
-		}
-
-		return resultModels;
 	}
 
 	/**
@@ -831,6 +810,11 @@ public class DataManager {
 		return spatialObjectTypes;
 	}
 
+	// -----------------------------------------
+	// ------------- METHODS FOR EMPLOYEES -----
+	// -----------------------------------------
+
+	// TODO should be used DataManager.findById()
 	public SpatialObjectModel getSpatialObjectModelWithID(long id) {
 		for (SpatialObjectModel model : this.spatialObjects) {
 			if (model.getId() == id)
@@ -838,10 +822,6 @@ public class DataManager {
 		}
 		return null;
 	}
-
-	// -----------------------------------------
-	// ------------- METHODS FOR EMPLOYEES -----
-	// -----------------------------------------
 
 	/**
 	 * Method returns all spatial objects types from the database.

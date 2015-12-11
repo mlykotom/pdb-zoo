@@ -64,14 +64,6 @@
         <properties/>
         <border type="none" title="General info"/>
         <children>
-          <component id="57a34" class="javax.swing.JButton" binding="calculateGeneralInfoButton">
-            <constraints>
-              <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text value="Calculate"/>
-            </properties>
-          </component>
           <hspacer id="231e3">
             <constraints>
               <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
@@ -107,6 +99,12 @@
                 <constraints/>
                 <properties>
                   <text value="m"/>
+                </properties>
+              </component>
+              <component id="57a34" class="javax.swing.JButton" binding="calculateGeneralInfoButton">
+                <constraints/>
+                <properties>
+                  <text value="Calculate"/>
                 </properties>
               </component>
             </children>

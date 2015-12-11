@@ -1,5 +1,6 @@
 package cz.vutbr.fit.pdb.ateam.controller;
 
+import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
@@ -357,7 +358,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 				SpatialObjectModel fence = BaseModel.findById(FENCE_ID, getSpatialObjects());
 
 				try {
-					selectedObjects = dataManager.getAllSpatialObjectsIdsWhichRelatesTo(fence);
+					selectedObjects = dataManager.getAllSpatialObjectsFromFunction(DataManager.SQL_FUNCTION_SDO_RELATE, fence, null);
 					return true;
 				} catch (DataManagerException e) {
 					e.printStackTrace();

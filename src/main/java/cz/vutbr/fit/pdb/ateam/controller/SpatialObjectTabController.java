@@ -1,5 +1,6 @@
 package cz.vutbr.fit.pdb.ateam.controller;
 
+import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.gui.components.SpatialObjectsTable;
 import cz.vutbr.fit.pdb.ateam.gui.help.CreatingBuildingHelper;
@@ -9,7 +10,6 @@ import cz.vutbr.fit.pdb.ateam.gui.tabs.lists.SpatialObjectsList;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialModelShape;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
-import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
 import cz.vutbr.fit.pdb.ateam.observer.*;
 import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
@@ -273,7 +273,7 @@ public class SpatialObjectTabController extends Controller
 			@Override
 			protected Boolean doInBackground() {
 				try {
-					selectedObjects = dataManager.getAllSpatialObjectsWithinDistance(selectedObject, distance);
+					selectedObjects = dataManager.getAllSpatialObjectsFromFunction(DataManager.SQL_FUNCTION_WITHIN_DISTANCE, selectedObject, distance);
 					return true;
 				} catch (DataManagerException e) {
 					e.printStackTrace();
