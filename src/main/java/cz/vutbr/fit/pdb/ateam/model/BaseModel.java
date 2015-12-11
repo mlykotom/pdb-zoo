@@ -1,5 +1,7 @@
 package cz.vutbr.fit.pdb.ateam.model;
 
+import java.util.Collection;
+
 /**
  * Generic model containing data which should be in any model in system
  * Created by Tomas Mlynaric on 20.10.2015.
@@ -27,7 +29,7 @@ abstract public class BaseModel {
 	/**
 	 * Serves for manipulating with any model in DataManager
 	 *
-	 * @return
+	 * @return SQL table name
 	 */
 	abstract public String getTableName();
 
@@ -99,5 +101,22 @@ abstract public class BaseModel {
 
 	public void setDeleted(boolean deleted) {
 		isDeleted = deleted;
+	}
+
+	/**
+	 * Finds model by specified Id
+	 * @param Id of any model, if null -> does not even try to find
+	 * @param hayStack list of objects which inherits of BaseModel
+	 * @param <T> any model inheriting from BaseModel
+	 * @return null if not found, otherwise found model
+	 */
+	public static <T extends BaseModel> T findById(Long Id, Collection<T> hayStack){
+		if(Id == null) return null;
+
+		for (T obj: hayStack) {
+			if(Id.equals(obj.getId())) return obj;
+		}
+
+		return null;
 	}
 }

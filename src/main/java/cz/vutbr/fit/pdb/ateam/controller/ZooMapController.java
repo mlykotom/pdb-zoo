@@ -1,5 +1,6 @@
 package cz.vutbr.fit.pdb.ateam.controller;
 
+import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapCanvas;
@@ -18,6 +19,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class controls all events occurred in ZooMapForm.
@@ -25,7 +27,7 @@ import java.util.ArrayList;
  * @author Jakub Tutko
  * @author Tomas Mlynaric
  */
-public class ZooMapController extends Controller implements ISpatialObjectsReloadListener, ISpatialObjectSelectionChangedListener, ISpatialObjectCreatingListener, IModelChangedStateListener {
+public class ZooMapController extends Controller implements ISpatialObjectsReloadListener, ISpatialObjectSelectionChangedListener, ISpatialObjectCreatingListener, IModelChangedStateListener, ISpatialObjectMultiSelectionChangedListener {
 	private ZooMapPanel form;
 	private ZooMapCanvas canvas;
 	private SpatialObjectModel selectedObjectOnCanvas;
@@ -43,6 +45,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		super();
 		SpatialObjectsReloadObservable.getInstance().subscribe(this);
 		SpatialObjectSelectionChangeObservable.getInstance().subscribe(this);
+		SpatialObjectMultiSelectionChangeObservable.getInstance().subscribe(this);
 		SpatialObjectCreatingObservable.getInstance().subscribe(this);
 		ModelChangedStateObservable.getInstance().subscribe(this);
 		this.form = zooMapPanel;
@@ -92,13 +95,19 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		// twice clicked on the same object
 		if (objectToSelect != null && objectToSelect.equals(this.selectedObjectOnCanvas)) return;
 
-		// unselects all objects
+		unselectAllObjects();
+		SpatialObjectSelectionChangeObservable.getInstance().notifyObservers(objectToSelect);
+	}
+
+	/**
+	 * unselects all objects
+	 */
+	public void unselectAllObjects() {
 		for (SpatialObjectModel object : getSpatialObjects()) {
 			object.selectOnCanvas(false);
 		}
-
-		SpatialObjectSelectionChangeObservable.getInstance().notifyObservers(objectToSelect);
 	}
+
 
 	// ----------------------
 	// ------------- HANDLERS
@@ -318,7 +327,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 			double wholePathLength = 0.0;
 
 			@Override
-			protected Boolean doInBackground(){
+			protected Boolean doInBackground() {
 				try {
 					wholePathLength = dataManager.getWholeLengthBySpatialTypeName("Path");
 				} catch (DataManagerException e) {
@@ -335,6 +344,32 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 				} else {
 					showDialog(ERROR_MESSAGE, "Problem occurred while calculating data!");
 				}
+			}
+		}.start();
+	}
+
+	public void selectAllEntrancesAction() {
+		new AsyncTask() {
+			public final Long FENCE_ID = 258L; // TODO select object not id
+			private List<SpatialObjectModel> selectedObjects = new ArrayList<>();
+
+			@Override
+			protected Boolean doInBackground() {
+				SpatialObjectModel fence = BaseModel.findById(FENCE_ID, getSpatialObjects());
+
+				try {
+					selectedObjects = dataManager.getAllSpatialObjectsFromFunction(DataManager.SQL_FUNCTION_SDO_RELATE, fence, null);
+					return true;
+				} catch (DataManagerException e) {
+					e.printStackTrace();
+					// TODO
+					return false;
+				}
+			}
+
+			@Override
+			protected void onDone(boolean success) {
+				SpatialObjectMultiSelectionChangeObservable.getInstance().notifyObservers(selectedObjects);
 			}
 		}.start();
 	}
@@ -362,13 +397,29 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		if (spatialObjectModel == null) {
 			this.selectedObjectOnCanvas = null;
 			// unselects all objects
-			for (SpatialObjectModel object : getSpatialObjects()) {
-				object.selectOnCanvas(false);
-			}
+			unselectAllObjects();
 		} else {
 			spatialObjectModel.selectOnCanvas(true);
 			this.selectedObjectOnCanvas = spatialObjectModel;
 		}
+	}
+
+	/**
+	 * Fires when spatial object is selected on zoo map canvas.
+	 *
+	 * @param objects selected spatial object models
+	 */
+	@Override
+	public void spatialObjectMultiSelectionChangedListener(List<SpatialObjectModel> objects) {
+		unselectAllObjects();
+
+		if (this.selectedObjectOnCanvas != null) selectedObjectOnCanvas.selectOnCanvas(true);
+
+		for (SpatialObjectModel obj : objects) {
+			obj.selectOnCanvas(true, SpatialObjectModel.SelectionType.MULTI);
+		}
+
+		canvas.repaint();
 	}
 
 	/**

@@ -2,7 +2,6 @@ package cz.vutbr.fit.pdb.ateam.gui;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.intellij.uiDesigner.core.Spacer;
 import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapPanel;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.AnimalsTab;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.EmployeesTab;

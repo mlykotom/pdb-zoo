@@ -1,11 +1,15 @@
 package cz.vutbr.fit.pdb.ateam;
 
 import cz.vutbr.fit.pdb.ateam.gui.LoginForm;
+import cz.vutbr.fit.pdb.ateam.utils.Utils;
 
 import javax.swing.*;
 
 /**
- * Created by mlyko on 06.10.2015.
+ * Main class for JAVA application.
+ * First GUI initialization is through this class -> loads login dialog.
+ *
+ * @author Tomas Mlynaric
  */
 public class Main {
 	public static void main(String[] args) {
@@ -20,6 +24,13 @@ public class Main {
 
 				LoginForm loginForm = new LoginForm();
 				loginForm.setVisible(true);
+
+				Runtime.getRuntime().addShutdownHook(new Thread() {
+					@Override
+					public void run() {
+						Utils.whenApplicationClosing();
+					}
+				});
 			}
 		});
 	}

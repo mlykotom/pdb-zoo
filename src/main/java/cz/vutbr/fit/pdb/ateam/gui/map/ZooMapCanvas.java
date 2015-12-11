@@ -1,24 +1,14 @@
 package cz.vutbr.fit.pdb.ateam.gui.map;
 
-import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
 import cz.vutbr.fit.pdb.ateam.controller.Controller;
 import cz.vutbr.fit.pdb.ateam.controller.ZooMapController;
-import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.gui.BasePanel;
-import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialLineStringModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
-import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
-import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectsReloadObservable;
-import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
-import cz.vutbr.fit.pdb.ateam.utils.Logger;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
-import javafx.util.Pair;
-import oracle.spatial.geometry.JGeometry;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.*;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class paints spatial objects into JPanel, so user can better see
@@ -69,16 +59,18 @@ public class ZooMapCanvas extends BasePanel {
 
 		if (controller.getSpatialObjects().isEmpty() && controller.creatingModel == null) return;
 
-		SpatialObjectModel renderLatest = null;
+		List<SpatialObjectModel> renderLatestModels = new ArrayList<>();
 		for (SpatialObjectModel model : controller.getSpatialObjects()) {
 			if(model.isSelected()){
-				renderLatest = model;
+				renderLatestModels.add(model);
 				continue;
 			}
 			model.render(g2D);
 		}
 
-		if(renderLatest != null) renderLatest.render(g2D);
+		for(SpatialObjectModel renderLatest : renderLatestModels){
+			renderLatest.render(g2D);
+		}
 
 		if(controller.creatingModel != null) controller.creatingModel.render(g2D);
 	}

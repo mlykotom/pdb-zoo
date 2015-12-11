@@ -4,7 +4,6 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import cz.vutbr.fit.pdb.ateam.gui.ContentPanel;
 
-import javax.naming.ldap.Control;
 import javax.swing.*;
 import java.awt.*;
 

@@ -5,7 +5,6 @@ import cz.vutbr.fit.pdb.ateam.gui.LoginForm;
 import cz.vutbr.fit.pdb.ateam.gui.MainFrame;
 import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
-import cz.vutbr.fit.pdb.ateam.utils.Utils;
 
 import javax.swing.*;
 
@@ -92,6 +91,6 @@ public class LoginFormController extends Controller {
 	 * Button closes the application.
 	 */
 	public void quitButtonAction() {
-		Utils.closeApplication();
+		System.exit(0);
 	}
 }

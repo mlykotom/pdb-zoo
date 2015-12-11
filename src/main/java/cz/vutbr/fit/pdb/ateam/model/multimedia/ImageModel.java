@@ -1,12 +1,7 @@
 package cz.vutbr.fit.pdb.ateam.model.multimedia;
 
-import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
-import cz.vutbr.fit.pdb.ateam.utils.Logger;
-import oracle.ord.im.*;
-
-import java.io.IOException;
-import java.sql.SQLException;
+import oracle.ord.im.OrdImage;
 
 /**
  * Created by Jakub on 02.12.2015.

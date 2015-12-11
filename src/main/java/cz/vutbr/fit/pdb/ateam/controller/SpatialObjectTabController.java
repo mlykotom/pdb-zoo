@@ -1,5 +1,6 @@
 package cz.vutbr.fit.pdb.ateam.controller;
 
+import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.gui.components.SpatialObjectsTable;
 import cz.vutbr.fit.pdb.ateam.gui.help.CreatingBuildingHelper;
@@ -9,11 +10,13 @@ import cz.vutbr.fit.pdb.ateam.gui.tabs.lists.SpatialObjectsList;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialModelShape;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
-import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
 import cz.vutbr.fit.pdb.ateam.observer.*;
 import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Controller for spatial objects tab
@@ -74,6 +77,7 @@ public class SpatialObjectTabController extends Controller
 	private void changePanelContentIntoDetail(SpatialObjectModel spatialObjectModel) {
 		Utils.changePanelContent(spatialObjectsTab, spatialObjectDetail);
 		spatialObjectDetail.setEnableControlComponents(!spatialObjectModel.isNew());
+		spatialObjectDetail.setzIndexSpinnerValue(spatialObjectModel.getzIndex());
 		spatialObjectDetail.setCalculatedInfo(null, null);
 		spatialObjectDetail.setCalculatedDistanceTo(null);
 		spatialObjectDetail.setTypeComboBoxModel(getSpatialObjectTypes());
@@ -162,17 +166,9 @@ public class SpatialObjectTabController extends Controller
 	 */
 	public void detailSaveButtonAction() {
 		if (selectedObject == null) return;
-
-		SpatialObjectTypeModel selectedObjectType = selectedObject.getType();
-		String typeName = spatialObjectDetail.getTypeComboBoxVallue();
-		for (SpatialObjectTypeModel type : getSpatialObjectTypes()) {
-			if (typeName.equals(type.getName())) {
-				selectedObjectType = type;
-			}
-		}
-
-		selectedObject.setName(spatialObjectDetail.getNameTextFieldVallue());
-		selectedObject.setSpatialObjectType(selectedObjectType);
+		selectedObject.setzIndex(spatialObjectDetail.getZIndexSpinnerValue());
+		selectedObject.setName(spatialObjectDetail.getNameTextFieldValue());
+		selectedObject.setSpatialObjectType(spatialObjectDetail.getTypeComboBoxVallue());
 		selectedObject.setIsChanged(true);
 		saveModels(selectedObject);
 	}
@@ -206,6 +202,9 @@ public class SpatialObjectTabController extends Controller
 		}
 	}
 
+	/**
+	 * Recalculates area and length of specified object
+	 */
 	public void recalculateShapeInfoAction() {
 		new AsyncTask() {
 			private double calculatedArea = 0.0;
@@ -236,7 +235,12 @@ public class SpatialObjectTabController extends Controller
 		}.start();
 	}
 
-	public void recalculateDistanceToObject(final SpatialObjectModel spatialObjectTo) {
+	/**
+	 * Recalculates distance to specified object
+	 *
+	 * @param spatialObjectTo {@link SpatialObjectModel} which will be counted distance to
+	 */
+	public void recalculateDistanceToObjectAction(final SpatialObjectModel spatialObjectTo) {
 		new AsyncTask() {
 			private double calculatedDistance = 0.0;
 
@@ -256,9 +260,33 @@ public class SpatialObjectTabController extends Controller
 				if (success) {
 					spatialObjectDetail.setEnableControlComponents(!selectedObject.isNew());
 					spatialObjectDetail.setCalculatedDistanceTo(calculatedDistance);
+					SpatialObjectMultiSelectionChangeObservable.getInstance().notifyObservers(spatialObjectTo);
 				} else {
 					showDialog(ERROR_MESSAGE, "Can not calculate data!");
 				}
+			}
+		}.start();
+	}
+
+	public void selectAllWithinDistance(final Integer distance) {
+		new AsyncTask() {
+			private List<SpatialObjectModel> selectedObjects = new ArrayList<>();
+
+			@Override
+			protected Boolean doInBackground() {
+				try {
+					selectedObjects = dataManager.getAllSpatialObjectsFromFunction(DataManager.SQL_FUNCTION_WITHIN_DISTANCE, selectedObject, distance);
+					return true;
+				} catch (DataManagerException e) {
+					e.printStackTrace();
+					// TODO
+					return false;
+				}
+			}
+
+			@Override
+			protected void onDone(boolean success) {
+				SpatialObjectMultiSelectionChangeObservable.getInstance().notifyObservers(selectedObjects);
 			}
 		}.start();
 	}

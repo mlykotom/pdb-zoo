@@ -19,10 +19,9 @@ public class Utils {
 	/**
 	 * Disconnects database and closes application.
 	 */
-	public static void closeApplication() {
+	public static void whenApplicationClosing() {
 		DataManager.getInstance().disconnectDatabase();
 		Logger.createLog(Logger.DEBUG_LOG, "Closing application with System.exit(0).");
-		System.exit(0);
 	}
 
 	/**

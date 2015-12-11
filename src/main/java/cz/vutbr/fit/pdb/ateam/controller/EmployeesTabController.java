@@ -141,7 +141,7 @@ public class EmployeesTabController extends Controller
 	public void editEmployeeDetail(EmployeeModel employee, int newOrEditHeader){
 		this.employeeDetailPanel = new EmployeeDetailPanel(this.employeesTab);
 
-		ArrayList<SpatialObjectModel> locations = getSpatialObjects();
+		List<SpatialObjectModel> locations = getSpatialObjects();
 
 		this.employeeDetailPanel.populateEmployeeDetailPanel(employee, locations, newOrEditHeader);
 

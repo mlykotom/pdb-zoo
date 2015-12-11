@@ -35,4 +35,9 @@ public class SpatialObjectTypeModel extends BaseModel {
 	public String getTableName() {
 		return "Spatial_Object_Types";
 	}
+
+	@Override
+	public String toString() {
+		return getName();
+	}
 }
