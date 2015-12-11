@@ -15,6 +15,9 @@ import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Controller for spatial objects tab
  *
@@ -162,17 +165,8 @@ public class SpatialObjectTabController extends Controller
 	 */
 	public void detailSaveButtonAction() {
 		if (selectedObject == null) return;
-
-		SpatialObjectTypeModel selectedObjectType = selectedObject.getType();
-		String typeName = spatialObjectDetail.getTypeComboBoxVallue();
-		for (SpatialObjectTypeModel type : getSpatialObjectTypes()) {
-			if (typeName.equals(type.getName())) {
-				selectedObjectType = type;
-			}
-		}
-
-		selectedObject.setName(spatialObjectDetail.getNameTextFieldVallue());
-		selectedObject.setSpatialObjectType(selectedObjectType);
+		selectedObject.setName(spatialObjectDetail.getNameTextFieldValue());
+		selectedObject.setSpatialObjectType(spatialObjectDetail.getTypeComboBoxVallue());
 		selectedObject.setIsChanged(true);
 		saveModels(selectedObject);
 	}
@@ -268,6 +262,29 @@ public class SpatialObjectTabController extends Controller
 				} else {
 					showDialog(ERROR_MESSAGE, "Can not calculate data!");
 				}
+			}
+		}.start();
+	}
+
+	public void selectAllWithinDistance(final Integer distance) {
+		new AsyncTask() {
+			private List<SpatialObjectModel> selectedObjects = new ArrayList<>();
+
+			@Override
+			protected Boolean doInBackground() {
+				try {
+					selectedObjects = dataManager.getAllSpatialObjectsWithinDistance(selectedObject, distance);
+					return true;
+				} catch (DataManagerException e) {
+					e.printStackTrace();
+					// TODO
+					return false;
+				}
+			}
+
+			@Override
+			protected void onDone(boolean success) {
+				SpatialObjectMultiSelectionChangeObservable.getInstance().notifyObservers(selectedObjects);
 			}
 		}.start();
 	}

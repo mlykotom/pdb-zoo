@@ -739,6 +739,7 @@ public class DataManager {
 
 	/**
 	 * Gets length of all spatial objects by type name
+	 *
 	 * @param typeName e.g. usage - Path
 	 * @return sum of object's length
 	 * @throws DataManagerException
@@ -767,32 +768,58 @@ public class DataManager {
 
 	/**
 	 * Get all ids of objects which are related to the specified object
+	 *
 	 * @param spatialLeft object which is relating to
-	 * @return list of related objects ids
+	 * @return list of related objects
 	 * @throws DataManagerException
 	 */
-	public List<Long> getAllSpatialObjectsIdsWhichRelatesTo(SpatialObjectModel spatialLeft) throws DataManagerException {
-		List<Long> spatialIds = new ArrayList<>();
+	public List<SpatialObjectModel> getAllSpatialObjectsIdsWhichRelatesTo(SpatialObjectModel spatialLeft) throws DataManagerException {
+		List<SpatialObjectModel> resultModels = new ArrayList<>();
 
 		String sqlQuery = "" +
-				"SELECT R.Id, SDO_GEOM.RELATE(L.GEOMETRY, 'determine', R.GEOMETRY, 1) AS Rel " +
+				"SELECT R.ID " +
 				"FROM SPATIAL_OBJECTS L, SPATIAL_OBJECTS R " +
-				"WHERE L.ID = " + spatialLeft.getId() + " " +
-				"AND (SDO_GEOM.RELATE(L.GEOMETRY, 'determine', R.GEOMETRY, 1) = 'OVERLAPBDYDISJOINT' " +
-				"OR SDO_GEOM.RELATE(L.GEOMETRY, 'determine', R.GEOMETRY, 1) = 'CONTAINS')";
+				"WHERE L.ID = " + spatialLeft.getId() + " AND L.ID != R.ID " +
+				"AND SDO_RELATE(L.GEOMETRY, R.GEOMETRY, 'mask=ANYINTERACT') = 'TRUE'";
 
 		ResultSet resultSet = createDatabaseQuery(sqlQuery);
 
 		try {
 			while (resultSet.next()) {
 				Long spatialId = resultSet.getLong("Id");
-				spatialIds.add(spatialId);
+				SpatialObjectModel foundModel = BaseModel.findById(spatialId, getSpatialObjects());
+				if(foundModel == null) continue;
+				resultModels.add(foundModel);
 			}
 		} catch (SQLException ex) {
 			throw new DataManagerException("getAllSpatialObjectTypes: SQLException: " + ex.getMessage());
 		}
 
-		return spatialIds;
+		return resultModels;
+	}
+
+	public List<SpatialObjectModel> getAllSpatialObjectsWithinDistance(SpatialObjectModel spatialLeft, int distance) throws DataManagerException {
+		List<SpatialObjectModel> resultModels = new ArrayList<>();
+
+		String sqlQuery = "" +
+				"SELECT R.ID " +
+				"FROM SPATIAL_OBJECTS L, SPATIAL_OBJECTS R " +
+				"WHERE L.ID = " + spatialLeft.getId() +" AND SDO_WITHIN_DISTANCE(L.Geometry, R.GEOMETRY, 'distance=" + distance + "') = 'TRUE'";
+
+		ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+		try {
+			while (resultSet.next()) {
+				Long spatialId = resultSet.getLong("Id");
+				SpatialObjectModel foundModel = BaseModel.findById(spatialId, getSpatialObjects());
+				if(foundModel == null) continue;
+				resultModels.add(foundModel);
+			}
+		} catch (SQLException ex) {
+			throw new DataManagerException("getAllSpatialObjectTypes: SQLException: " + ex.getMessage());
+		}
+
+		return resultModels;
 	}
 
 	/**

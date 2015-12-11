@@ -357,11 +357,7 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 				SpatialObjectModel fence = BaseModel.findById(FENCE_ID, getSpatialObjects());
 
 				try {
-					List<Long> spatialIds = dataManager.getAllSpatialObjectsIdsWhichRelatesTo(fence);
-					for (Long id : spatialIds) {
-						SpatialObjectModel foundModel = BaseModel.findById(id, getSpatialObjects());
-						selectedObjects.add(foundModel);
-					}
+					selectedObjects = dataManager.getAllSpatialObjectsIdsWhichRelatesTo(fence);
 					return true;
 				} catch (DataManagerException e) {
 					e.printStackTrace();
