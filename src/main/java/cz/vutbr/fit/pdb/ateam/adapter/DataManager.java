@@ -348,26 +348,28 @@ public class DataManager {
 
 	private void saveEmployeeTemporalData(EmployeeModel employee, boolean isNewEmployee) throws SQLException {
 		String sqlPrepTemp = null;
-		if (isNewEmployee)
-			sqlPrepTemp = "INSERT INTO Employees_Shift (EmplID, Location, dFrom, dTo) VALUES(?, ?, ?, ?)";
-		else {
-			//TODO implement
-		}
-
-		java.sql.Date dateFrom = new java.sql.Date(employee.getDateFrom().getTime());
-		java.sql.Date dateTo = new java.sql.Date(employee.getDateTo().getTime());
-
-		PreparedStatement preparedTemporalStatement = connection.prepareStatement(sqlPrepTemp);
-		preparedTemporalStatement.setLong(1, employee.getId());
-		preparedTemporalStatement.setLong(2, employee.getLocation());
-		preparedTemporalStatement.setDate(3, dateFrom);
-		preparedTemporalStatement.setDate(4, dateTo);
-
-		Logger.createLog(Logger.DEBUG_LOG, "Sending query: " + sqlPrepTemp + " | name = '" + employee.getName() + "', surname = '" + employee.getSurname() + "', id = '" + employee.getId() + "'");
-		if (isNewEmployee) {
-			this.executeTemporalInsertAndSetId(preparedTemporalStatement, employee);
-		} else {
-		}
+		updateEmployeeShifts(employee.getId(), employee.getDateFrom(), employee.getDateTo(), employee.getLocation());
+//		if (isNewEmployee)
+//		sqlPrepTemp = "INSERT INTO Employees_Shift (EmplID, Location, dFrom, dTo) VALUES(?, ?, ?, ?)";
+//		else {
+//			//TODO implement
+//		}
+//
+//
+//		java.sql.Date dateFrom = new java.sql.Date(employee.getDateFrom().getTime());
+//		java.sql.Date dateTo = new java.sql.Date(employee.getDateTo().getTime());
+//
+//		PreparedStatement preparedTemporalStatement = connection.prepareStatement(sqlPrepTemp);
+//		preparedTemporalStatement.setLong(1, employee.getId());
+//		preparedTemporalStatement.setLong(2, employee.getLocation());
+//		preparedTemporalStatement.setDate(3, dateFrom);
+//		preparedTemporalStatement.setDate(4, dateTo);
+//
+//		Logger.createLog(Logger.DEBUG_LOG, "Sending query: " + sqlPrepTemp + " | name = '" + employee.getName() + "', surname = '" + employee.getSurname() + "', id = '" + employee.getId() + "'");
+//		if (isNewEmployee) {
+//			this.executeTemporalInsertAndSetId(preparedTemporalStatement, employee);
+//		} else {
+//		}
 	}
 
 
@@ -859,6 +861,11 @@ public class DataManager {
 		return employees;
 	}
 
+
+	// -----------------------------------------
+	// ------------- METHODS FOR EMPLOYEES -----
+	// -----------------------------------------
+
 	/**
 	 * Is used to get cached data from Employees Table.
 	 *
@@ -903,7 +910,6 @@ public class DataManager {
 //				psSelectRecord = connection.prepareStatement(sqlQuery);
 //				ResultSet resultSet = psSelectRecord.executeQuery();
 
-				System.out.println("dasdasadadasdasdasdasdafasd");
 				try {
 					while (resultSet.next()) {
 						Long id = resultSet.getLong("EmployeeID");
@@ -922,6 +928,63 @@ public class DataManager {
 		};
 		asyncTask.start();
 		return employees;
+	}
+
+	public boolean updateEmployeeShifts(final Long employeeID, final Date arDateFrom, final Date arDateTo, final Long location) {
+		AsyncTask asyncTask = new AsyncTask() {
+			@Override
+			protected void onDone(boolean success) {
+				//
+			}
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				java.sql.Date dateFrom = new java.sql.Date(arDateFrom.getTime());
+				java.sql.Date dateTo = new java.sql.Date(arDateTo.getTime());
+
+				CallableStatement cstmt = connection.prepareCall ("BEGIN updateEmployeeTable(?, ?, ?, ?); END;");
+
+				cstmt.setLong(1, employeeID);
+				cstmt.setDate(2, dateFrom);
+				cstmt.setDate(3, dateTo);
+				cstmt.setLong(4, location);
+
+				cstmt.execute();
+
+				return true;
+			}
+		};
+		asyncTask.start();
+		return true;
+	}
+
+
+	public boolean deleteEmployeeShifts(final Long employeeID, final Date arDateFrom, final Date arDateTo){
+
+		AsyncTask asyncTask = new AsyncTask() {
+			@Override
+			protected void onDone(boolean success) {
+				//
+			}
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				java.sql.Date dateFrom = new java.sql.Date(arDateFrom.getTime());
+				java.sql.Date dateTo = new java.sql.Date(arDateTo.getTime());
+
+				CallableStatement cstmt = connection.prepareCall ("BEGIN deleteEmployeeShiftTable(?, ?, ?); END;");
+
+				cstmt.setLong(1, employeeID);
+				cstmt.setDate(2, dateFrom);
+				cstmt.setDate(3, dateTo);
+
+				cstmt.execute();
+
+				return true;
+			}
+		};
+		asyncTask.start();
+		return true;
 	}
 
 	public ArrayList<EmployeeModel> getEmployeeHistory(final long employeeID) throws DataManagerException {

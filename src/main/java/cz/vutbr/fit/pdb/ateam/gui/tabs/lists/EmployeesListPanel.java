@@ -17,7 +17,9 @@ import java.awt.event.ActionListener;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+
 import java.util.Date;
+import java.util.Properties;
 
 /**
  * @Author Tomas Hanus
@@ -115,20 +117,20 @@ public class EmployeesListPanel extends BasePanel {
 		return this.controller;
 	}
 
+	/**
+	 * Method switches DatePickerPanel to display Today and hides DatePicker
+	 */
 	public void switchToToday() {
-//		actualCheckBox.setSelected(true);
-//		historyCheckBox.setSelected(false);
-//		historyCheckBox.setEnabled(true);
-//		actualCheckBox.setEnabled(false);
+		todayRadioButton.setSelected(true);
 		datePickerBox.setVisible(false);
 		datePickerLabel.setVisible(false);
 	}
 
-	public void switchToPast(Date date) {
-//		historyCheckBox.setSelected(true);
-//		actualCheckBox.setEnabled(true);
-//		actualCheckBox.setSelected(false);
-//		historyCheckBox.setEnabled(false);
+
+	/**
+	 * Method displays datePicker to pick from past or today's date and initializes DatePicker.
+	 */
+	public void switchToPast() {
 		datePickerBox.setVisible(true);
 		datePickerLabel.setVisible(true);
 

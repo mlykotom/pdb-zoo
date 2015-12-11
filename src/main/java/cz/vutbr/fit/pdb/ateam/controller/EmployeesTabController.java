@@ -1,5 +1,6 @@
 package cz.vutbr.fit.pdb.ateam.controller;
 
+import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
 import cz.vutbr.fit.pdb.ateam.exception.ControllerException;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.gui.components.EmployeeDetailTable;
@@ -162,10 +163,19 @@ public class EmployeesTabController extends Controller
 		return spatialObjects;
 	}
 
+
+	/**
+	 * Called when button Discard is hit on EmployeDetailTable. Calls EmployeeList Panel
+	 */
 	public void discardUserAction() {
 		showEmployeeList();
 	}
 
+	/**
+	 * Called after hit on SaveEmpployee Button on EmployeeDetail Panel. It creates new Employee or update selected employee
+	 * from actualDate to 'forever'.
+	 * @param employeeDetailPanelMode
+	 */
 	public void saveEmployee(int employeeDetailPanelMode) {
 		this.selectedEmployeeModel.setName(employeeDetailPanel.getNameTextFieldValue());
 		this.selectedEmployeeModel.setSurname(employeeDetailPanel.getSurnameTextFieldValue());
@@ -197,6 +207,10 @@ public class EmployeesTabController extends Controller
 
 	}
 
+	/**
+	 * Action triggered after hit on Edit button in EmployeesTable. It calls method to display employeeDetail Panel.
+	 * @param employeeModel
+	 */
 	@Override
 	public void EmployeesTableEditAction(EmployeeModel employeeModel) {
 		editEmployeeDetail(employeeModel, EmployeeDetailPanel.EDIT_EMPLOYEE);
@@ -208,7 +222,6 @@ public class EmployeesTabController extends Controller
 		System.out.println("vymazavam zamestnanca menom " + employeeModel.getName());
 		//TODO Delete selected employee
 	}
-
 
 	/**
 	 * Whenever user select a date from datePicker on EmployeeListPanel this action is triggered.
@@ -254,8 +267,7 @@ public class EmployeesTabController extends Controller
 	 * Shows date picker to choose the date of records you want to display in EmployeesListPanel table
 	 */
 	public void showHistorySwitchAction() {
-		employeesListPanel.switchToPast(Utils.removeTime(Calendar.getInstance().getTime()));
-//		dateToDisplay = Utils.removeTime(Calendar.getInstance().getTime());
+		employeesListPanel.switchToPast();
 	}
 
 
@@ -270,6 +282,10 @@ public class EmployeesTabController extends Controller
 		}
 	}
 
+
+	/**
+	 * Creates EmployeeDetail table and populates it with data. Then this table is added on EmployeeDetailPanel.
+	 */
 	public void fillEmployeeDetailTable(){
 		EmployeeDetailTable table = new EmployeeDetailTable();
 		table.setColumnsWidth();
@@ -293,7 +309,7 @@ public class EmployeesTabController extends Controller
 
 
 	/**
-	 * Action trigered when Show History checkbox is ticked on EmployeeDetailPanel
+	 * Action triggered when Show History checkbox is ticked on EmployeeDetailPanel
 	 * @param selected set to true/false if checkbox is selected or not
 	 */
 	public void showHistoryAction(boolean selected) {
@@ -304,16 +320,38 @@ public class EmployeesTabController extends Controller
 		}
 	}
 
+	/**
+	 * Returns actually selected EmployeeModel.
+	 * @return
+	 */
 	public EmployeeModel getSelectedEmployeeModel(){
 		return selectedEmployeeModel;
 	}
 
+	/**
+	 * Action triggered after click on Edit button on EmployeeShiftEdit Panel.
+	 */
 	public void editShiftAction() {
-		this.employeeShiftEditPanel = new EmployeeShiftEditPanel(employeesTab);
+		ArrayList<SpatialObjectModel> locations = getSpatialObjects();
+		this.employeeShiftEditPanel = new EmployeeShiftEditPanel(employeesTab, locations);
 		Utils.changePanelContent(this.employeesTab, this.employeeShiftEditPanel);
 	}
 
 	public void discardEditEmployeeShiftAction() {
 		Utils.changePanelContent(this.employeesTab, this.employeeDetailPanel);
+	}
+
+	/**
+	 * Action called after click on confirmUpdateDeleteAction on EmployeeShiftEdit Panel
+	 * @param isHistoryUpdate it's true/false in order action should be update/delete.
+	 */
+	public void confirmUpdateDeleteAction(boolean isHistoryUpdate) {
+		if (isHistoryUpdate){
+			DataManager.getInstance().updateEmployeeShifts(selectedEmployeeModel.getId(), employeeShiftEditPanel.getDateFrom(), employeeShiftEditPanel.getDateTo(), employeeShiftEditPanel.getSelectedLocation());
+		}else { // if it's not edit action, it's DELETE action
+			DataManager.getInstance().deleteEmployeeShifts(selectedEmployeeModel.getId(), employeeShiftEditPanel.getDateFrom(), employeeShiftEditPanel.getDateTo());
+		}
+		editEmployeeDetail(selectedEmployeeModel, EmployeeDetailPanel.EDIT_EMPLOYEE);
+		this.employeeDetailPanel.showHistoryShiftPane();
 	}
 }
