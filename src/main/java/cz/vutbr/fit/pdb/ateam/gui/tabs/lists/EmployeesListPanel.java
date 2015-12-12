@@ -18,9 +18,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import java.util.Date;
-import java.util.Properties;
-
 /**
  * @Author Tomas Hanus
  */
@@ -109,7 +106,7 @@ public class EmployeesListPanel extends BasePanel {
 		tablePanel.removeAll();
 
 		JScrollPane jScrollPane = new JScrollPane(employeesTable);
-		tablePanel.add(jScrollPane);
+		tablePanel.add(jScrollPane, BorderLayout.NORTH);
 	}
 
 	@Override
@@ -150,20 +147,18 @@ public class EmployeesListPanel extends BasePanel {
 	 */
 	private void $$$setupUI$$$() {
 		rootPanel = new JPanel();
-		rootPanel.setLayout(new GridLayoutManager(6, 6, new Insets(0, 0, 0, 0), -1, -1));
+		rootPanel.setLayout(new GridLayoutManager(6, 7, new Insets(0, 0, 0, 0), -1, -1));
 		tablePanel = new JPanel();
 		tablePanel.setLayout(new BorderLayout(0, 0));
-		rootPanel.add(tablePanel, new GridConstraints(5, 0, 1, 5, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		rootPanel.add(tablePanel, new GridConstraints(4, 0, 1, 5, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		final JLabel label1 = new JLabel();
 		label1.setFont(new Font(label1.getFont().getName(), Font.BOLD, 20));
 		label1.setText("Employees List");
-		rootPanel.add(label1, new GridConstraints(4, 0, 1, 5, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		rootPanel.add(label1, new GridConstraints(3, 0, 1, 5, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final JLabel label2 = new JLabel();
 		label2.setFont(new Font(label2.getFont().getName(), Font.BOLD, 20));
 		label2.setText("Date:");
 		rootPanel.add(label2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-		final JSeparator separator1 = new JSeparator();
-		rootPanel.add(separator1, new GridConstraints(3, 0, 1, 5, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
 		final Spacer spacer1 = new Spacer();
 		rootPanel.add(spacer1, new GridConstraints(1, 3, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, new Dimension(25, -1), null, null, 0, false));
 		addNewEmployeeButton = new JButton();
@@ -179,14 +174,16 @@ public class EmployeesListPanel extends BasePanel {
 		datePickerBox = new JPanel();
 		datePickerBox.setLayout(new BorderLayout(0, 0));
 		panel1.add(datePickerBox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(150, -1), null, new Dimension(150, -1), 0, false));
-		final Spacer spacer2 = new Spacer();
-		rootPanel.add(spacer2, new GridConstraints(3, 5, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
 		todayRadioButton = new JRadioButton();
 		todayRadioButton.setText("Today");
 		rootPanel.add(todayRadioButton, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		historyRadioButton = new JRadioButton();
 		historyRadioButton.setText("History");
 		rootPanel.add(historyRadioButton, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		final Spacer spacer2 = new Spacer();
+		rootPanel.add(spacer2, new GridConstraints(5, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+		final Spacer spacer3 = new Spacer();
+		rootPanel.add(spacer3, new GridConstraints(0, 6, 6, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
 	}
 
 	/**

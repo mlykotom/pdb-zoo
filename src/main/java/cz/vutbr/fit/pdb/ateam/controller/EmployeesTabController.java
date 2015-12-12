@@ -298,9 +298,10 @@ public class EmployeesTabController extends Controller
 		} catch (DataManagerException e) {
 			Logger.createLog(Logger.ERROR_LOG, e.getMessage());
 		}
-
-		for (EmployeeModel model : models) {
-			table.addEmployeeModel(model);
+		if (models != null && models.size() > 0){
+			for (EmployeeModel model : models) {
+				table.addEmployeeModel(model);
+			}
 		}
 
 		employeeDetailPanel.setEmployeeDetailTable(table);
@@ -353,5 +354,16 @@ public class EmployeesTabController extends Controller
 		}
 		editEmployeeDetail(selectedEmployeeModel, EmployeeDetailPanel.EDIT_EMPLOYEE);
 		this.employeeDetailPanel.showHistoryShiftPane();
+		//TODO NullPointer crash after deleting all shift history
 	}
+
+	public void switchBetweenEditAndDeleteAction(boolean selected) {
+		if (selected == true){
+			employeeShiftEditPanel.showLocationPicker();
+		} else{
+			employeeShiftEditPanel.hideLocationPicker();
+		}
+	}
+
+
 }

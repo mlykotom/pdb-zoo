@@ -30,7 +30,6 @@ public class EmployeeDetailTable extends JTable {
 		super();
 
 		tableModel = new EmployeeDetailTableModel();
-
 		setModel(tableModel);
 
 		TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
@@ -98,17 +97,21 @@ public class EmployeeDetailTable extends JTable {
 
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
-			EmployeeModel EmployeeModel = objectsList.get(rowIndex);
+			EmployeeModel employeeModel = objectsList.get(rowIndex);
+
+			if (employeeModel == null) return (Object)"";
 
 			switch (columnIndex) {
 				case 0:
-					return EmployeeModel.getShiftID();
+					return employeeModel.getShiftID();
 				case 1:
-					return EmployeeModel.getDateFrom();
+					return employeeModel.getDateFrom();
 				case 2:
-					return getStringDate(EmployeeModel.getDateTo());
+					if (employeeModel.getDateTo() != null)
+						return getStringDate(employeeModel.getDateTo());
 				case 3:
-					return DataManager.getInstance().getSpatialObjectModelWithID(EmployeeModel.getLocation()).toString();
+					if (DataManager.getInstance().getSpatialObjectModelWithID(employeeModel.getLocation()) != null)
+						return DataManager.getInstance().getSpatialObjectModelWithID(employeeModel.getLocation()).toString();
 				default:
 					return "";
 			}

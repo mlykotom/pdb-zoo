@@ -9,7 +9,7 @@ import java.util.Date;
  */
 public class EmployeeModel extends BaseModel {
 	private String surname;
-	private long location;
+	private Long location;
 	private Date dateFrom;
 	private Date dateTo;
 	private long shiftID;
@@ -40,7 +40,7 @@ public class EmployeeModel extends BaseModel {
 
 
 
-	public long getLocation() {
+	public Long getLocation() {
 		return location;
 	}
 
