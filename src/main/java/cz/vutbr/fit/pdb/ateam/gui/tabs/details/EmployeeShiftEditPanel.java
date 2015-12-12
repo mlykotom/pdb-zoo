@@ -56,7 +56,6 @@ public class EmployeeShiftEditPanel extends BasePanel {
 	}
 
 
-
 	private void initUI() {
 		this.nameLabel.setText(controller.getSelectedEmployeeModel().getName());
 		this.surnameLabel.setText(controller.getSelectedEmployeeModel().getSurname());
@@ -108,6 +107,18 @@ public class EmployeeShiftEditPanel extends BasePanel {
 		textField.setFont(new Font("Segoe UI Semilight", Font.BOLD, 14));
 		dateModel.setValue(Calendar.getInstance().getTime());
 		return datePicker;
+	}
+
+	public Date getDateFrom() {
+		return (Date) this.shiftFromDatePicker.getModel().getValue();
+	}
+
+	public Date getDateTo() {
+		return (Date) this.shiftToDatePicker.getModel().getValue();
+	}
+
+	public Long getSelectedLocation() {
+		return ((SpatialObjectModel) this.shiftLocationComboBox.getSelectedItem()).getId();
 	}
 
 	{
@@ -200,17 +211,5 @@ public class EmployeeShiftEditPanel extends BasePanel {
 	 */
 	public JComponent $$$getRootComponent$$$() {
 		return rootPanel;
-	}
-
-	public Date getDateFrom() {
-		return (Date)this.shiftFromDatePicker.getModel().getValue();
-	}
-
-	public Date getDateTo() {
-		return (Date)this.shiftToDatePicker.getModel().getValue();
-	}
-
-	public Long getSelectedLocation() {
-		return ((SpatialObjectModel)this.shiftLocationComboBox.getSelectedItem()).getId();
 	}
 }

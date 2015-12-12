@@ -332,7 +332,7 @@ public class EmployeesTabController extends Controller
 	 * Action triggered after click on Edit button on EmployeeShiftEdit Panel.
 	 */
 	public void editShiftAction() {
-		ArrayList<SpatialObjectModel> locations = getSpatialObjects();
+		ArrayList<SpatialObjectModel> locations = (ArrayList<SpatialObjectModel>) getSpatialObjects();
 		this.employeeShiftEditPanel = new EmployeeShiftEditPanel(employeesTab, locations);
 		Utils.changePanelContent(this.employeesTab, this.employeeShiftEditPanel);
 	}
