@@ -3,7 +3,7 @@ package cz.vutbr.fit.pdb.ateam.controller;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.gui.LoginForm;
 import cz.vutbr.fit.pdb.ateam.gui.MainFrame;
-import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectsReloadObservable;
+import cz.vutbr.fit.pdb.ateam.observer.AppStateChangedObservable;
 import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
 
@@ -23,6 +23,7 @@ public class MenuBarController extends Controller {
 	public MenuBarController(MainFrame mainFrame) {
 		super();
 		this.mainFrame = mainFrame;
+		AppStateChangedObservable.getInstance().subscribe(this);
 	}
 
 	/**
@@ -53,5 +54,9 @@ public class MenuBarController extends Controller {
 		};
 
 		task.start();
+	}
+
+	public void appStateChangedListener(String state) {
+		mainFrame.getAppStateLabel().setText(state);
 	}
 }

@@ -6,6 +6,7 @@ import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import cz.vutbr.fit.pdb.ateam.model.employee.EmployeeModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
+import cz.vutbr.fit.pdb.ateam.observer.AppStateChangedObservable;
 import cz.vutbr.fit.pdb.ateam.observer.IModelChangedStateListener;
 import cz.vutbr.fit.pdb.ateam.observer.ModelChangedStateObservable;
 import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectsReloadObservable;
@@ -36,6 +37,8 @@ public class Controller {
 	protected DataManager dataManager;
 	protected JPanel rootPanel = null;
 
+	protected AppStateChangedObservable appStateChangedObservable = AppStateChangedObservable.getInstance();
+
 	/**
 	 * Saves static DataManager instance into local variable.
 	 */
@@ -60,6 +63,7 @@ public class Controller {
 	 * @param models list of models to saveModel
 	 */
 	public void saveModels(final Collection<? extends BaseModel> models) {
+		appStateChangedObservable.notifyStateChanged("Saving models...");
 
 		new AsyncTask() {
 			// models which were changed, these will be notified to listeners
@@ -67,26 +71,8 @@ public class Controller {
 			List<BaseModel> deletedModels = new ArrayList<>();
 
 			@Override
-			protected void onDone(boolean success) {
-				ModelChangedStateObservable changedStateObservable = ModelChangedStateObservable.getInstance();
-				if (!success) {
-					showDialog(INFO_MESSAGE, "No data has changed!");
-					return;
-				}
-
-				for (BaseModel model : deletedModels) {
-					changedStateObservable.notifyObservers(model, IModelChangedStateListener.ModelState.DELETED);
-				}
-
-				for (BaseModel model : savedModels) {
-					changedStateObservable.notifyObservers(model, IModelChangedStateListener.ModelState.SAVED);
-				}
-
-				Collections.sort(getSpatialObjects());
-			}
-
-			@Override
 			protected Boolean doInBackground() {
+
 				for (BaseModel model : models) {
 					try {
 						if (model.isDeleted()) {
@@ -107,6 +93,28 @@ public class Controller {
 				// success if we saved at least one model
 				return (deletedModels.size() + savedModels.size()) > 0;
 			}
+
+			@Override
+			protected void onDone(boolean success) {
+				ModelChangedStateObservable changedStateObservable = ModelChangedStateObservable.getInstance();
+				if (!success) {
+					showDialog(INFO_MESSAGE, "No data has changed!");
+					appStateChangedObservable.notifyStateChanged("No data has changed!", true);
+					return;
+				}
+
+				for (BaseModel model : deletedModels) {
+					changedStateObservable.notifyObservers(model, IModelChangedStateListener.ModelState.DELETED);
+				}
+
+				for (BaseModel model : savedModels) {
+					changedStateObservable.notifyObservers(model, IModelChangedStateListener.ModelState.SAVED);
+				}
+
+				Collections.sort(getSpatialObjects());
+
+				appStateChangedObservable.notifyStateChanged("Data has been changed.", true);
+			}
 		}.start();
 	}
 
@@ -126,15 +134,6 @@ public class Controller {
 	public void reloadSpatialObjects() {
 		AsyncTask task = new AsyncTask() {
 			@Override
-			protected void onDone(boolean success) {
-				if (success) {
-					SpatialObjectsReloadObservable.getInstance().notifyObservers();
-				} else {
-					showDialog(ERROR_MESSAGE, "Can not reload data!");
-				}
-			}
-
-			@Override
 			protected Boolean doInBackground() throws Exception {
 				try {
 					dataManager.reloadAllSpatialObjects();
@@ -145,6 +144,15 @@ public class Controller {
 					Logger.createLog(Logger.ERROR_LOG, e.getMessage());
 				}
 				return false;
+			}
+
+			@Override
+			protected void onDone(boolean success) {
+				if (success) {
+					SpatialObjectsReloadObservable.getInstance().notifyObservers();
+				} else {
+					showDialog(ERROR_MESSAGE, "Can not reload data!");
+				}
 			}
 		};
 
@@ -208,7 +216,7 @@ public class Controller {
 	/**
 	 * Displays dialog with given message in the middle of the given JPanel, based on type.
 	 *
-	 * @param type type of the dialog (INFO_MESSAGE, WARNING_MESSAGE, ERROR_MESSAGE)
+	 * @param type    type of the dialog (INFO_MESSAGE, WARNING_MESSAGE, ERROR_MESSAGE)
 	 * @param message message with description of the error
 	 */
 	protected void showDialog(int type, String message) {

@@ -23,6 +23,8 @@ public class MainFrame extends JFrame {
 	private MenuBarController menuBarController;
 	public ContentPanel contentPanel;
 
+	private JLabel appStateLabel = new JLabel();
+
 	/**
 	 * Constructor creates instance of the MenuBarController for
 	 * events occurred in MenuBar and initializes frame.
@@ -46,6 +48,10 @@ public class MainFrame extends JFrame {
 
 		// ------ menu
 		JMenuBar menuBar = new JMenuBar();
+		JLabel stateTextLabel = new JLabel("State: ");
+		stateTextLabel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
+		menuBar.add(stateTextLabel);
+		menuBar.add(appStateLabel);
 		menuBar.add(Box.createHorizontalGlue());
 		menuBar.add(createLogoutButton());
 		setJMenuBar(menuBar);
@@ -93,5 +99,8 @@ public class MainFrame extends JFrame {
 		return logoutButton;
 	}
 
+	public JLabel getAppStateLabel() {
+		return appStateLabel;
+	}
 
 }
