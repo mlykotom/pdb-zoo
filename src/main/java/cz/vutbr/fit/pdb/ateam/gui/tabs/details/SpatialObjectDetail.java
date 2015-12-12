@@ -44,6 +44,7 @@ public class SpatialObjectDetail extends BasePanel {
 	private JSpinner closestNSpinner;
 	private JPanel spatialNObectsTablePanel;
 	private JButton calculateNObjectsButton;
+	private JCheckBox sameTypeCheckBox;
 	private SpatialObjectTabController controller;
 	private SpatialObjectModel spatialObject;
 
@@ -59,31 +60,47 @@ public class SpatialObjectDetail extends BasePanel {
 		initUI();
 	}
 
+	/**
+	 * Prepares right tab for viewing spatial object
+	 *
+	 * @param spatialObject this spatial object will be selected in detail
+	 */
 	public void setSpatialObject(SpatialObjectModel spatialObject) {
 		this.spatialObject = spatialObject;
 
 		idTextField.setText(spatialObject.getId().toString());
 		nameTextField.setText(spatialObject.getName());
+		zIndexSpinner.setValue(spatialObject.getzIndex());
 		typeComboBox.setSelectedItem(spatialObject.getType());
+
+		setEnableControlComponents(!spatialObject.isNew());
+		setCalculatedInfo(null, null);
+		setCalculatedDistanceTo(null);
+		getSpatialDetailTable().clearModels();
 	}
 
 	public String getNameTextFieldValue() {
 		return nameTextField.getText();
 	}
 
-
-	public void setzIndexSpinnerValue(Integer value) {
-		zIndexSpinner.setValue(value);
-	}
-
 	public Integer getZIndexSpinnerValue() {
 		return (Integer) zIndexSpinner.getValue();
 	}
 
+	/**
+	 * Getter for spatial type comboxox's value
+	 *
+	 * @return spatial object type model
+	 */
 	public SpatialObjectTypeModel getTypeComboBoxVallue() {
 		return (SpatialObjectTypeModel) typeComboBox.getSelectedItem();
 	}
 
+	/**
+	 * Sets model for combobox (spatial types)
+	 *
+	 * @param objectTypes list of spatial object types
+	 */
 	public void setTypeComboBoxModel(List<SpatialObjectTypeModel> objectTypes) {
 		typeComboBox.removeAllItems();
 		for (SpatialObjectTypeModel type : objectTypes) {
@@ -94,15 +111,19 @@ public class SpatialObjectDetail extends BasePanel {
 	/**
 	 * Set calculated informations and enable state for button
 	 *
-	 * @param area
-	 * @param length
+	 * @param area   object's area
+	 * @param length object's length
 	 */
 	public void setCalculatedInfo(Double area, Double length) {
 		shapeAreaLabel.setText(area == null ? "--" : doubleFormatter.format(area));
 		shapeLengthLabel.setText(length == null ? "--" : doubleFormatter.format(length));
 	}
 
-
+	/**
+	 * Setter for calculated distance to specified object from combo box
+	 *
+	 * @param calculatedDistanceTo actual value or null when should be set like not calculated
+	 */
 	public void setCalculatedDistanceTo(Double calculatedDistanceTo) {
 		this.distanceToObjectLabel.setText(calculatedDistanceTo == null ? "--" : doubleFormatter.format(calculatedDistanceTo));
 	}
@@ -117,6 +138,7 @@ public class SpatialObjectDetail extends BasePanel {
 		calculateDistanceButton.setEnabled(isEnabled);
 		showOnMapButton.setEnabled(isEnabled);
 		calculateNObjectsButton.setEnabled(isEnabled);
+		sameTypeCheckBox.setSelected(false);
 	}
 
 	/**
@@ -182,7 +204,7 @@ public class SpatialObjectDetail extends BasePanel {
 		calculateNObjectsButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				controller.selectClosestN((Integer) closestNSpinner.getValue());
+				controller.selectClosestN((Integer) closestNSpinner.getValue(), sameTypeCheckBox.isSelected());
 			}
 		});
 	}
@@ -344,7 +366,7 @@ public class SpatialObjectDetail extends BasePanel {
 		rootPanel.add(panel11, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		panel11.setBorder(BorderFactory.createTitledBorder("Closest N objects"));
 		final JPanel panel12 = new JPanel();
-		panel12.setLayout(new GridLayoutManager(1, 4, new Insets(0, 0, 0, 0), -1, -1));
+		panel12.setLayout(new GridLayoutManager(1, 5, new Insets(0, 0, 0, 0), -1, -1));
 		panel11.add(panel12, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		final JLabel label10 = new JLabel();
 		label10.setText("N (objects count)");
@@ -354,9 +376,12 @@ public class SpatialObjectDetail extends BasePanel {
 		calculateNObjectsButton = new JButton();
 		calculateNObjectsButton.setEnabled(false);
 		calculateNObjectsButton.setText("Calculate");
-		panel12.add(calculateNObjectsButton, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		panel12.add(calculateNObjectsButton, new GridConstraints(0, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final Spacer spacer4 = new Spacer();
-		panel12.add(spacer4, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+		panel12.add(spacer4, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+		sameTypeCheckBox = new JCheckBox();
+		sameTypeCheckBox.setText("same type");
+		panel12.add(sameTypeCheckBox, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		spatialNObectsTablePanel = new JPanel();
 		spatialNObectsTablePanel.setLayout(new BorderLayout(0, 0));
 		panel11.add(spatialNObectsTablePanel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));

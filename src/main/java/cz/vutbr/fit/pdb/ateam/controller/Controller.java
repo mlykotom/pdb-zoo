@@ -2,6 +2,7 @@ package cz.vutbr.fit.pdb.ateam.controller;
 
 import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
+import cz.vutbr.fit.pdb.ateam.gui.LoginForm;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import cz.vutbr.fit.pdb.ateam.model.employee.EmployeeModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
@@ -134,7 +135,7 @@ public class Controller {
 	public void reloadSpatialObjects() {
 		AsyncTask task = new AsyncTask() {
 			@Override
-			protected Boolean doInBackground() throws Exception {
+			protected Boolean doInBackground() {
 				try {
 					dataManager.reloadAllSpatialObjects();
 					dataManager.reloadAllSpatialObjectTypes();
@@ -148,11 +149,20 @@ public class Controller {
 
 			@Override
 			protected void onDone(boolean success) {
-				if (success) {
-					SpatialObjectsReloadObservable.getInstance().notifyObservers();
-				} else {
+				if (!success) {
+					int errorCode = getErrorCode();
+					if(errorCode == 2396 || errorCode == 1012){
+						LoginForm loginForm = new LoginForm();
+						loginForm.setVisible(true);
+						appStateChangedObservable.notifyStateChanged("Could not reload data.");
+						return;
+					}
+
 					showDialog(ERROR_MESSAGE, "Can not reload data!");
+					return;
 				}
+
+				SpatialObjectsReloadObservable.getInstance().notifyObservers();
 			}
 		};
 

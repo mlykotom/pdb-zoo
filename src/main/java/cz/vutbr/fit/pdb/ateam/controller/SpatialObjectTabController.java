@@ -77,14 +77,9 @@ public class SpatialObjectTabController extends Controller
 	 */
 	private void changePanelContentIntoDetail(SpatialObjectModel spatialObjectModel) {
 		Utils.changePanelContent(spatialObjectsTab, spatialObjectDetail);
-		spatialObjectDetail.setEnableControlComponents(!spatialObjectModel.isNew());
-		spatialObjectDetail.setzIndexSpinnerValue(spatialObjectModel.getzIndex());
-		spatialObjectDetail.setCalculatedInfo(null, null);
-		spatialObjectDetail.setCalculatedDistanceTo(null);
 		spatialObjectDetail.setTypeComboBoxModel(getSpatialObjectTypes());
 		spatialObjectDetail.setSpatialObject(spatialObjectModel);
 		selectedObject = spatialObjectModel;
-		spatialObjectDetail.getSpatialDetailTable().clearModels();
 	}
 
 	/**
@@ -314,7 +309,12 @@ public class SpatialObjectTabController extends Controller
 		}.start();
 	}
 
-	public void selectClosestN(final Integer count) {
+	/**
+	 * Spatial operator for selecting closest N objects
+	 * @param count how many closest objects will be selected
+	 * @param isSameType whether will be selected only objects with the same spatial type
+	 */
+	public void selectClosestN(final Integer count, final boolean isSameType) {
 		spatialObjectDetail.getSpatialDetailTable().clearModels();
 		new AsyncTask() {
 			private List<SpatialObjectModel> selectedObjects = new ArrayList<>();
@@ -322,7 +322,7 @@ public class SpatialObjectTabController extends Controller
 			@Override
 			protected Boolean doInBackground() {
 				try {
-					selectedObjects = dataManager.getClosestNSpatialObjects(selectedObject, count);
+					selectedObjects = dataManager.getClosestNSpatialObjects(selectedObject, count, isSameType);
 					return true;
 				} catch (DataManagerException e) {
 					e.printStackTrace();

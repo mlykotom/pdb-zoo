@@ -1,5 +1,6 @@
 package cz.vutbr.fit.pdb.ateam.gui.components;
 
+import cz.vutbr.fit.pdb.ateam.gui.BasePanel;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 
@@ -51,8 +52,8 @@ public class SpatialDetailTable extends JTable {
 
 		Collections.addAll(columns,
 				new Column("ID", 50),
-				new Column("NAME", 180),
-				new Column("DISTANCE", 180)
+				new Column("NAME", 250),
+				new Column("DISTANCE [m]", 150)
 		);
 
 		tableModel = new BaseTableModel(columns);
@@ -66,11 +67,11 @@ public class SpatialDetailTable extends JTable {
 		tableModel.addModel(model);
 	}
 
-	public void setModels(List<? extends BaseModel> models){
+	public void setModels(List<? extends BaseModel> models) {
 		tableModel.setModels(models);
 	}
 
-	public void clearModels(){
+	public void clearModels() {
 		tableModel.clearModels();
 	}
 
@@ -128,8 +129,7 @@ public class SpatialDetailTable extends JTable {
 					return model.getName();
 				case 2:
 					Object additional = model.getAdditionalInformations().get(SpatialObjectModel.ADDITIONAL_CLOSEST_DISTANCE);
-					if(additional == null)
-						return "";
+					return additional == null ? "" : BasePanel.doubleFormatter.format(additional);
 				default:
 					return "";
 			}

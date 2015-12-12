@@ -9,10 +9,10 @@ import java.text.NumberFormat;
 /**
  * Generic Panel contains abstract class getController to ensure that every Panel will contain a controller.
  *
- * @Author Tomas Hanus
+ * @author Tomas Hanus
  */
 public abstract class BasePanel extends JPanel {
-	protected static NumberFormat doubleFormatter = new DecimalFormat("#0.00");
+	public static NumberFormat doubleFormatter = new DecimalFormat("#0.00");
 
 	/**
 	 * Allows to get to the parent controller
