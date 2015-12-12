@@ -14,7 +14,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
- * Created by Jakub on 24.10.2015.
+ * Panel with the spatial objects table and button to create new spatial objects.
+ *
+ * @author Jakub Tutko
  */
 public class SpatialObjectsList extends BasePanel {
 	private JPanel rootPanel;
@@ -22,7 +24,6 @@ public class SpatialObjectsList extends BasePanel {
 	private JPanel tablePanel;
 	private JComboBox<SpatialModelShape> shapeComboBox;
 	private JButton createBuildingButton;
-	private JTable spatialObjectsTable;
 	private SpatialObjectTabController controller;
 
 	public SpatialObjectsList(SpatialObjectTabController controller) {
@@ -59,9 +60,8 @@ public class SpatialObjectsList extends BasePanel {
 	}
 
 	public void setSpatialObjectsTable(JTable table) {
-		spatialObjectsTable = table;
 		tablePanel.removeAll();
-		tablePanel.add(new JScrollPane(spatialObjectsTable));
+		tablePanel.add(new JScrollPane(table));
 	}
 
 	@Override

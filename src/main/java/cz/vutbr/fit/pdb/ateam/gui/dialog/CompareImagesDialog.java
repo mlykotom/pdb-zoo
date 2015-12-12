@@ -12,6 +12,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * Dialog shows three the most similar images to the original image.
+ *
+ * @author Jakub Tutko
+ */
 public class CompareImagesDialog extends JDialog {
 	private static final int WINDOW_WIDTH = 600;
 	private static final int WINDOW_HEIGHT = 600;
@@ -25,6 +30,16 @@ public class CompareImagesDialog extends JDialog {
 	private JPanel similarImagePanel2;
 	private JPanel similarImagePanel3;
 
+	/**
+	 * Constructor shows build dialog with original image and three the most similar images.
+	 * Dialog needs to be showed afterwards.
+	 *
+	 * @param parentPanel dialog will be shown in the middle of this panel
+	 * @param originalImage original image
+	 * @param image1 the most similar image
+	 * @param image2 second most similar image
+	 * @param image3 third most similar image
+	 */
 	public CompareImagesDialog(JPanel parentPanel, ImagePanel originalImage, ImagePanel image1, ImagePanel image2, ImagePanel image3) {
 		setContentPane(contentPane);
 		setModal(true);

@@ -92,4 +92,21 @@ public class Utils {
 		}
 		return foreverDate;
 	}
+
+	/**
+	 * Changes table's button background and foreground according to button's selection.
+	 *
+	 * @param isSelected flag if button is selected
+	 * @param button table's button
+	 * @param table button
+	 */
+	public static void setButtonForegroundAndBackground(boolean isSelected, JButton button, JTable table) {
+		if (isSelected) {
+			button.setForeground(table.getSelectionForeground());
+			button.setBackground(table.getSelectionBackground());
+		} else {
+			button.setForeground(table.getForeground());
+			button.setBackground(table.getBackground());
+		}
+	}
 }

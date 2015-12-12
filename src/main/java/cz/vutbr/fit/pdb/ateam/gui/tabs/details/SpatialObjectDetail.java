@@ -16,6 +16,8 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 /**
+ * Panel of the detailed info about spatial object.
+ *
  * @author Jakub Tutko
  * @author Tomas Mlynaric
  */
@@ -59,8 +61,13 @@ public class SpatialObjectDetail extends BasePanel {
 		return nameTextField.getText();
 	}
 
+
 	public void setzIndexSpinnerValue(Integer value) {
 		zIndexSpinner.setValue(value);
+	}
+		
+	public String getTypeComboBoxValue() {
+		return (String) typeComboBox.getSelectedItem();
 	}
 
 	public Integer getZIndexSpinnerValue() {

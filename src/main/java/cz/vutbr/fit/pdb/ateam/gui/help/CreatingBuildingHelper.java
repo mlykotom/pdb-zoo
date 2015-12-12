@@ -12,7 +12,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
- * Created by Jakub on 27.11.2015.
+ * Help panel for creating spatial objects. Displays when new spatial object is creating.
+ *
+ * @author Jakub Tutko
  */
 public class CreatingBuildingHelper extends JPanel {
 	private JPanel rootPanel;

@@ -3,7 +3,7 @@ package cz.vutbr.fit.pdb.ateam.exception;
 /**
  * Exception used by DataManager class.
  *
- * Created by Jakub Tutko on 11.10.2015.
+ * @author Jakub Tutko
  */
 public class DataManagerException extends Exception {
 	public static final int ERROR_CODE_MAX_SESSION = 2391;
@@ -39,7 +39,7 @@ public class DataManagerException extends Exception {
 
 	/**
 	 * Can pass error code from SQLException
-	 * @return
+	 * @return error code
 	 */
 	public int getErrorCode(){ return this.errorCode; }
 }

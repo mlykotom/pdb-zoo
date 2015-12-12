@@ -2,6 +2,7 @@ package cz.vutbr.fit.pdb.ateam.gui.components;
 
 import cz.vutbr.fit.pdb.ateam.controller.SpatialObjectTableController;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
+import cz.vutbr.fit.pdb.ateam.utils.Utils;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -15,11 +16,19 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 /**
- * Created by Jakub on 25.10.2015.
+ * Table for the spatial objects. Includes columns saved in the database and
+ * delete, edit buttons.
+ *
+ * @author Jakub Tutko
  */
 public class SpatialObjectsTable extends JTable {
 	private SpatialObjectsTableModel tableModel;
 
+	/**
+	 * Constructor creates empty table.
+	 *
+	 * @param controller controller which implements delete & edit actions of the SpatialObjectsTable
+	 */
 	public SpatialObjectsTable (SpatialObjectTableController controller) {
 		super();
 
@@ -45,39 +54,79 @@ public class SpatialObjectsTable extends JTable {
 				new ButtonEditor(controller));
 	}
 
+	/**
+	 * Method adds object as new row into table.
+	 *
+	 * @param spatialObjectModel model of the spatial object
+	 */
 	public void addSpatialObjectModel(SpatialObjectModel spatialObjectModel) {
 		tableModel.addSpatialObjectModel(spatialObjectModel);
 	}
 
+	/**
+	 * Table model for the spatial object table.
+	 *
+	 * @author Jakub Tutko
+	 */
 	private class SpatialObjectsTableModel extends AbstractTableModel {
 		private String[] columnNames;
 		private ArrayList<SpatialObjectModel> objectsList;
 
+		/**
+		 * Constructor creates columns in the table (ID, NAME, TYPE, DELETE, EDIT).
+		 */
 		public SpatialObjectsTableModel() {
 			columnNames = new String[] {"ID", "NAME", "TYPE", "DELETE", "EDIT"};
 			objectsList = new ArrayList<>();
 		}
 
+		/**
+		 * Ads model as row into the table.
+		 *
+		 * @param spatialObjectModel model to insert into table
+		 */
 		public void addSpatialObjectModel(SpatialObjectModel spatialObjectModel) {
 			objectsList.add(spatialObjectModel);
 			fireTableRowsInserted(objectsList.size() - 1, objectsList.size() - 1);
 		}
 
-
+		/**
+		 * Returns spatial object at the selected row.
+		 *
+		 * @param rowIndex index of the row
+		 * @return spatial object at the selected row
+		 */
 		public SpatialObjectModel getSpatialObjectModel(int rowIndex) {
 			return objectsList.get(getRowSorter().convertRowIndexToModel(rowIndex));
 		}
 
+		/**
+		 * Counts table's rows.
+		 *
+		 * @return table's rows count
+		 */
 		@Override
 		public int getRowCount() {
 			return objectsList.size();
 		}
 
+		/**
+		 * Counts table's columns.
+		 *
+		 * @return table's columns count
+		 */
 		@Override
 		public int getColumnCount() {
 			return columnNames.length;
 		}
 
+		/**
+		 * Returns object value according to column and row index.
+		 *
+		 * @param rowIndex row index of the value
+		 * @param columnIndex column index of the value
+		 * @return value at selected row & column
+		 */
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			SpatialObjectModel spatialObjectModel = objectsList.get(rowIndex);
@@ -98,6 +147,12 @@ public class SpatialObjectsTable extends JTable {
 			}
 		}
 
+		/**
+		 * Returns name of the selected column.
+		 *
+		 * @param columnIndex index of the column
+		 * @return name of the selected column
+		 */
 		@Override
 		public String getColumnName(int columnIndex) {
 			if(columnIndex >= columnNames.length)
@@ -106,12 +161,24 @@ public class SpatialObjectsTable extends JTable {
 			return columnNames[columnIndex];
 		}
 
+		/**
+		 * Tells if specified cell is editable.
+		 *
+		 * @param rowIndex index of the row
+		 * @param columnIndex index of the column
+		 * @return false if cell contains button, true otherwise
+		 */
 		@Override
 		public boolean isCellEditable(int rowIndex, int columnIndex) {
 			return columnIndex == 3 || columnIndex == 4;
 		}
 	}
 
+	/**
+	 * Class renders button in the table
+	 *
+	 * @author Jakub Tutko
+	 */
 	private class ButtonRenderer extends JButton implements TableCellRenderer {
 
 		public ButtonRenderer() {
@@ -120,18 +187,18 @@ public class SpatialObjectsTable extends JTable {
 
 		public Component getTableCellRendererComponent(JTable table, Object value,
 		                                               boolean isSelected, boolean hasFocus, int row, int column) {
-			if (isSelected) {
-				setForeground(table.getSelectionForeground());
-				setBackground(table.getSelectionBackground());
-			} else {
-				setForeground(table.getForeground());
-				setBackground(UIManager.getColor("Button.background"));
-			}
+
+			Utils.setButtonForegroundAndBackground(isSelected, this, table);
 			setText((value == null) ? "" : value.toString());
 			return this;
 		}
 	}
 
+	/**
+	 * Class edits buttons in the table.
+	 *
+	 * @author Jakub Tutko
+	 */
 	private class ButtonEditor extends DefaultCellEditor {
 		protected JButton button;
 
@@ -158,13 +225,8 @@ public class SpatialObjectsTable extends JTable {
 
 		public Component getTableCellEditorComponent(JTable table, Object value,
 		                                             boolean isSelected, int row, int column) {
-			if (isSelected) {
-				button.setForeground(table.getSelectionForeground());
-				button.setBackground(table.getSelectionBackground());
-			} else {
-				button.setForeground(table.getForeground());
-				button.setBackground(table.getBackground());
-			}
+
+			Utils.setButtonForegroundAndBackground(isSelected, button, table);
 			label = (value == null) ? "" : value.toString();
 			button.setText(label);
 			isPushed = true;

@@ -173,10 +173,20 @@ public class SpatialObjectTabController extends Controller
 		saveModels(selectedObject);
 	}
 
+	/**
+	 * Action for the cancel button in the spatial objects detailed view. Action
+	 * notifies all other controllers that selected object is no more selected.
+	 */
 	public void detailCancelButtonAction() {
 		SpatialObjectSelectionChangeObservable.getInstance().notifyObservers(null);
 	}
 
+	/**
+	 * Action for the delete button in the spatial objects detailed view. Action
+	 * deletes selected object.
+	 *
+	 * @param model model which will be deleted
+	 */
 	public void detailDeleteButtonAction(SpatialObjectModel model) {
 		spatialObjectsTableDeleteAction(model);
 	}
@@ -191,6 +201,12 @@ public class SpatialObjectTabController extends Controller
 		Utils.changePanelContent(spatialObjectsTab, new CreatingBuildingHelper(shapeType));
 	}
 
+	/**
+	 * Fires when some model has changed.
+	 *
+	 * @param model any model saved to DB
+	 * @param modelState specifies what happened to the model (possibly SAVED, DELETED) see {@link ModelState}
+	 */
 	@Override
 	public void modelChangedStateListener(BaseModel model, ModelState modelState) {
 		if ((model instanceof SpatialObjectModel) && (modelState == ModelState.SAVED)) {

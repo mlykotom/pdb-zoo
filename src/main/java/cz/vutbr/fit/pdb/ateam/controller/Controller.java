@@ -208,7 +208,7 @@ public class Controller {
 	/**
 	 * Displays dialog with given message in the middle of the given JPanel, based on type.
 	 *
-	 * @param type    type of the dialog (INFO, WARNING, ERROR)
+	 * @param type type of the dialog (INFO_MESSAGE, WARNING_MESSAGE, ERROR_MESSAGE)
 	 * @param message message with description of the error
 	 */
 	protected void showDialog(int type, String message) {
