@@ -1,10 +1,12 @@
 package cz.vutbr.fit.pdb.ateam.model;
 
 import java.util.Collection;
+import java.util.HashMap;
 
 /**
  * Generic model containing data which should be in any model in system
- * Created by Tomas Mlynaric on 20.10.2015.
+ *
+ * @author Tomas Mlynaric
  */
 abstract public class BaseModel {
 	public static final String NEW_MODEL_NAME = "<< New >>";
@@ -14,17 +16,15 @@ abstract public class BaseModel {
 	protected boolean isDeleted = false;
 	public static final long NULL_ID = -1L;
 
-
-	public BaseModel() {
-	}
+	private HashMap<String, Object> additionalInformations = new HashMap<>();
 
 	public BaseModel(long id, String name) {
 		this.id = id;
 		this.name = name;
 	}
 
-//	abstract public boolean saveModel();
-
+	public BaseModel() {
+	}
 
 	/**
 	 * Serves for manipulating with any model in DataManager
@@ -61,11 +61,10 @@ abstract public class BaseModel {
 		return result;
 	}
 
-	/**
-	 * Checks if model new based on Id
-	 *
-	 * @return
-	 */
+	public HashMap<String, Object> getAdditionalInformations() {
+		return additionalInformations;
+	}
+
 	public boolean isNew() {
 		return this.id == 0;
 	}
@@ -105,16 +104,17 @@ abstract public class BaseModel {
 
 	/**
 	 * Finds model by specified Id
-	 * @param Id of any model, if null -> does not even try to find
+	 *
+	 * @param Id       of any model, if null -> does not even try to find
 	 * @param hayStack list of objects which inherits of BaseModel
-	 * @param <T> any model inheriting from BaseModel
+	 * @param <T>      any model inheriting from BaseModel
 	 * @return null if not found, otherwise found model
 	 */
-	public static <T extends BaseModel> T findById(Long Id, Collection<T> hayStack){
-		if(Id == null) return null;
+	public static <T extends BaseModel> T findById(Long Id, Collection<T> hayStack) {
+		if (Id == null) return null;
 
-		for (T obj: hayStack) {
-			if(Id.equals(obj.getId())) return obj;
+		for (T obj : hayStack) {
+			if (Id.equals(obj.getId())) return obj;
 		}
 
 		return null;

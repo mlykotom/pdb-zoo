@@ -1,5 +1,6 @@
 package cz.vutbr.fit.pdb.ateam.gui.tabs;
 
+import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import cz.vutbr.fit.pdb.ateam.controller.SpatialObjectTabController;
 import cz.vutbr.fit.pdb.ateam.gui.ContentPanel;

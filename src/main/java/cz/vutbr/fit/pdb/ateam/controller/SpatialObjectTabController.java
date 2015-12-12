@@ -2,6 +2,7 @@ package cz.vutbr.fit.pdb.ateam.controller;
 
 import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
+import cz.vutbr.fit.pdb.ateam.gui.components.SpatialDetailTable;
 import cz.vutbr.fit.pdb.ateam.gui.components.SpatialObjectsTable;
 import cz.vutbr.fit.pdb.ateam.gui.help.CreatingBuildingHelper;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.SpatialObjectsTab;
@@ -76,10 +77,6 @@ public class SpatialObjectTabController extends Controller
 	 */
 	private void changePanelContentIntoDetail(SpatialObjectModel spatialObjectModel) {
 		Utils.changePanelContent(spatialObjectsTab, spatialObjectDetail);
-		spatialObjectDetail.setEnableControlComponents(!spatialObjectModel.isNew());
-		spatialObjectDetail.setzIndexSpinnerValue(spatialObjectModel.getzIndex());
-		spatialObjectDetail.setCalculatedInfo(null, null);
-		spatialObjectDetail.setCalculatedDistanceTo(null);
 		spatialObjectDetail.setTypeComboBoxModel(getSpatialObjectTypes());
 		spatialObjectDetail.setSpatialObject(spatialObjectModel);
 		selectedObject = spatialObjectModel;
@@ -204,7 +201,7 @@ public class SpatialObjectTabController extends Controller
 	/**
 	 * Fires when some model has changed.
 	 *
-	 * @param model any model saved to DB
+	 * @param model      any model saved to DB
 	 * @param modelState specifies what happened to the model (possibly SAVED, DELETED) see {@link ModelState}
 	 */
 	@Override
@@ -284,6 +281,11 @@ public class SpatialObjectTabController extends Controller
 		}.start();
 	}
 
+	/**
+	 * Selects any objects within specified distance
+	 *
+	 * @param distance boundary specified in meters
+	 */
 	public void selectAllWithinDistance(final Integer distance) {
 		new AsyncTask() {
 			private List<SpatialObjectModel> selectedObjects = new ArrayList<>();
@@ -302,6 +304,36 @@ public class SpatialObjectTabController extends Controller
 
 			@Override
 			protected void onDone(boolean success) {
+				SpatialObjectMultiSelectionChangeObservable.getInstance().notifyObservers(selectedObjects);
+			}
+		}.start();
+	}
+
+	/**
+	 * Spatial operator for selecting closest N objects
+	 * @param count how many closest objects will be selected
+	 * @param isSameType whether will be selected only objects with the same spatial type
+	 */
+	public void selectClosestN(final Integer count, final boolean isSameType) {
+		spatialObjectDetail.getSpatialDetailTable().clearModels();
+		new AsyncTask() {
+			private List<SpatialObjectModel> selectedObjects = new ArrayList<>();
+
+			@Override
+			protected Boolean doInBackground() {
+				try {
+					selectedObjects = dataManager.getClosestNSpatialObjects(selectedObject, count, isSameType);
+					return true;
+				} catch (DataManagerException e) {
+					e.printStackTrace();
+					// TODO
+					return false;
+				}
+			}
+
+			@Override
+			protected void onDone(boolean success) {
+				spatialObjectDetail.getSpatialDetailTable().setModels(selectedObjects);
 				SpatialObjectMultiSelectionChangeObservable.getInstance().notifyObservers(selectedObjects);
 			}
 		}.start();
