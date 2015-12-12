@@ -1,10 +1,7 @@
 package cz.vutbr.fit.pdb.ateam.observer;
 
-import cz.vutbr.fit.pdb.ateam.controller.MenuBarController;
-import cz.vutbr.fit.pdb.ateam.model.BaseModel;
-import cz.vutbr.fit.pdb.ateam.utils.Logger;
+import cz.vutbr.fit.pdb.ateam.controller.MainFrameController;
 
-import java.awt.event.HierarchyBoundsAdapter;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -15,7 +12,7 @@ import java.util.TimerTask;
  */
 public class AppStateChangedObservable{
 	private static AppStateChangedObservable instance = new AppStateChangedObservable();
-	private MenuBarController mainFrameController;
+	private MainFrameController mainFrameController;
 	private Timer timer = new Timer();
 
 	public synchronized static AppStateChangedObservable getInstance() {
@@ -42,7 +39,7 @@ public class AppStateChangedObservable{
 		}
 	}
 
-	public void subscribe(MenuBarController menuBarController) {
-		this.mainFrameController = menuBarController;
+	public void subscribe(MainFrameController mainFrameController) {
+		this.mainFrameController = mainFrameController;
 	}
 }

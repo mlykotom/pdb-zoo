@@ -12,7 +12,7 @@ import cz.vutbr.fit.pdb.ateam.utils.Logger;
  *
  * @author Jakub Tutko
  */
-public class MenuBarController extends Controller {
+public class MainFrameController extends Controller {
 	private MainFrame mainFrame;
 
 	/**
@@ -20,7 +20,7 @@ public class MenuBarController extends Controller {
 	 *
 	 * @param mainFrame instance of the MainFrame
 	 */
-	public MenuBarController(MainFrame mainFrame) {
+	public MainFrameController(MainFrame mainFrame) {
 		super();
 		this.mainFrame = mainFrame;
 		AppStateChangedObservable.getInstance().subscribe(this);

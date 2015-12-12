@@ -1,6 +1,6 @@
 package cz.vutbr.fit.pdb.ateam.gui;
 
-import cz.vutbr.fit.pdb.ateam.controller.MenuBarController;
+import cz.vutbr.fit.pdb.ateam.controller.MainFrameController;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
 
 import javax.swing.*;
@@ -20,17 +20,17 @@ public class MainFrame extends JFrame {
 	private static final int WINDOW_DEFAULT_WIDTH = 1024;
 	private static final int WINDOW_DEFAULT_HEIGHT = 768;
 
-	private MenuBarController menuBarController;
+	private MainFrameController mainFrameController;
 	public ContentPanel contentPanel;
 
 	private JLabel appStateLabel = new JLabel();
 
 	/**
-	 * Constructor creates instance of the MenuBarController for
+	 * Constructor creates instance of the MainFrameController for
 	 * events occurred in MenuBar and initializes frame.
 	 */
 	public MainFrame() {
-		this.menuBarController = new MenuBarController(this);
+		this.mainFrameController = new MainFrameController(this);
 		contentPanel = new ContentPanel();
 		initUI();
 	}
@@ -91,7 +91,7 @@ public class MainFrame extends JFrame {
 		logoutButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				menuBarController.logoutMenuAction();
+				mainFrameController.logoutMenuAction();
 			}
 		});
 		Utils.setComponentFixSize(logoutButton, 100, 30);
