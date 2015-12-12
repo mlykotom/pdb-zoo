@@ -810,6 +810,37 @@ public class DataManager {
 	}
 
 	/**
+	 * Gets all N closest spatial objects with distance
+	 * @param spatialLeft object which is related to
+	 * @param count of objects to select
+	 * @return list of spatial objects with additional information -> distance
+	 * @throws DataManagerException
+	 */
+	public List<SpatialObjectModel> getClosestNSpatialObjects(SpatialObjectModel spatialLeft, Integer count) throws DataManagerException {
+		String sqlQuery = "SELECT R.ID, SDO_NN_DISTANCE(1) Distance FROM SPATIAL_OBJECTS L, SPATIAL_OBJECTS R WHERE L.ID = " + spatialLeft.getId() + " AND L.ID != R.ID AND ";
+		sqlQuery += "SDO_NN(R.GEOMETRY, L.GEOMETRY, 'SDO_NUM_RES=" + count + "', 1) = 'TRUE'";
+		sqlQuery += "ORDER BY Distance";
+
+		ResultSet resultSet = createDatabaseQuery(sqlQuery);
+		try {
+			List<SpatialObjectModel> resultModels = new ArrayList<>();
+			// iterating all found rows
+			while (resultSet.next()) {
+				Long spatialId = resultSet.getLong("Id");
+				Double distance = resultSet.getDouble("Distance");
+				SpatialObjectModel foundModel = BaseModel.findById(spatialId, getSpatialObjects());
+				if (foundModel == null) continue;
+				foundModel.getAdditionalInformations().put(SpatialObjectModel.ADDITIONAL_CLOSEST_DISTANCE, distance);
+				resultModels.add(foundModel);
+			}
+
+			return resultModels;
+		} catch (SQLException ex) {
+			throw new DataManagerException("getAllSpatialObjectsFromFunction: SQLException: " + ex.getMessage());
+		}
+	}
+
+	/**
 	 * Is used to get cached data from SpatialObjectTypes Table.
 	 *
 	 * @return list of SpatialObjectTypes
@@ -942,7 +973,7 @@ public class DataManager {
 				java.sql.Date dateFrom = new java.sql.Date(arDateFrom.getTime());
 				java.sql.Date dateTo = new java.sql.Date(arDateTo.getTime());
 
-				CallableStatement cstmt = connection.prepareCall ("BEGIN updateEmployeeTable(?, ?, ?, ?); END;");
+				CallableStatement cstmt = connection.prepareCall("BEGIN updateEmployeeTable(?, ?, ?, ?); END;");
 
 				cstmt.setLong(1, employeeID);
 				cstmt.setDate(2, dateFrom);
@@ -959,7 +990,7 @@ public class DataManager {
 	}
 
 
-	public boolean deleteEmployeeShifts(final Long employeeID, final Date arDateFrom, final Date arDateTo){
+	public boolean deleteEmployeeShifts(final Long employeeID, final Date arDateFrom, final Date arDateTo) {
 
 		AsyncTask asyncTask = new AsyncTask() {
 			@Override
@@ -972,7 +1003,7 @@ public class DataManager {
 				java.sql.Date dateFrom = new java.sql.Date(arDateFrom.getTime());
 				java.sql.Date dateTo = new java.sql.Date(arDateTo.getTime());
 
-				CallableStatement cstmt = connection.prepareCall ("BEGIN deleteEmployeeShiftTable(?, ?, ?); END;");
+				CallableStatement cstmt = connection.prepareCall("BEGIN deleteEmployeeShiftTable(?, ?, ?); END;");
 
 				cstmt.setLong(1, employeeID);
 				cstmt.setDate(2, dateFrom);

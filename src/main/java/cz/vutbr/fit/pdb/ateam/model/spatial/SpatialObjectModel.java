@@ -23,6 +23,7 @@ abstract public class SpatialObjectModel extends BaseModel implements Comparable
 	private static final BasicStroke DEFAULT_STROKE = new BasicStroke(1);
 	protected static final int INTERSECT_BOX_SIZE = 10;
 	public static final int NO_SRID = 0;
+	public static final String ADDITIONAL_CLOSEST_DISTANCE = "ClosestDistance";
 
 	protected int zIndex;
 	protected JGeometry geometry;
@@ -64,7 +65,7 @@ abstract public class SpatialObjectModel extends BaseModel implements Comparable
 	/**
 	 * Setups object and creates shape for graphic representation from jGeometry.
 	 * It's protected so that it's not possible to instantiate the class
-	 * otherwise than by {@link #loadFromDB(Long, String, SpatialObjectTypeModel, byte[])}
+	 * otherwise than by {@link #loadFromDB(Long, int, String, SpatialObjectTypeModel, byte[])}
 	 *
 	 * @param name     name of spatial object
 	 * @param type     association to object type (basket, house, path, ...)
