@@ -230,7 +230,7 @@ public class SpatialObjectDetail extends BasePanel {
 	 */
 	private void $$$setupUI$$$() {
 		rootPanel = new JPanel();
-		rootPanel.setLayout(new GridLayoutManager(6, 3, new Insets(15, 15, 15, 15), -1, -1));
+		rootPanel.setLayout(new GridLayoutManager(6, 3, new Insets(10, 10, 10, 10), -1, -1));
 		rootPanel.setEnabled(true);
 		final JPanel panel1 = new JPanel();
 		panel1.setLayout(new GridLayoutManager(5, 4, new Insets(0, 0, 0, 0), -1, -1));
