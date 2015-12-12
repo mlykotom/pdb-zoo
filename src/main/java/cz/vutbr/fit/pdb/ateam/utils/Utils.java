@@ -1,6 +1,7 @@
 package cz.vutbr.fit.pdb.ateam.utils;
 
 import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
+import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,8 +21,12 @@ public class Utils {
 	 * Disconnects database and closes application.
 	 */
 	public static void whenApplicationClosing() {
-		DataManager.getInstance().disconnectDatabase();
-		Logger.createLog(Logger.DEBUG_LOG, "Closing application with System.exit(0).");
+		try{
+			DataManager.getInstance().disconnectDatabase();
+			Logger.createLog(Logger.DEBUG_LOG, "Closing application with System.exit(0).");
+		} catch (DataManagerException e) {
+			Logger.createLog(Logger.ERROR_LOG, "Cannot logout DB! Closing application anyway!");
+		}
 	}
 
 	/**

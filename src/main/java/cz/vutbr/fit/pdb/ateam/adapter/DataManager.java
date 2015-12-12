@@ -89,7 +89,7 @@ public class DataManager {
 	/**
 	 * Closes connection if opened.
 	 */
-	public void disconnectDatabase() {
+	public void disconnectDatabase() throws DataManagerException {
 		this.spatialObjectTypes = null;
 		this.spatialObjects = null;
 		// TODO should null other cached objects
@@ -100,7 +100,7 @@ public class DataManager {
 				connection = null;
 				Logger.createLog(Logger.DEBUG_LOG, "DB connection closed!");
 			} catch (SQLException e) {
-				Logger.createLog(Logger.ERROR_LOG, "Can not close connection!");
+				throw new DataManagerException("SQLException: " + e.getMessage());
 			}
 		}
 	}

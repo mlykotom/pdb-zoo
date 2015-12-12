@@ -1,7 +1,11 @@
 package cz.vutbr.fit.pdb.ateam.controller;
 
+import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.gui.LoginForm;
 import cz.vutbr.fit.pdb.ateam.gui.MainFrame;
+import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectsReloadObservable;
+import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
+import cz.vutbr.fit.pdb.ateam.utils.Logger;
 
 /**
  * Class controls all events occurred in MainFrame's MenuBar.
@@ -25,8 +29,29 @@ public class MenuBarController extends Controller {
 	 * LogoutMenu in MenuBar logout user and opens LoginForm.
 	 */
 	public void logoutMenuAction() {
-		dataManager.disconnectDatabase();
-		mainFrame.dispose();
-		new LoginForm().setVisible(true);
+		AsyncTask task = new AsyncTask() {
+			@Override
+			protected void onDone(boolean success) {
+				if(success) {
+					mainFrame.dispose();
+					new LoginForm().setVisible(true);
+				} else {
+					showDialog(ERROR_MESSAGE, "Cannot logout from the database!");
+				}
+			}
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				try {
+					dataManager.disconnectDatabase();
+					return true;
+				} catch (DataManagerException e) {
+					Logger.createLog(Logger.ERROR_LOG, e.getMessage());
+				}
+				return false;
+			}
+		};
+
+		task.start();
 	}
 }
