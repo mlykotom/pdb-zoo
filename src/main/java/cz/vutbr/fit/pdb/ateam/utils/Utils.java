@@ -22,7 +22,9 @@ public class Utils {
 	 */
 	public static void whenApplicationClosing() {
 		try{
-			DataManager.getInstance().disconnectDatabase();
+			DataManager dbManager = DataManager.getInstance();
+			dbManager.clearCache();
+			dbManager.disconnectDatabase();
 			Logger.createLog(Logger.DEBUG_LOG, "Closing application with System.exit(0).");
 		} catch (DataManagerException e) {
 			Logger.createLog(Logger.ERROR_LOG, "Cannot logout DB! Closing application anyway!");

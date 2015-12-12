@@ -108,7 +108,6 @@ public class DataManager {
 		this.spatialObjectTypes = null;
 		this.spatialObjects = null;
 		this.employees = null;
-		// TODO should null other cached objects
 	}
 
 	/**
@@ -198,37 +197,6 @@ public class DataManager {
 	}
 
 	/**
-	 * Method executes update at the database with prepared statement. This method is used for CREATE, DROP,
-	 * UPDATE, INSERT, DELETE clauses.
-	 *
-	 * @param sqlUpdate string of the update, which will be sent with prepared statement
-	 * @param data      data, which will be filled into prepared statement in right order
-	 * @throws DataManagerException when connection is not set yet, or when some
-	 *                              sql cz.vutbr.fit.pdb.ateam.exception occurs during execution
-	 */
-	private void createDatabaseUpdatePrepared(String sqlUpdate, ORAData... data) throws DataManagerException {
-		if (sqlUpdate == null) throw new DataManagerException("createDatabaseUpdatePrepared: Null sqlUpdate received!");
-
-		tryConnection();
-
-		try {
-			OraclePreparedStatement preparedStatement = (OraclePreparedStatement) connection.prepareStatement(sqlUpdate);
-
-			int i = 1;
-			for (ORAData actualData : data) {
-				preparedStatement.setORAData(i++, actualData);
-			}
-
-			Logger.createLog(Logger.DEBUG_LOG, "Sending update: " + sqlUpdate);
-
-			preparedStatement.executeUpdate();
-			preparedStatement.close();
-		} catch (SQLException ex) {
-			throw new DataManagerException("createDatabaseUpdatePrepared: SQLException: " + ex.getMessage());
-		}
-	}
-
-	/**
 	 * Executes prepared statement for insert and sets latest inserted id to the specified model.
 	 * NOTE: Turns off and on autoCommit!
 	 *
@@ -285,6 +253,10 @@ public class DataManager {
 		// TODO should be specified from which cache will be deleted
 		if (model instanceof SpatialObjectModel) {
 			spatialObjects.remove(model);
+		} else if (model instanceof SpatialObjectTypeModel) {
+			spatialObjectTypes.remove(model);
+		} else if (model instanceof EmployeeModel) {
+			employees.remove(model);
 		}
 	}
 
@@ -820,13 +792,16 @@ public class DataManager {
 	 * @throws DataManagerException
 	 */
 	public List<SpatialObjectModel> getClosestNSpatialObjects(SpatialObjectModel spatialLeft, Integer count, boolean sameType) throws DataManagerException {
-		String sqlQuery = "SELECT /*+ ORDERED */ R.ID, SDO_NN_DISTANCE(1) AS Distance FROM SPATIAL_OBJECTS L, SPATIAL_OBJECTS R WHERE L.ID = " + spatialLeft.getId() + " AND L.ID != R.ID AND ";
-		if (sameType) {
-			sqlQuery += "L.TYPE = R.TYPE AND ";
-		}
-		sqlQuery += "SDO_NN(R.GEOMETRY, L.GEOMETRY, 'SDO_BATCH_SIZE=10', 1) = 'TRUE'";
-		sqlQuery += "AND ROWNUM <= " + count + " ";
-		sqlQuery += "ORDER BY Distance";
+		String sqlQuery = "" +
+				"SELECT /*+ ORDERED */ R.ID, SDO_NN_DISTANCE(1) AS Distance " +
+				"FROM SPATIAL_OBJECTS L, SPATIAL_OBJECTS R " +
+				"WHERE " +
+				"L.ID = " + spatialLeft.getId() + " AND " +
+				"L.ID != R.ID AND " +
+				"SDO_NN(R.GEOMETRY, L.GEOMETRY, 'SDO_BATCH_SIZE=10', 1) = 'TRUE' AND " +
+				"ROWNUM <= " + count + " " +
+				(sameType ? "AND L.TYPE = R.TYPE " : "") +
+				"ORDER BY Distance";
 
 		ResultSet resultSet = createDatabaseQuery(sqlQuery);
 		try {
