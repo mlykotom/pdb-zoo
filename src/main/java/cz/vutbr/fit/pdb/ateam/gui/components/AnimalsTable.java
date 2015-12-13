@@ -1,8 +1,8 @@
 package cz.vutbr.fit.pdb.ateam.gui.components;
 
 import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
-import cz.vutbr.fit.pdb.ateam.controller.EmployeesTableController;
-import cz.vutbr.fit.pdb.ateam.model.employee.EmployeeModel;
+import cz.vutbr.fit.pdb.ateam.controller.AnimalsTableController;
+import cz.vutbr.fit.pdb.ateam.model.animal.AnimalModel;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -16,15 +16,15 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 /**
- * Created by Tomas Hanus on 28.11.2015.
+ * @Author by Tomas Hanus on 12/12/2015.
  */
-public class EmployeesTable extends JTable {
-	private EmployeesTableModel tableModel;
+public class AnimalsTable extends JTable {
+	private AnimalsTableModel tableModel;
 
-	public EmployeesTable (EmployeesTableController controller) {
+	public AnimalsTable (AnimalsTableController controller) {
 		super();
 
-		tableModel = new EmployeesTableModel();
+		tableModel = new AnimalsTableModel();
 
 		setModel(tableModel);
 
@@ -42,8 +42,8 @@ public class EmployeesTable extends JTable {
 				new ButtonEditor(controller));
 	}
 
-	public void addEmployeeModel(EmployeeModel employeeModel) {
-		tableModel.addEmployeeModel(employeeModel);
+	public void addAnimalModel(AnimalModel animalModel) {
+		tableModel.addAnimalModel(animalModel);
 	}
 
 	public void setColumnsWidth() {
@@ -56,11 +56,9 @@ public class EmployeesTable extends JTable {
 				case 1:
 				case 2:
 					getColumnModel().getColumn(i).setPreferredWidth(70);
-//					getColumnModel().getColumn(i).setMaxWidth(80);
 					break;
 				case 3:
-					getColumnModel().getColumn(i).setPreferredWidth(120);
-					getColumnModel().getColumn(i).setMaxWidth(120);
+					getColumnModel().getColumn(i).setPreferredWidth(150);
 					break;
 				case 4:
 					getColumnModel().getColumn(i).setPreferredWidth(55);
@@ -72,22 +70,22 @@ public class EmployeesTable extends JTable {
 		}
 	}
 
-	private class EmployeesTableModel extends AbstractTableModel {
+	private class AnimalsTableModel extends AbstractTableModel {
 		private String[] columnNames;
-		private ArrayList<EmployeeModel> objectsList;
+		private ArrayList<AnimalModel> objectsList;
 
-		public EmployeesTableModel() {
-			columnNames = new String[] {"ID", "NAME", "SURNAME", "LOCATION", "EDIT"};
+		public AnimalsTableModel() {
+			columnNames = new String[] {"ID", "NAME", "SPECIES", "LOCATION", "WEIGHT", "EDIT"};
 			objectsList = new ArrayList<>();
 		}
 
-		public void addEmployeeModel(EmployeeModel employeeModel) {
-			objectsList.add(employeeModel);
+		public void addAnimalModel(AnimalModel animalModel) {
+			objectsList.add(animalModel);
 			fireTableRowsInserted(objectsList.size() - 1, objectsList.size() - 1);
 		}
 
 
-		public EmployeeModel getEmployeeModel(int rowIndex) {
+		public AnimalModel getAnimalModel(int rowIndex) {
 			return objectsList.get(getRowSorter().convertRowIndexToModel(rowIndex));
 		}
 
@@ -103,18 +101,20 @@ public class EmployeesTable extends JTable {
 
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
-			EmployeeModel employeeModel = objectsList.get(rowIndex);
+			AnimalModel animalModel = objectsList.get(rowIndex);
 
 			switch (columnIndex) {
 				case 0:
-					return employeeModel.getId();
+					return animalModel.getId();
 				case 1:
-					return employeeModel.getName();
+					return animalModel.getName();
 				case 2:
-					return employeeModel.getSurname();
+					return animalModel.getSpecies();
 				case 3:
-					return DataManager.getInstance().getSpatialObjectModelWithID(employeeModel.getLocation()).toString();
+					return DataManager.getInstance().getSpatialObjectModelWithID(animalModel.getLocation()).toString();
 				case 4:
+					return animalModel.getWeight();
+				case 5:
 					return "Edit";
 				default:
 					return "";
@@ -160,13 +160,13 @@ public class EmployeesTable extends JTable {
 
 		private String label;
 
-		private EmployeesTableController controller;
-		private EmployeeModel employeeModel;
+		private AnimalsTableController controller;
+		private AnimalModel animalModel;
 		private String pushedButton;
 
 		private boolean isPushed;
 
-		public ButtonEditor(EmployeesTableController controller) {
+		public ButtonEditor(AnimalsTableController controller) {
 			super(new JCheckBox());
 
 			this.controller = controller;
@@ -192,15 +192,15 @@ public class EmployeesTable extends JTable {
 			button.setText(label);
 			isPushed = true;
 
-			this.employeeModel = ((EmployeesTableModel)table.getModel()).getEmployeeModel(row);
-			if(column == 4) this.pushedButton = "edit";
+			this.animalModel = ((AnimalsTableModel)table.getModel()).getAnimalModel(row);
+			if(column == 5) this.pushedButton = "edit";
 
 			return button;
 		}
 
 		public Object getCellEditorValue() {
 			if (isPushed) {
-				if(pushedButton.equals("edit")) controller.EmployeesTableEditAction(employeeModel);
+				if(pushedButton.equals("edit")) controller.AnimalsTableEditAction(animalModel);
 			}
 			isPushed = false;
 			return label;

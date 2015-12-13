@@ -4,6 +4,8 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import cz.vutbr.fit.pdb.ateam.gui.components.ImagePanel;
+import cz.vutbr.fit.pdb.ateam.model.animal.AnimalModel;
+import cz.vutbr.fit.pdb.ateam.utils.Logger;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
 
 import javax.swing.*;
@@ -11,6 +13,7 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 
 /**
  * Dialog shows three the most similar images to the original image.
@@ -29,18 +32,13 @@ public class CompareImagesDialog extends JDialog {
 	private JPanel similarImagePanel1;
 	private JPanel similarImagePanel2;
 	private JPanel similarImagePanel3;
+	private JLabel originalImageLabel;
+	private JLabel animal1Label;
+	private JLabel animal2Label;
+	private JLabel animal3Label;
 
-	/**
-	 * Constructor shows build dialog with original image and three the most similar images.
-	 * Dialog needs to be showed afterwards.
-	 *
-	 * @param parentPanel dialog will be shown in the middle of this panel
-	 * @param originalImage original image
-	 * @param image1 the most similar image
-	 * @param image2 second most similar image
-	 * @param image3 third most similar image
-	 */
-	public CompareImagesDialog(JPanel parentPanel, ImagePanel originalImage, ImagePanel image1, ImagePanel image2, ImagePanel image3) {
+	//	public CompareImagesDialog(JPanel parentPanel, ImagePanel originalAnimal, ImagePanel animal1, ImagePanel animal2, ImagePanel animal3) {
+	public CompareImagesDialog(JPanel parentPanel, AnimalModel originalAnimal, AnimalModel animal1, AnimalModel animal2, AnimalModel animal3) {
 		setContentPane(contentPane);
 		setModal(true);
 		setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -53,21 +51,45 @@ public class CompareImagesDialog extends JDialog {
 		Utils.setComponentFixSize(similarImagePanel2, IMAGE_WIDTH, IMAGE_HEIGHT);
 		Utils.setComponentFixSize(similarImagePanel3, IMAGE_WIDTH, IMAGE_HEIGHT);
 
-		if (originalImage != null) {
-			originalImage.setParentPanel(originalImagePanel);
-			originalImagePanel.add(originalImage);
+		if (originalAnimal != null) {
+			ImagePanel imagePanel = null;
+			originalImageLabel.setText("#" + originalAnimal.getId() + " " + originalAnimal.getName());
+			try {
+				imagePanel = new ImagePanel(originalAnimal.getImage().getDataInStream(), originalImagePanel);
+			} catch (SQLException e) {
+				Logger.createLog(Logger.ERROR_LOG, "SQL Exception: " + e.getMessage());
+			}
+			originalImagePanel.add(imagePanel);
 		}
-		if (image1 != null) {
-			image1.setParentPanel(this.originalImagePanel);
-			similarImagePanel1.add(image1);
+		if (animal1 != null) {
+			ImagePanel imagePanel = null;
+			animal1Label.setText("#" + animal1.getId() + " " + animal1.getName());
+			try {
+				imagePanel = new ImagePanel(animal1.getImage().getDataInStream(), similarImagePanel1);
+			} catch (SQLException e) {
+				Logger.createLog(Logger.ERROR_LOG, "SQL Exception: " + e.getMessage());
+			}
+			similarImagePanel1.add(imagePanel);
 		}
-		if (image2 != null) {
-			image2.setParentPanel(this.originalImagePanel);
-			similarImagePanel2.add(image2);
+		if (animal2 != null) {
+			ImagePanel imagePanel = null;
+			animal2Label.setText("#" + animal2.getId() + " " + animal2.getName());
+			try {
+				imagePanel = new ImagePanel(animal2.getImage().getDataInStream(), similarImagePanel2);
+			} catch (SQLException e) {
+				Logger.createLog(Logger.ERROR_LOG, "SQL Exception: " + e.getMessage());
+			}
+			similarImagePanel2.add(imagePanel);
 		}
-		if (image3 != null) {
-			image3.setParentPanel(this.originalImagePanel);
-			similarImagePanel3.add(image3);
+		if (animal3 != null) {
+			ImagePanel imagePanel = null;
+			animal3Label.setText("#" + animal3.getId() + " " + animal3.getName());
+			try {
+				imagePanel = new ImagePanel(animal3.getImage().getDataInStream(), similarImagePanel3);
+			} catch (SQLException e) {
+				Logger.createLog(Logger.ERROR_LOG, "SQL Exception: " + e.getMessage());
+			}
+			similarImagePanel3.add(imagePanel);
 		}
 
 		buttonCancel.addActionListener(new ActionListener() {
@@ -108,12 +130,12 @@ public class CompareImagesDialog extends JDialog {
 		buttonCancel.setText("OK");
 		panel2.add(buttonCancel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final JPanel panel3 = new JPanel();
-		panel3.setLayout(new GridLayoutManager(4, 3, new Insets(0, 0, 0, 0), -1, -1));
+		panel3.setLayout(new GridLayoutManager(4, 4, new Insets(0, 0, 0, 0), -1, -1));
 		contentPane.add(panel3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		originalImagePanel = new JPanel();
 		originalImagePanel.setLayout(new CardLayout(0, 0));
 		originalImagePanel.setBackground(new Color(-1));
-		panel3.add(originalImagePanel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		panel3.add(originalImagePanel, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		originalImagePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, new Color(-16777216)));
 		final JLabel label1 = new JLabel();
 		label1.setFont(new Font(label1.getFont().getName(), Font.BOLD, 18));
@@ -122,40 +144,52 @@ public class CompareImagesDialog extends JDialog {
 		final JLabel label2 = new JLabel();
 		label2.setFont(new Font(label2.getFont().getName(), Font.BOLD, 18));
 		label2.setText("The Most Similar:");
-		panel3.add(label2, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		panel3.add(label2, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final JPanel panel4 = new JPanel();
-		panel4.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
-		panel3.add(panel4, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		panel4.setLayout(new GridLayoutManager(2, 3, new Insets(0, 0, 0, 0), -1, -1));
+		panel3.add(panel4, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		similarImagePanel1 = new JPanel();
 		similarImagePanel1.setLayout(new CardLayout(0, 0));
 		similarImagePanel1.setBackground(new Color(-1));
-		panel4.add(similarImagePanel1, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		panel4.add(similarImagePanel1, new GridConstraints(1, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		similarImagePanel1.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, new Color(-16777216)));
 		final JLabel label3 = new JLabel();
 		label3.setText("1.");
 		panel4.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		animal1Label = new JLabel();
+		animal1Label.setText("Label");
+		panel4.add(animal1Label, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final JPanel panel5 = new JPanel();
-		panel5.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
-		panel3.add(panel5, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		panel5.setLayout(new GridLayoutManager(2, 3, new Insets(0, 0, 0, 0), -1, -1));
+		panel3.add(panel5, new GridConstraints(3, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		similarImagePanel2 = new JPanel();
 		similarImagePanel2.setLayout(new CardLayout(0, 0));
 		similarImagePanel2.setBackground(new Color(-1));
-		panel5.add(similarImagePanel2, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		panel5.add(similarImagePanel2, new GridConstraints(1, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		similarImagePanel2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, new Color(-16777216)));
 		final JLabel label4 = new JLabel();
 		label4.setText("2.");
 		panel5.add(label4, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		animal2Label = new JLabel();
+		animal2Label.setText("Label");
+		panel5.add(animal2Label, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final JPanel panel6 = new JPanel();
-		panel6.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
-		panel3.add(panel6, new GridConstraints(3, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		panel6.setLayout(new GridLayoutManager(2, 3, new Insets(0, 0, 0, 0), -1, -1));
+		panel3.add(panel6, new GridConstraints(3, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		similarImagePanel3 = new JPanel();
 		similarImagePanel3.setLayout(new CardLayout(0, 0));
 		similarImagePanel3.setBackground(new Color(-1));
-		panel6.add(similarImagePanel3, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		panel6.add(similarImagePanel3, new GridConstraints(1, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		similarImagePanel3.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, new Color(-16777216)));
 		final JLabel label5 = new JLabel();
 		label5.setText("3.");
 		panel6.add(label5, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		animal3Label = new JLabel();
+		animal3Label.setText("Label");
+		panel6.add(animal3Label, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		originalImageLabel = new JLabel();
+		originalImageLabel.setText("originalImageLabel");
+		panel3.add(originalImageLabel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 	}
 
 	/**

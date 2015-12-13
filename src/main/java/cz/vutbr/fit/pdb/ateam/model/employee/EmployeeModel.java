@@ -9,7 +9,7 @@ import java.util.Date;
  */
 public class EmployeeModel extends BaseModel {
 	private String surname;
-	private long location;
+	private Long location;
 	private Date dateFrom;
 	private Date dateTo;
 	private long shiftID;
@@ -32,15 +32,11 @@ public class EmployeeModel extends BaseModel {
 	}
 
 	public EmployeeModel(String name, String surname) {
-		new EmployeeModel(0, name, surname, Long.valueOf(0) ,null, null);
-		// TODO: 12/7/2015 remove magic constants
+		this(0, name, surname, Long.valueOf(0) ,null, null);
 		this.surname = surname;
 	}
 
-
-
-
-	public long getLocation() {
+	public Long getLocation() {
 		return location;
 	}
 

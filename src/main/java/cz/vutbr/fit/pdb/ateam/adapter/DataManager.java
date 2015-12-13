@@ -3,8 +3,8 @@ package cz.vutbr.fit.pdb.ateam.adapter;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.exception.ModelException;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
+import cz.vutbr.fit.pdb.ateam.model.animal.AnimalModel;
 import cz.vutbr.fit.pdb.ateam.model.employee.EmployeeModel;
-import cz.vutbr.fit.pdb.ateam.model.multimedia.ImageModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
 import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
@@ -44,6 +44,7 @@ public class DataManager {
 	private List<SpatialObjectModel> spatialObjects;
 	private List<SpatialObjectTypeModel> spatialObjectTypes;
 	private List<EmployeeModel> employees;
+	private List<AnimalModel> animals;
 
 
 	public static final int SQL_FUNCTION_WITHIN_DISTANCE = 1;
@@ -282,8 +283,8 @@ public class DataManager {
 			return saveSpatial((SpatialObjectModel) model);
 		} else if (model instanceof EmployeeModel) {
 			return saveEmployee((EmployeeModel) model);
-		} else if (model instanceof ImageModel) {
-			return saveImage((ImageModel) model);
+		} else if (model instanceof AnimalModel) {
+			return saveAnimal((AnimalModel) model);
 		}
 		// TODO here specify model's saving methods!
 		else {
@@ -324,6 +325,39 @@ public class DataManager {
 		}
 	}
 
+	private boolean saveAnimalOld(AnimalModel animalModel) {
+		try {
+			String sqlPrep = null;
+			Boolean isNewAnimal = animalModel.isNew();
+
+			if (isNewAnimal) {
+				sqlPrep = "INSERT INTO Animals (Name, Species) VALUES(?, ?)";
+			} else {
+				sqlPrep = "UPDATE Animals SET Name = ?, Species = ? WHERE ID = ?";
+			}
+
+			PreparedStatement preparedStatement = connection.prepareStatement(sqlPrep);
+			preparedStatement.setString(1, animalModel.getName());
+			preparedStatement.setString(2, animalModel.getSpecies());
+
+			Logger.createLog(Logger.DEBUG_LOG, "Sending query: " + sqlPrep + " | name = '" + animalModel.getName() + "', species = '" + animalModel.getSpecies() + "', id = '" + animalModel.getId() + "'");
+			if (isNewAnimal) {
+				this.executeInsertAndSetId(preparedStatement, animalModel);
+			} else {
+				preparedStatement.setLong(3, animalModel.getId());
+				preparedStatement.executeUpdate();
+			}
+
+			updateAnimalShifts(animalModel.getId(), animalModel.getDateFrom(), animalModel.getDateTo(), animalModel.getLocation(), animalModel.getWeight());
+
+			animalModel.setIsChanged(false);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
 	private void saveEmployeeTemporalData(EmployeeModel employee, boolean isNewEmployee) throws SQLException {
 		String sqlPrepTemp = null;
 		updateEmployeeShifts(employee.getId(), employee.getDateFrom(), employee.getDateTo(), employee.getLocation());
@@ -332,7 +366,6 @@ public class DataManager {
 //		else {
 //			//TODO implement
 //		}
-//
 //
 //		java.sql.Date dateFrom = new java.sql.Date(employee.getDateFrom().getTime());
 //		java.sql.Date dateTo = new java.sql.Date(employee.getDateTo().getTime());
@@ -343,7 +376,7 @@ public class DataManager {
 //		preparedTemporalStatement.setDate(3, dateFrom);
 //		preparedTemporalStatement.setDate(4, dateTo);
 //
-//		Logger.createLog(Logger.DEBUG_LOG, "Sending query: " + sqlPrepTemp + " | name = '" + employee.getName() + "', surname = '" + employee.getSurname() + "', id = '" + employee.getId() + "'");
+//		Logger.createLog(Logger.DEBUG_LOG, "Sending query: " + sqlPrepTemp + " | name = '" + employee.getName() + "', surname = '" + employee.getSpecies() + "', id = '" + employee.getId() + "'");
 //		if (isNewEmployee) {
 //			this.executeTemporalInsertAndSetId(preparedTemporalStatement, employee);
 //		} else {
@@ -355,16 +388,16 @@ public class DataManager {
 	// ------------- METHODS FOR SPATIAL OBJECTS
 	// -----------------------------------------
 
-	public synchronized void mirrorImage(ImageModel model) throws DataManagerException {
+	public synchronized void mirrorImage(AnimalModel model) throws DataManagerException {
 
 		String mirrorSQL = ""
 				+ "DECLARE "
 				+ "obj ORDSYS.ORDImage; "
 				+ "BEGIN "
-				+ "SELECT photo INTO obj FROM TEST_IMAGES "
+				+ "SELECT photo INTO obj FROM Animals "
 				+ "WHERE id = " + model.getId() + " FOR UPDATE; "
 				+ "obj.process('mirror'); "
-				+ "UPDATE TEST_IMAGES SET photo = obj WHERE id = " + model.getId() + "; "
+				+ "UPDATE Animals SET photo = obj WHERE id = " + model.getId() + "; "
 				+ "COMMIT; "
 				+ "EXCEPTION "
 				+ "WHEN ORDSYS.ORDImageExceptions.DATA_NOT_LOCAL THEN "
@@ -373,26 +406,26 @@ public class DataManager {
 
 		createDatabaseUpdate(mirrorSQL);
 
-		saveImage(model);
+		saveAnimal(model);
 	}
 
-	public synchronized ArrayList<ImageModel> getThreeSimilarImages(ImageModel sourceModel) throws DataManagerException {
-		ArrayList<ImageModel> modelsList = new ArrayList<>();
+	public synchronized ArrayList<AnimalModel> getThreeSimilarImages(AnimalModel sourceModel) throws DataManagerException {
+		ArrayList<AnimalModel> modelsList = new ArrayList<>();
 
 		try {
 			String selectSQL = "";
 			selectSQL += "SELECT destination FROM (SELECT src.id AS source, dst.id AS destination, SI_ScoreByFtrList( ";
 			selectSQL += "new SI_FeatureList(src.photo_ac, 0.3, src.photo_ch, 0.3, ";
 			selectSQL += "src.photo_pc, 0.1, src.photo_tx, 0.3), dst.photo_si) AS similarity ";
-			selectSQL += "FROM test_images src, test_images dst ";
+			selectSQL += "FROM Animals src, Animals dst ";
 			selectSQL += "WHERE src.id <> dst.id AND src.id=" + sourceModel.getId() + " ";
-			selectSQL += "ORDER BY similarity ASC) img WHERE ROWNUM <= 3";
+			selectSQL += "ORDER BY similarity ASC) img WHERE ROWNUM <= 3 ";
 
 			ResultSet resultSet = createDatabaseQuery(selectSQL);
 
 			while (resultSet.next()) {
 				Long id = resultSet.getLong("destination");
-				ImageModel model = getImage(id);
+				AnimalModel model = getAnimal(id);
 
 				modelsList.add(model);
 			}
@@ -405,12 +438,12 @@ public class DataManager {
 		return modelsList;
 	}
 
-	public synchronized ImageModel getImage(Long id) throws DataManagerException {
+	public synchronized AnimalModel getAnimal(Long id) throws DataManagerException {
 		try {
 			Statement stmt = connection.createStatement();
 			String selectSQL = "";
 			selectSQL += "SELECT * ";
-			selectSQL += "FROM Test_images ";
+			selectSQL += "FROM Animals ";
 			selectSQL += "WHERE id=" + id + " ";
 			selectSQL += " FOR UPDATE";
 			Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + selectSQL);
@@ -419,11 +452,12 @@ public class DataManager {
 				throw new DataManagerException("Object with id=[" + id + "] not found!");
 			}
 			String name = rset.getString("name");
+			String species = rset.getString("Species");
 			OrdImage image = (OrdImage) rset.getORAData("photo", OrdImage.getORADataFactory());
 			rset.close();
 			stmt.close();
 
-			ImageModel model = new ImageModel(id, name);
+			AnimalModel model = new AnimalModel(id, name, species);
 			model.setImage(image);
 
 			return model;
@@ -435,7 +469,7 @@ public class DataManager {
 	/**
 	 * TODO
 	 */
-	public synchronized boolean saveImage(ImageModel model) throws DataManagerException {
+	public synchronized boolean saveAnimal(AnimalModel model) throws DataManagerException {
 		try {
 
 			connection.setAutoCommit(false);
@@ -443,14 +477,20 @@ public class DataManager {
 			if (model.isNew()) {
 				Statement statement = connection.createStatement();
 				String insertSQL = "";
-				insertSQL += "INSERT INTO " + model.getTableName() + " (name, photo) ";
-				insertSQL += "VALUES ('" + model.getName() + "', ordsys.ordimage.init())";
+				insertSQL += "INSERT INTO " + model.getTableName() + " (Name, Species, photo) ";
+				insertSQL += "VALUES ('" + model.getName() + "','" + model.getSpecies() + "', ordsys.ordimage.init())";
 				Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + insertSQL);
 				statement.executeUpdate(insertSQL);
 				ResultSet getIdResultSet = connection.createStatement().executeQuery("SELECT " + model.getTableName() + "_seq.currval FROM dual");
 				if (getIdResultSet.next()) {
 					model.setId(getIdResultSet.getLong(1));
 				}
+				statement.close();
+			} else if(model.getImage() == null && model.getImageByteArray() != null) {
+				Statement statement = connection.createStatement();
+				String updateSQL = "UPDATE Animals SET photo = ordsys.ordimage.init() WHERE id = " + model.getId();
+				Logger.createLog(Logger.DEBUG_LOG, "SENDING UPDATE: " + updateSQL);
+				statement.executeUpdate(updateSQL);
 				statement.close();
 			}
 
@@ -478,42 +518,52 @@ public class DataManager {
 
 			String updateSQL = "";
 			updateSQL += "UPDATE " + model.getTableName() + " ";
-			updateSQL += "SET name=?, photo=? ";
+			updateSQL += "SET name = ?, Species = ?, photo = ? ";
 			updateSQL += "WHERE id=" + model.getId();
 			OraclePreparedStatement preparedStmt = (OraclePreparedStatement) connection.prepareStatement(updateSQL);
 			preparedStmt.setString(1, model.getName());
-			preparedStmt.setORAData(2, model.getImage());
-			Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + updateSQL + " | photo=" + model.getImage().toString());
+			preparedStmt.setString(2, model.getSpecies());
+			preparedStmt.setORAData(3, model.getImage());
+			Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + updateSQL + " | photo=" + (image == null ? null : image.toString()));
 			preparedStmt.executeUpdate();
 			preparedStmt.close();
 
-			stmt = connection.createStatement();
-			String updateStillImageSQL = "";
-			updateStillImageSQL += "UPDATE " + model.getTableName() + " t ";
-			updateStillImageSQL += "SET t.photo_si=SI_STILLImage(t.photo.getContent()) ";
-			updateStillImageSQL += "WHERE id=" + model.getId();
-			Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + updateStillImageSQL);
-			stmt.executeQuery(updateStillImageSQL);
+			if(model.getImageByteArray() != null) {
+				stmt = connection.createStatement();
+				String updateStillImageSQL = "";
+				updateStillImageSQL += "UPDATE " + model.getTableName() + " t ";
+				updateStillImageSQL += "SET t.photo_si=SI_STILLImage(t.photo.getContent()) ";
+				updateStillImageSQL += "WHERE id=" + model.getId();
+				Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + updateStillImageSQL);
+				stmt.executeQuery(updateStillImageSQL);
 
-			String updateFeaturesSQL = "";
-			updateFeaturesSQL += "UPDATE " + model.getTableName() + " t SET ";
-			updateFeaturesSQL += "t.photo_ac=SI_AverageColor(t.photo_si), ";
-			updateFeaturesSQL += "t.photo_ch=SI_ColorHistogram(t.photo_si), ";
-			updateFeaturesSQL += "t.photo_pc=SI_PositionalColor(t.photo_si), ";
-			updateFeaturesSQL += "t.photo_tx=SI_Texture(t.photo_si) ";
-			updateFeaturesSQL += "WHERE id=" + model.getId();
-			Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + updateFeaturesSQL);
-			stmt.executeQuery(updateFeaturesSQL);
-			stmt.close();
+				String updateFeaturesSQL = "";
+				updateFeaturesSQL += "UPDATE " + model.getTableName() + " t SET ";
+				updateFeaturesSQL += "t.photo_ac=SI_AverageColor(t.photo_si), ";
+				updateFeaturesSQL += "t.photo_ch=SI_ColorHistogram(t.photo_si), ";
+				updateFeaturesSQL += "t.photo_pc=SI_PositionalColor(t.photo_si), ";
+				updateFeaturesSQL += "t.photo_tx=SI_Texture(t.photo_si) ";
+				updateFeaturesSQL += "WHERE id=" + model.getId();
+				Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + updateFeaturesSQL);
+				stmt.executeQuery(updateFeaturesSQL);
+				stmt.close();
+			}
+
+			updateAnimalShifts(model.getId(), model.getDateFrom(), model.getDateTo(), model.getLocation(), model.getWeight());
 
 			connection.commit();
-
-			connection.setAutoCommit(true);
 
 		} catch (SQLException e) {
 			throw new DataManagerException("SQLException: " + e.getMessage());
 		} catch (IOException e) {
 			throw new DataManagerException("IOException: " + e.getMessage());
+		}
+		finally {
+			try {
+				connection.setAutoCommit(true);
+			} catch (SQLException e) {
+				Logger.createLog(Logger.ERROR_LOG, "Cannot set auto-commit to true");
+			}
 		}
 
 		model.setImageByteArray(null);
@@ -894,7 +944,6 @@ public class DataManager {
 		AsyncTask asyncTask = new AsyncTask() {
 			@Override
 			protected void onDone(boolean success) {
-				System.out.println("Hotovo");
 			}
 
 			@Override
@@ -1005,7 +1054,6 @@ public class DataManager {
 		AsyncTask asyncTask = new AsyncTask() {
 			@Override
 			protected void onDone(boolean success) {
-				System.out.println("Hotovoodasda");
 			}
 
 			@Override
@@ -1017,7 +1065,6 @@ public class DataManager {
 
 				try {
 					while (resultSet.next()) {
-						System.out.println(resultSet.getString("Name"));
 						Long emplID = resultSet.getLong("EmployeeID");
 						Long shiftID = resultSet.getLong("ShiftID");
 						String name = resultSet.getString("Name");
@@ -1035,5 +1082,225 @@ public class DataManager {
 		};
 		asyncTask.start();
 		return employees;
+	}
+
+	// -----------------------------------------
+	// ------------- METHODS FOR ANIMALS -------
+	// -----------------------------------------
+
+	/**
+	 * Is used to get cached data from Animals Table.
+	 *
+	 * @return list of Animals
+	 */
+	public List<AnimalModel> getAnimals() {
+		return animals;
+	}
+
+
+	public ArrayList<AnimalModel> getAnimalsAtDate(final Date date) throws DataManagerException {
+		final ArrayList<AnimalModel> animals = new ArrayList<>();
+		AsyncTask asyncTask = new AsyncTask() {
+			@Override
+			protected void onDone(boolean success) {
+			}
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				String datum = new SimpleDateFormat("dd-MMM-yyyy").format(date);
+				String sqlQuery = "SELECT an.ID as AnimalID, an.Name, an.Species, an.photo, ar.Location, ar.Weight, ar.dFrom, ar.dTo FROM Animals an INNER JOIN Animals_Records ar on an.ID = ar.AnimalID " +
+						"WHERE ar.dFrom <= '" + datum + "' AND ar.dTo >= '" + datum + "' ";
+				ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+				try {
+					while (resultSet.next()) {
+						Long id = resultSet.getLong("AnimalID");
+						String name = resultSet.getString("Name");
+						String species = resultSet.getString("Species");
+						Long location = resultSet.getLong("Location");
+						Float weight = resultSet.getFloat("Weight");
+
+						OracleResultSet rset = (OracleResultSet) resultSet;
+						OrdImage image = (OrdImage) rset.getORAData("photo", OrdImage.getORADataFactory());
+
+						Date dateFrom = resultSet.getDate("dFrom");
+						Date dateTo = resultSet.getDate("dTo");
+
+						AnimalModel animal = new AnimalModel(id, name, species, location, weight, dateFrom, dateTo);
+						animal.setImage(image);
+
+						animals.add(animal);
+
+					}
+				} catch (SQLException e) {
+					throw new DataManagerException("getAllAnimalsAtDate: SQLException: " + e.getMessage());
+				}
+				return true;
+			}
+		};
+		asyncTask.start();
+		return animals;
+	}
+
+	public boolean updateAnimalShifts(final Long animalID, final Date arDateFrom, final Date arDateTo, final Long location, final float weight) {
+		AsyncTask asyncTask = new AsyncTask() {
+			@Override
+			protected void onDone(boolean success) {
+				//
+			}
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				java.sql.Date dateFrom = new java.sql.Date(arDateFrom.getTime());
+				java.sql.Date dateTo = new java.sql.Date(arDateTo.getTime());
+
+				CallableStatement cstmt = connection.prepareCall("BEGIN updateAnimalTable(?, ?, ?, ?, ?); END;");
+				cstmt.setLong(1, animalID);
+				cstmt.setDate(2, dateFrom);
+				cstmt.setDate(3, dateTo);
+				cstmt.setLong(4, location);
+				cstmt.setFloat(5, weight);
+
+				cstmt.execute();
+
+				return true;
+			}
+		};
+		asyncTask.start();
+		return true;
+	}
+
+
+	public boolean deleteAnimalRecords(final Long animalID, final Date arDateFrom, final Date arDateTo){
+
+		AsyncTask asyncTask = new AsyncTask() {
+			@Override
+			protected void onDone(boolean success) {
+				//
+			}
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				java.sql.Date dateFrom = new java.sql.Date(arDateFrom.getTime());
+				java.sql.Date dateTo = new java.sql.Date(arDateTo.getTime());
+
+				CallableStatement cstmt = connection.prepareCall ("BEGIN deleteAnimalsRecordsTable(?, ?, ?); END;");
+
+				cstmt.setLong(1, animalID);
+				cstmt.setDate(2, dateFrom);
+				cstmt.setDate(3, dateTo);
+
+				cstmt.execute();
+
+				return true;
+			}
+		};
+		asyncTask.start();
+		return true;
+	}
+
+	public ArrayList<AnimalModel> getAnimalHistory(final long animalID) throws DataManagerException {
+		final ArrayList<AnimalModel> animals = new ArrayList<>();
+		AsyncTask asyncTask = new AsyncTask() {
+			@Override
+			protected void onDone(boolean success) {
+
+			}
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				String sqlQuery = "SELECT a.ID as AnimalID, a.name, a.Species, s.ID as ShiftID, s.Location, s.Weight, s.dFrom, s.dTo " +
+						"FROM Animals a LEFT JOIN Animals_Records s ON a.ID = s.AnimalID WHERE a.ID = " + animalID;
+
+				ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+				try {
+					while (resultSet.next()) {
+						Long emplID = resultSet.getLong("AnimalID");
+						Long shiftID = resultSet.getLong("ShiftID");
+						String name = resultSet.getString("Name");
+						String species = resultSet.getString("Species");
+						Float weight = resultSet.getFloat("Weight");
+						Long location = resultSet.getLong("Location");
+						Date dateFrom = resultSet.getDate("dFrom");
+						Date dateTo = resultSet.getDate("dTo");
+						animals.add(new AnimalModel(emplID, name, species, location, weight, dateFrom, dateTo, shiftID));
+					}
+				} catch (SQLException e) {
+					throw new DataManagerException("getAllAnimalsAtDate: SQLException: " + e.getMessage());
+				}
+				return true;
+			}
+		};
+		asyncTask.start();
+		return animals;
+	}
+
+	public List<EmployeeModel> getEmployeesForAnimal(final AnimalModel animalModel) throws DataManagerException {
+		final ArrayList<EmployeeModel> employees = new ArrayList<>();
+		AsyncTask asyncTask = new AsyncTask() {
+			@Override
+			protected void onDone(boolean success) {
+
+			}
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				String sqlQuery = "SELECT empl.id, empl.name, empl.Surname, es.Location, GREATEST(es.dFrom, ar.dFrom) as dateFrom, LEAST(es.dTo,ar.dTo) as dateTo FROM Employees empl " +
+						"JOIN Employees_Shift es on empl.ID = es.EmplID " +
+						"JOIN Animals_Records ar on es.Location = ar.Location " +
+						"JOIN Animals an on an.ID = ar.AnimalID " +
+						"WHERE es.dFrom <= ar.dTo AND es.dTo >= ar.dFrom and an.ID = " + animalModel.getId() ;
+
+				ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+				try {
+					while (resultSet.next()) {
+						System.out.println(resultSet.getString("Name"));
+						Long emplID = resultSet.getLong("ID");
+						String name = resultSet.getString("Name");
+						String surname = resultSet.getString("Surname");
+						Long location = resultSet.getLong("Location");
+						Date dateFrom = resultSet.getDate("dateFrom");
+						Date dateTo = resultSet.getDate("dateTo");
+						employees.add(new EmployeeModel(emplID, name, surname, location, dateFrom, dateTo));
+					}
+				} catch (SQLException e) {
+					throw new DataManagerException("getAllEmployeesForAnimal: SQLException: " + e.getMessage());
+				}
+				return true;
+			}
+		};
+		asyncTask.start();
+		return employees;
+	}
+
+	public Float calculateMaxWeightForEmployee(final EmployeeModel employeeModel) {
+		final Float[] maxWeight = {0f};
+		AsyncTask asyncTask = new AsyncTask() {
+			@Override
+			protected void onDone(boolean success) {
+
+			}
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				String sqlQuery = "SELECT MAX(weight) as Weight FROM (SELECT ar.Weight as weight FROM Employees empl JOIN Employees_Shift es on empl.ID = es.EmplID " +
+						"JOIN Animals_Records ar on es.Location = ar.Location " +
+						"WHERE es.dFrom <= ar.dTo AND es.dTo >= ar.dFrom AND empl.id = " + employeeModel.getId() + ") ";
+
+				ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+				try {
+					if (resultSet.next())
+						maxWeight[0] = resultSet.getFloat("Weight");
+				} catch (SQLException e) {
+					throw new DataManagerException("getAllEmployeesForAnimal: SQLException: " + e.getMessage());
+				}
+				return true;
+			}
+		};
+		asyncTask.start();
+		return maxWeight[0];
 	}
 }

@@ -3,10 +3,11 @@ package cz.vutbr.fit.pdb.ateam.gui.tabs.details;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import cz.vutbr.fit.pdb.ateam.controller.AnimalsTabController;
 import cz.vutbr.fit.pdb.ateam.controller.Controller;
-import cz.vutbr.fit.pdb.ateam.controller.EmployeesTabController;
 import cz.vutbr.fit.pdb.ateam.gui.BasePanel;
-import cz.vutbr.fit.pdb.ateam.gui.tabs.EmployeesTab;
+import cz.vutbr.fit.pdb.ateam.gui.components.validations.FloatBiggerOrEqualToZeroInputVerifier;
+import cz.vutbr.fit.pdb.ateam.gui.tabs.AnimalsTab;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.utils.DateLabelFormatter;
 import net.sourceforge.jdatepicker.impl.JDatePanelImpl;
@@ -24,12 +25,12 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * Created by Tomas on 12/6/2015.
+ * @Author Tomas Hanus on 12/12/2015.
  */
-public class EmployeeShiftEditPanel extends BasePanel {
+public class AnimalShiftEditPanel extends BasePanel {
 
-	private final EmployeesTabController controller;
-	private EmployeesTab tab;
+	private final AnimalsTabController controller;
+	private AnimalsTab tab;
 	private ArrayList<SpatialObjectModel> locations;
 	private JPanel rootPanel;
 	private JRadioButton editRadioButton;
@@ -42,15 +43,17 @@ public class EmployeeShiftEditPanel extends BasePanel {
 	private JComboBox shiftLocationComboBox;
 	private JButton discardButton;
 	private JLabel nameLabel;
-	private JPanel employeeTitlePane;
+	private JPanel animalTitlePane;
 	private JLabel surnameLabel;
 	private JLabel shiftLocationLabel;
+	private JLabel shiftWeightLabel;
+	private JTextField shiftEditPanelWeightTextField;
 	private Date dateFrom;
 
-	public EmployeeShiftEditPanel(EmployeesTab employeesTab, ArrayList<SpatialObjectModel> locations) {
-		this.tab = employeesTab;
+	public AnimalShiftEditPanel(AnimalsTab animalsTab, ArrayList<SpatialObjectModel> locations) {
+		this.tab = animalsTab;
 		this.locations = locations;
-		this.controller = (EmployeesTabController) employeesTab.getController();
+		this.controller = (AnimalsTabController) animalsTab.getController();
 		add(rootPanel);
 
 		initUI();
@@ -58,16 +61,10 @@ public class EmployeeShiftEditPanel extends BasePanel {
 
 
 	private void initUI() {
-		this.nameLabel.setText(controller.getSelectedEmployeeModel().getName());
-		this.surnameLabel.setText(controller.getSelectedEmployeeModel().getSurname());
+		this.nameLabel.setText(controller.getSelectedAnimalModel().getName());
+		this.surnameLabel.setText(controller.getSelectedAnimalModel().getSpecies());
 
 		editRadioButton.setSelected(true);
-		editRadioButton.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				controller.switchBetweenEditAndDeleteAction(editRadioButton.isSelected());
-			}
-		});
 		ButtonGroup bg = new ButtonGroup();
 		bg.add(editRadioButton);
 		bg.add(deleteRadioButton);
@@ -84,16 +81,37 @@ public class EmployeeShiftEditPanel extends BasePanel {
 
 		for (SpatialObjectModel location : locations) shiftLocationComboBox.addItem(location);
 
+		setInputValidators();
+
+		setListeners();
+	}
+
+	private void setInputValidators() {
+		this.shiftEditPanelWeightTextField.setInputVerifier(new FloatBiggerOrEqualToZeroInputVerifier());
+	}
+
+	/**
+	 * Method sets all listeners on this panel.
+	 */
+	private void setListeners() {
+		editRadioButton.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				controller.switchBetweenEditAndDeleteAction(editRadioButton.isSelected());
+			}
+		});
+
 		this.confirmButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				controller.confirmUpdateDeleteAction(editRadioButton.isSelected());
 			}
 		});
+
 		this.discardButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				controller.discardEditEmployeeShiftAction();
+				controller.discardEditAnimalShiftAction();
 			}
 		});
 	}
@@ -128,15 +146,30 @@ public class EmployeeShiftEditPanel extends BasePanel {
 		return ((SpatialObjectModel) this.shiftLocationComboBox.getSelectedItem()).getId();
 	}
 
-	public void showLocationPicker() {
+	/**
+	 * Set ShiftEdit Panel to editMode, so it displays controls needed to set location and weight
+	 */
+	public void setShiftEditPanelToEdit() {
 		this.shiftLocationComboBox.setVisible(true);
 		this.shiftLocationLabel.setVisible(true);
+		this.shiftEditPanelWeightTextField.setVisible(true);
+		this.shiftWeightLabel.setVisible(true);
 	}
 
-	public void hideLocationPicker() {
+	/**
+	 * Set ShiftEdit Panel to deleteMode, so it hides controls needed for setting location and weight.
+	 */
+	public void setShiftEditPanelToDelete() {
 		this.shiftLocationComboBox.setVisible(false);
 		this.shiftLocationLabel.setVisible(false);
+		this.shiftEditPanelWeightTextField.setVisible(false);
+		this.shiftWeightLabel.setVisible(false);
 	}
+
+	public Float getWeightTextField() {
+		return Float.valueOf(this.shiftEditPanelWeightTextField.getText());
+	}
+
 
 	{
 // GUI initializer generated by IntelliJ IDEA GUI Designer
@@ -154,7 +187,7 @@ public class EmployeeShiftEditPanel extends BasePanel {
 	 */
 	private void $$$setupUI$$$() {
 		rootPanel = new JPanel();
-		rootPanel.setLayout(new GridLayoutManager(11, 8, new Insets(0, 0, 0, 0), -1, -1));
+		rootPanel.setLayout(new GridLayoutManager(12, 8, new Insets(0, 0, 0, 0), -1, -1));
 		rootPanel.setBorder(BorderFactory.createTitledBorder(""));
 		final JLabel label1 = new JLabel();
 		label1.setFont(new Font(label1.getFont().getName(), Font.BOLD, 18));
@@ -167,7 +200,7 @@ public class EmployeeShiftEditPanel extends BasePanel {
 		final Spacer spacer3 = new Spacer();
 		rootPanel.add(spacer3, new GridConstraints(3, 6, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
 		final Spacer spacer4 = new Spacer();
-		rootPanel.add(spacer4, new GridConstraints(10, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+		rootPanel.add(spacer4, new GridConstraints(11, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
 		editRadioButton = new JRadioButton();
 		editRadioButton.setFont(new Font(editRadioButton.getFont().getName(), editRadioButton.getFont().getStyle(), 14));
 		editRadioButton.setText("Edit");
@@ -196,20 +229,20 @@ public class EmployeeShiftEditPanel extends BasePanel {
 		rootPanel.add(shiftLocationComboBox, new GridConstraints(7, 3, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		discardButton = new JButton();
 		discardButton.setText("Discard");
-		rootPanel.add(discardButton, new GridConstraints(9, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, new Dimension(80, -1), 0, false));
-		employeeTitlePane = new JPanel();
-		employeeTitlePane.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
-		rootPanel.add(employeeTitlePane, new GridConstraints(1, 1, 1, 5, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		rootPanel.add(discardButton, new GridConstraints(10, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, new Dimension(80, -1), 0, false));
+		animalTitlePane = new JPanel();
+		animalTitlePane.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
+		rootPanel.add(animalTitlePane, new GridConstraints(1, 1, 1, 5, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		nameLabel = new JLabel();
 		nameLabel.setFont(new Font(nameLabel.getFont().getName(), Font.BOLD, 36));
 		nameLabel.setText("Janko");
-		employeeTitlePane.add(nameLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		animalTitlePane.add(nameLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		surnameLabel = new JLabel();
 		surnameLabel.setFont(new Font(surnameLabel.getFont().getName(), surnameLabel.getFont().getStyle(), 34));
 		surnameLabel.setText("Hrasko");
-		employeeTitlePane.add(surnameLabel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		animalTitlePane.add(surnameLabel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final Spacer spacer5 = new Spacer();
-		employeeTitlePane.add(spacer5, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+		animalTitlePane.add(spacer5, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
 		final JSeparator separator1 = new JSeparator();
 		rootPanel.add(separator1, new GridConstraints(2, 1, 1, 5, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
 		shiftToDatePickerPanel = new JPanel();
@@ -220,13 +253,20 @@ public class EmployeeShiftEditPanel extends BasePanel {
 		rootPanel.add(shiftFromDatePickerPanel, new GridConstraints(5, 4, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, new Dimension(150, -1), 0, false));
 		confirmButton = new JButton();
 		confirmButton.setText("Confirm");
-		rootPanel.add(confirmButton, new GridConstraints(9, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, new Dimension(80, -1), 0, false));
+		rootPanel.add(confirmButton, new GridConstraints(10, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, new Dimension(80, -1), 0, false));
 		final Spacer spacer6 = new Spacer();
-		rootPanel.add(spacer6, new GridConstraints(9, 5, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+		rootPanel.add(spacer6, new GridConstraints(10, 5, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
 		final Spacer spacer7 = new Spacer();
 		rootPanel.add(spacer7, new GridConstraints(3, 5, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
 		final JSeparator separator2 = new JSeparator();
-		rootPanel.add(separator2, new GridConstraints(8, 1, 1, 6, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+		rootPanel.add(separator2, new GridConstraints(9, 1, 1, 6, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+		shiftWeightLabel = new JLabel();
+		shiftWeightLabel.setFont(new Font(shiftWeightLabel.getFont().getName(), Font.BOLD, 18));
+		shiftWeightLabel.setText("Choose weight:");
+		rootPanel.add(shiftWeightLabel, new GridConstraints(8, 1, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		shiftEditPanelWeightTextField = new JTextField();
+		shiftEditPanelWeightTextField.setText("");
+		rootPanel.add(shiftEditPanelWeightTextField, new GridConstraints(8, 3, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
 	}
 
 	/**

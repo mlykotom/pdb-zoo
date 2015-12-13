@@ -177,6 +177,15 @@ public class EmployeesTabController extends Controller
 	 * @param employeeDetailPanelMode
 	 */
 	public void saveEmployee(int employeeDetailPanelMode) {
+		if (employeeDetailPanel.getNameTextFieldValue().equals("")){
+			showDialog(ERROR_MESSAGE, "You must insert a name.");
+			return;
+		}
+		if (employeeDetailPanel.getSurnameTextFieldValue().equals("")){
+			showDialog(ERROR_MESSAGE, "You must insert a surname.");
+			return;
+		}
+
 		this.selectedEmployeeModel.setName(employeeDetailPanel.getNameTextFieldValue());
 		this.selectedEmployeeModel.setSurname(employeeDetailPanel.getSurnameTextFieldValue());
 		this.selectedEmployeeModel.setLocation(employeeDetailPanel.getLocationComboBoxValue());
@@ -219,7 +228,6 @@ public class EmployeesTabController extends Controller
 
 	@Override
 	public void EmployeesTableDeleteAction(EmployeeModel employeeModel) {
-		System.out.println("vymazavam zamestnanca menom " + employeeModel.getName());
 		//TODO Delete selected employee
 	}
 
@@ -298,9 +306,10 @@ public class EmployeesTabController extends Controller
 		} catch (DataManagerException e) {
 			Logger.createLog(Logger.ERROR_LOG, e.getMessage());
 		}
-
-		for (EmployeeModel model : models) {
-			table.addEmployeeModel(model);
+		if (models != null && models.size() > 0){
+			for (EmployeeModel model : models) {
+				table.addEmployeeModel(model);
+			}
 		}
 
 		employeeDetailPanel.setEmployeeDetailTable(table);
@@ -353,5 +362,20 @@ public class EmployeesTabController extends Controller
 		}
 		editEmployeeDetail(selectedEmployeeModel, EmployeeDetailPanel.EDIT_EMPLOYEE);
 		this.employeeDetailPanel.showHistoryShiftPane();
+		//TODO NullPointer crash after deleting all shift history
+	}
+
+	public void switchBetweenEditAndDeleteAction(boolean selected) {
+		if (selected == true){
+			employeeShiftEditPanel.showLocationPicker();
+		} else{
+			employeeShiftEditPanel.hideLocationPicker();
+		}
+	}
+
+
+	public void calculateMaxWeightAction() {
+		Float maxWeight = DataManager.getInstance().calculateMaxWeightForEmployee(selectedEmployeeModel);
+		employeeDetailPanel.setEmployeeHonorWeight(maxWeight);
 	}
 }

@@ -1,7 +1,9 @@
 package cz.vutbr.fit.pdb.ateam.gui.tabs;
 
-import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
+import cz.vutbr.fit.pdb.ateam.controller.AnimalsTabController;
+import cz.vutbr.fit.pdb.ateam.controller.Controller;
+import cz.vutbr.fit.pdb.ateam.gui.BasePanel;
 import cz.vutbr.fit.pdb.ateam.gui.ContentPanel;
 
 import javax.swing.*;
@@ -10,15 +12,29 @@ import java.awt.*;
 /**
  * Created by Tomas Mlynaric on 21.10.2015.
  */
-public class AnimalsTab extends JPanel {
-	private final ContentPanel mainPanel;
-	public JButton button1;
+public class AnimalsTab extends BasePanel {
+	private final ContentPanel contentPanel;
+
+	private final AnimalsTabController controller;
+
 	private JPanel rootPanel;
+	private JTabbedPane tabsPane;
 
-
-	public AnimalsTab(ContentPanel mainPanel) {
-		this.mainPanel = mainPanel;
+	public AnimalsTab(ContentPanel mainPanel, JTabbedPane tabsPane) {
+		this.tabsPane = tabsPane;
+		this.controller = new AnimalsTabController(this);
+		this.contentPanel = mainPanel;
 		add(rootPanel);
+	}
+
+	@Override
+	public Controller getController() {
+		return this.controller;
+	}
+
+
+	public JTabbedPane getTabPanel() {
+		return tabsPane;
 	}
 
 	{
@@ -39,9 +55,6 @@ public class AnimalsTab extends JPanel {
 		rootPanel = new JPanel();
 		rootPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
 		rootPanel.setBackground(new Color(-1));
-		button1 = new JButton();
-		button1.setText("Button");
-		rootPanel.add(button1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 	}
 
 	/**
