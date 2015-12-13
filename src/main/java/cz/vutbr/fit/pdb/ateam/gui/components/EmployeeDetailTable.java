@@ -122,8 +122,6 @@ public class EmployeeDetailTable extends JTable {
 			Date foreverDate = dateTo;
 			try {
 				foreverDate = formatter.parse(FOREVER_DATE);
-				System.out.println(foreverDate);
-				System.out.println(formatter.format(foreverDate));
 
 			} catch (ParseException e) {
 				e.printStackTrace();

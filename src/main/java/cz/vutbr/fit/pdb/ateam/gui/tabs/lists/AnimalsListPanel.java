@@ -4,7 +4,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import cz.vutbr.fit.pdb.ateam.controller.Controller;
-import cz.vutbr.fit.pdb.ateam.controller.EmployeesTabController;
+import cz.vutbr.fit.pdb.ateam.controller.AnimalsTabController;
 import cz.vutbr.fit.pdb.ateam.gui.BasePanel;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
 import net.sourceforge.jdatepicker.impl.JDatePanelImpl;
@@ -20,13 +20,13 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 /**
- * @Author Tomas Hanus
+ * @Author Tomas Hanus on 12/12/2015.
  */
-public class EmployeesListPanel extends BasePanel {
-	private JTable employeesTable;
-	private EmployeesTabController controller;
+public class AnimalsListPanel extends BasePanel {
+	private JTable animalsTable;
+	private AnimalsTabController controller;
 	private JPanel rootPanel;
-	private JButton addNewEmployeeButton;
+	private JButton addNewAnimalButton;
 	private JPanel tablePanel;
 	private JPanel datePickerBox;
 	private JLabel datePickerLabel;
@@ -34,7 +34,7 @@ public class EmployeesListPanel extends BasePanel {
 	private JRadioButton historyRadioButton;
 	private JDatePickerImpl datePicker;
 
-	public EmployeesListPanel(EmployeesTabController controller) {
+	public AnimalsListPanel(AnimalsTabController controller) {
 		this.controller = controller;
 		$$$setupUI$$$();
 		add(rootPanel);
@@ -46,11 +46,12 @@ public class EmployeesListPanel extends BasePanel {
 		initializeDatePicker();
 
 		initializeTodayHistoryRarioButtons();
-		Utils.setComponentFixSize(addNewEmployeeButton, 250, 25);
-		addNewEmployeeButton.addActionListener(new ActionListener() {
+
+		Utils.setComponentFixSize(addNewAnimalButton, 200, 25);
+		addNewAnimalButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				controller.addNewEmployeeAction();
+				controller.addNewAnimalAction();
 			}
 		});
 	}
@@ -102,11 +103,11 @@ public class EmployeesListPanel extends BasePanel {
 		});
 	}
 
-	public void setEmployeesTable(JTable table) {
-		employeesTable = table;
+	public void setAnimalsTable(JTable table) {
+		animalsTable = table;
 		tablePanel.removeAll();
 
-		JScrollPane jScrollPane = new JScrollPane(employeesTable);
+		JScrollPane jScrollPane = new JScrollPane(animalsTable);
 		tablePanel.add(jScrollPane, BorderLayout.NORTH);
 	}
 
@@ -148,23 +149,23 @@ public class EmployeesListPanel extends BasePanel {
 	 */
 	private void $$$setupUI$$$() {
 		rootPanel = new JPanel();
-		rootPanel.setLayout(new GridLayoutManager(8, 4, new Insets(0, 0, 0, 0), -1, -1));
+		rootPanel.setLayout(new GridLayoutManager(8, 8, new Insets(0, 0, 0, 0), -1, -1));
 		tablePanel = new JPanel();
 		tablePanel.setLayout(new BorderLayout(0, 0));
-		rootPanel.add(tablePanel, new GridConstraints(6, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		rootPanel.add(tablePanel, new GridConstraints(6, 0, 1, 8, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		final JLabel label1 = new JLabel();
 		label1.setFont(new Font(label1.getFont().getName(), Font.BOLD, 20));
-		label1.setText("Employees List");
-		rootPanel.add(label1, new GridConstraints(5, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		label1.setText("Animals List");
+		rootPanel.add(label1, new GridConstraints(5, 0, 1, 7, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final JLabel label2 = new JLabel();
 		label2.setFont(new Font(label2.getFont().getName(), Font.BOLD, 20));
 		label2.setText("Filter by date:");
 		rootPanel.add(label2, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final Spacer spacer1 = new Spacer();
-		rootPanel.add(spacer1, new GridConstraints(2, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, new Dimension(25, -1), null, null, 0, false));
+		rootPanel.add(spacer1, new GridConstraints(2, 5, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, new Dimension(25, -1), null, null, 0, false));
 		final JPanel panel1 = new JPanel();
 		panel1.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
-		rootPanel.add(panel1, new GridConstraints(3, 1, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+		rootPanel.add(panel1, new GridConstraints(3, 1, 1, 5, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		datePickerLabel = new JLabel();
 		datePickerLabel.setFont(new Font(datePickerLabel.getFont().getName(), Font.BOLD, 18));
 		datePickerLabel.setText("Pick:");
@@ -172,26 +173,26 @@ public class EmployeesListPanel extends BasePanel {
 		datePickerBox = new JPanel();
 		datePickerBox.setLayout(new BorderLayout(0, 0));
 		panel1.add(datePickerBox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(150, -1), null, new Dimension(150, -1), 0, false));
+		final Spacer spacer2 = new Spacer();
+		rootPanel.add(spacer2, new GridConstraints(7, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+		final JSeparator separator1 = new JSeparator();
+		rootPanel.add(separator1, new GridConstraints(1, 0, 1, 8, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+		final JSeparator separator2 = new JSeparator();
+		rootPanel.add(separator2, new GridConstraints(4, 0, 1, 8, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+		final JLabel label3 = new JLabel();
+		label3.setFont(new Font(label3.getFont().getName(), Font.BOLD, 20));
+		label3.setText("Create new Animal:");
+		rootPanel.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+		addNewAnimalButton = new JButton();
+		addNewAnimalButton.setFont(new Font(addNewAnimalButton.getFont().getName(), Font.BOLD, addNewAnimalButton.getFont().getSize()));
+		addNewAnimalButton.setText("Create");
+		rootPanel.add(addNewAnimalButton, new GridConstraints(0, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, new Dimension(85, -1), 0, false));
 		todayRadioButton = new JRadioButton();
 		todayRadioButton.setText("Today");
 		rootPanel.add(todayRadioButton, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		historyRadioButton = new JRadioButton();
 		historyRadioButton.setText("History");
 		rootPanel.add(historyRadioButton, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-		final Spacer spacer2 = new Spacer();
-		rootPanel.add(spacer2, new GridConstraints(7, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-		final JLabel label3 = new JLabel();
-		label3.setFont(new Font(label3.getFont().getName(), Font.BOLD, 20));
-		label3.setText("Create new Employee:");
-		rootPanel.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-		final JSeparator separator1 = new JSeparator();
-		rootPanel.add(separator1, new GridConstraints(1, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-		final JSeparator separator2 = new JSeparator();
-		rootPanel.add(separator2, new GridConstraints(4, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-		addNewEmployeeButton = new JButton();
-		addNewEmployeeButton.setFont(new Font(addNewEmployeeButton.getFont().getName(), Font.BOLD, addNewEmployeeButton.getFont().getSize()));
-		addNewEmployeeButton.setText("Create");
-		rootPanel.add(addNewEmployeeButton, new GridConstraints(0, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, new Dimension(85, -1), 0, false));
 	}
 
 	/**

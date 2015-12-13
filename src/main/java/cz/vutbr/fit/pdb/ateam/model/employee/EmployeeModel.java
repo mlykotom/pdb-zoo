@@ -32,13 +32,9 @@ public class EmployeeModel extends BaseModel {
 	}
 
 	public EmployeeModel(String name, String surname) {
-		new EmployeeModel(0, name, surname, Long.valueOf(0) ,null, null);
-		// TODO: 12/7/2015 remove magic constants
+		this(0, name, surname, Long.valueOf(0) ,null, null);
 		this.surname = surname;
 	}
-
-
-
 
 	public Long getLocation() {
 		return location;

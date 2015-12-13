@@ -30,10 +30,10 @@ public class ContentPanel extends JPanel {
 	 * (pointer to this is because it's possible they will have to communicate with each other)
 	 */
 	private void initUI() {
-		ZooMapPanel mapPanelContent = new ZooMapPanel(this);
-		SpatialObjectsTab spatialObjectsTab = new SpatialObjectsTab(this);
-		AnimalsTab animalsTab = new AnimalsTab(this);
-		EmployeesTab employeesTab = new EmployeesTab(this, detailTabbedPane);
+		mapPanelContent = new ZooMapPanel(this);
+		spatialObjectsTab = new SpatialObjectsTab(this);
+		animalsTab = new AnimalsTab(this, detailTabbedPane);
+		employeesTab = new EmployeesTab(this, detailTabbedPane);
 		// map tabs
 		mapTabbedPane.addTab("ZOO map", mapPanelContent);
 		// detail tabs

@@ -219,7 +219,6 @@ public class EmployeesTabController extends Controller
 
 	@Override
 	public void EmployeesTableDeleteAction(EmployeeModel employeeModel) {
-		System.out.println("vymazavam zamestnanca menom " + employeeModel.getName());
 		//TODO Delete selected employee
 	}
 
