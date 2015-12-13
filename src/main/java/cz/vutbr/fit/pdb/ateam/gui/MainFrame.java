@@ -116,7 +116,7 @@ public class MainFrame extends JFrame {
 		initDBButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				menuBarController.initDBMenuAction();
+				mainFrameController.initDBMenuAction();
 			}
 		});
 		Utils.setComponentFixSize(initDBButton, 100, 30);
