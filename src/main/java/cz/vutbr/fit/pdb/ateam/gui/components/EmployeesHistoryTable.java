@@ -1,7 +1,7 @@
 package cz.vutbr.fit.pdb.ateam.gui.components;
 
 import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
-import cz.vutbr.fit.pdb.ateam.model.animal.AnimalModel;
+import cz.vutbr.fit.pdb.ateam.model.employee.EmployeeModel;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
 
 import javax.swing.*;
@@ -15,38 +15,38 @@ import java.util.Comparator;
 import java.util.Date;
 
 /**
- * Created by Tomas on 12/12/2015.
+ * Created by Tomas on 12/13/2015.
  */
-public class AnimalDetailTable extends JTable {
+public class EmployeesHistoryTable extends JTable {
 	private static final String FOREVER_DATE = "01-Jan-2500";
-	private AnimalDetailTableModel tableModel;
+	private EmployeesHistoryTableModel tableModel;
 
-	public AnimalDetailTable() {
+	public EmployeesHistoryTable() {
 		super();
 
-		tableModel = new AnimalDetailTableModel();
+		tableModel = new EmployeesHistoryTableModel();
 		setModel(tableModel);
 
 		TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
-		sorter.setComparator(0, new Comparator<Long>() {
+		sorter.setComparator(0, new Comparator<Date>() {
 			@Override
-			public int compare(Long o1, Long o2) {
+			public int compare(Date o1, Date o2) {
 				return o1.compareTo(o2);
 			}
 		});
 		this.setRowSorter(sorter);
 	}
 
-	public void addAnimalModel(AnimalModel animalModel) {
-		tableModel.addAnimalModel(animalModel);
+	public void addEmployeeModel(EmployeeModel employeeModel) {
+		tableModel.addEmployeeModel(employeeModel);
 	}
 
 	public void setColumnsWidth() {
 		for (int i = 0; i<= 4; i++){
 			switch (i){
 				case 0:
-					getColumnModel().getColumn(i).setPreferredWidth(35);
-					getColumnModel().getColumn(i).setMaxWidth(35);
+					getColumnModel().getColumn(i).setPreferredWidth(80);
+					getColumnModel().getColumn(i).setMaxWidth(80);
 					break;
 				case 1:
 				case 2:
@@ -57,30 +57,29 @@ public class AnimalDetailTable extends JTable {
 					getColumnModel().getColumn(i).setPreferredWidth(80);
 					break;
 				case 4:
-					getColumnModel().getColumn(i).setPreferredWidth(70);
-					getColumnModel().getColumn(i).setMaxWidth(70);
+					getColumnModel().getColumn(i).setPreferredWidth(120);
 					break;
 				default: getColumnModel().getColumn(i).setPreferredWidth(80);
 			}
 		}
 	}
 
-	private class AnimalDetailTableModel extends AbstractTableModel {
+	private class EmployeesHistoryTableModel extends AbstractTableModel {
 		private String[] columnNames;
-		private ArrayList<AnimalModel> objectsList;
+		private ArrayList<EmployeeModel> objectsList;
 
-		public AnimalDetailTableModel() {
-			columnNames = new String[] {"ID", "FROM", "TO", "LOCATION", "WEIGHT"};
+		public EmployeesHistoryTableModel() {
+			columnNames = new String[] {"FROM", "TO", "NAME", "SURNAME", "LOCATION"};
 			objectsList = new ArrayList<>();
 		}
 
-		public void addAnimalModel(AnimalModel animalModel) {
-			objectsList.add(animalModel);
+		public void addEmployeeModel(EmployeeModel EmployeeModel) {
+			objectsList.add(EmployeeModel);
 			fireTableRowsInserted(objectsList.size() - 1, objectsList.size() - 1);
 		}
 
 
-		public AnimalModel getAnimalModel(int rowIndex) {
+		public EmployeeModel getEmployeeModel(int rowIndex) {
 			return objectsList.get(rowIndex);
 		}
 
@@ -96,23 +95,23 @@ public class AnimalDetailTable extends JTable {
 
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
-			AnimalModel animalModel = objectsList.get(rowIndex);
+			EmployeeModel employeeModel = objectsList.get(rowIndex);
 
-			if (animalModel == null) return (Object)"";
+			if (employeeModel == null) return (Object)"";
 
 			switch (columnIndex) {
 				case 0:
-					return animalModel.getShiftID();
+					return employeeModel.getDateFrom();
 				case 1:
-					return animalModel.getDateFrom();
+					if (employeeModel.getDateTo() != null)
+						return getStringDate(employeeModel.getDateTo());
 				case 2:
-					if (animalModel.getDateTo() != null)
-						return getStringDate(animalModel.getDateTo());
+					return employeeModel.getName();
 				case 3:
-					if (DataManager.getInstance().getSpatialObjectModelWithID(animalModel.getLocation()) != null)
-						return DataManager.getInstance().getSpatialObjectModelWithID(animalModel.getLocation()).toString();
+					return employeeModel.getSurname();
 				case 4:
-						return animalModel.getWeight();
+					if (DataManager.getInstance().getSpatialObjectModelWithID(employeeModel.getLocation()) != null)
+						return DataManager.getInstance().getSpatialObjectModelWithID(employeeModel.getLocation()).toString();
 				default:
 					return "";
 			}
@@ -143,7 +142,8 @@ public class AnimalDetailTable extends JTable {
 
 		@Override
 		public boolean isCellEditable(int rowIndex, int columnIndex) {
-			return columnIndex == 4 || columnIndex == 5;
+			return false;
 		}
 	}
+
 }

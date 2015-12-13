@@ -1154,7 +1154,7 @@ public class DataManager {
 				java.sql.Date dateFrom = new java.sql.Date(arDateFrom.getTime());
 				java.sql.Date dateTo = new java.sql.Date(arDateTo.getTime());
 
-				CallableStatement cstmt = connection.prepareCall ("BEGIN updateAnimalTable(?, ?, ?, ?, ?); END;");
+				CallableStatement cstmt = connection.prepareCall("BEGIN updateAnimalTable(?, ?, ?, ?, ?); END;");
 				cstmt.setLong(1, animalID);
 				cstmt.setDate(2, dateFrom);
 				cstmt.setDate(3, dateTo);
@@ -1234,5 +1234,44 @@ public class DataManager {
 		};
 		asyncTask.start();
 		return animals;
+	}
+
+	public List<EmployeeModel> getEmployeesForAnimal(final AnimalModel animalModel) throws DataManagerException {
+		final ArrayList<EmployeeModel> employees = new ArrayList<>();
+		AsyncTask asyncTask = new AsyncTask() {
+			@Override
+			protected void onDone(boolean success) {
+
+			}
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				String sqlQuery = "SELECT empl.id, empl.name, empl.Surname, es.Location, GREATEST(es.dFrom, ar.dFrom) as dateFrom, LEAST(es.dTo,ar.dTo) as dateTo FROM Employees empl " +
+						"JOIN Employees_Shift es on empl.ID = es.EmplID " +
+						"JOIN Animals_Records ar on es.Location = ar.Location " +
+						"JOIN Animals an on an.ID = ar.AnimalID " +
+						"WHERE es.dFrom <= ar.dTo AND es.dTo >= ar.dFrom and an.ID = " + animalModel.getId() ;
+
+				ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+				try {
+					while (resultSet.next()) {
+						System.out.println(resultSet.getString("Name"));
+						Long emplID = resultSet.getLong("ID");
+						String name = resultSet.getString("Name");
+						String surname = resultSet.getString("Surname");
+						Long location = resultSet.getLong("Location");
+						Date dateFrom = resultSet.getDate("dateFrom");
+						Date dateTo = resultSet.getDate("dateTo");
+						employees.add(new EmployeeModel(emplID, name, surname, location, dateFrom, dateTo));
+					}
+				} catch (SQLException e) {
+					throw new DataManagerException("getAllEmployeesForAnimal: SQLException: " + e.getMessage());
+				}
+				return true;
+			}
+		};
+		asyncTask.start();
+		return employees;
 	}
 }

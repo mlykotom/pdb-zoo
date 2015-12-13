@@ -497,3 +497,29 @@ END;
 
 
 
+DECLARE
+  v_DateFrom date := to_date('01-JAN-2001', 'DD-Mon-YYYY');
+  v_DateTo date := to_date('01-JAN-2010', 'DD-Mon-YYYY');
+  v_animalID INT := 34;
+BEGIN
+  deleteAnimalsRecordsTable(v_animalID, v_DateFrom, v_DateTo);
+END;
+
+
+SELECT e.ID as EmployeeID, e.Name, e.Surname, s.Location, s.dFrom, s.dTo FROM EMPLOYEES e LEFT JOIN Employees_Shift s ON e.ID = s.EmplId
+
+SELECT empl.id, empl.name, empl.Surname, es.Location, GREATEST(es.dFrom, ar.dFrom) as dateFrom, LEAST(es.dTo,ar.dTo) as dateTo FROM Employees empl JOIN Employees_Shift es on empl.ID = es.EmplID
+    JOIN Animals_Records ar on es.Location = ar.Location
+    JOIN Animals an on an.ID = ar.AnimalID
+WHERE es.dFrom <= ar.dTo AND es.dTo >= ar.dFrom and an.ID = 4 ;
+
+-- WHERE an.ID = 4 ;
+
+
+SELECT * FROM Animals_Records;
+
+SELECT ID, Name FROM Animals;
+
+SELECT * FROM Employees_Shift;
+
+

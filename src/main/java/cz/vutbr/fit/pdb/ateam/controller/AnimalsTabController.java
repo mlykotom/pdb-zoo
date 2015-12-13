@@ -5,6 +5,7 @@ import cz.vutbr.fit.pdb.ateam.exception.ControllerException;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.gui.components.AnimalDetailTable;
 import cz.vutbr.fit.pdb.ateam.gui.components.AnimalsTable;
+import cz.vutbr.fit.pdb.ateam.gui.components.EmployeesHistoryTable;
 import cz.vutbr.fit.pdb.ateam.gui.components.MultimediaPanel;
 import cz.vutbr.fit.pdb.ateam.gui.dialog.CompareImagesDialog;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.AnimalsTab;
@@ -12,6 +13,7 @@ import cz.vutbr.fit.pdb.ateam.gui.tabs.details.AnimalDetailPanel;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.details.AnimalShiftEditPanel;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.lists.AnimalsListPanel;
 import cz.vutbr.fit.pdb.ateam.model.animal.AnimalModel;
+import cz.vutbr.fit.pdb.ateam.model.employee.EmployeeModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.observer.ISpatialObjectSelectionChangedListener;
 import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectSelectionChangeObservable;
@@ -118,7 +120,6 @@ public class AnimalsTabController  extends Controller
 
 		animalsListPanel.setAnimalsTable(table);
 	}
-
 
 	/**
 	 * This method is supposed to show AddNewAnimal animalsTab.
@@ -313,6 +314,26 @@ public class AnimalsTabController  extends Controller
 	}
 
 
+	public void fillEmployeesHistoryDetailTable(){
+		EmployeesHistoryTable table = new EmployeesHistoryTable();
+		table.setColumnsWidth();
+		List<EmployeeModel> models;
+
+		models = new ArrayList<>();
+		try {
+			models = dataManager.getEmployeesForAnimal(selectedAnimalModel);
+		} catch (DataManagerException e) {
+			Logger.createLog(Logger.ERROR_LOG, e.getMessage());
+		}
+
+		for (EmployeeModel model : models) {
+			table.addEmployeeModel(model);
+		}
+
+		animalDetailPanel.setEmployeesHistoryTable(table);
+	}
+
+
 	/**
 	 * Action triggered when Show History checkbox is ticked on AnimalDetailPanel
 	 * @param selected set to true/false if checkbox is selected or not
@@ -320,8 +341,10 @@ public class AnimalsTabController  extends Controller
 	public void showHistoryAction(boolean selected) {
 		if (selected == true){
 			animalDetailPanel.showHistoryShiftPane();
+			fillAnimalDetailTable();
 		}else {
-			animalDetailPanel.hideHistoryShiftPane();
+//			animalDetailPanel.clearButtonGroupSelection();
+//			animalDetailPanel.hideHistoryShiftPane();
 		}
 	}
 
@@ -476,5 +499,12 @@ public class AnimalsTabController  extends Controller
 		};
 		asyncTask.start();
 
+	}
+
+	public void showEmployeesHistory(boolean selected) {
+		if (selected){
+			animalDetailPanel.showHistoryShiftPane();
+			fillEmployeesHistoryDetailTable();
+		}
 	}
 }
