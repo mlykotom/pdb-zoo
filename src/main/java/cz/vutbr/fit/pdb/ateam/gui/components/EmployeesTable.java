@@ -59,7 +59,8 @@ public class EmployeesTable extends JTable {
 //					getColumnModel().getColumn(i).setMaxWidth(80);
 					break;
 				case 3:
-					getColumnModel().getColumn(i).setPreferredWidth(150);
+					getColumnModel().getColumn(i).setPreferredWidth(120);
+					getColumnModel().getColumn(i).setMaxWidth(120);
 					break;
 				case 4:
 					getColumnModel().getColumn(i).setPreferredWidth(55);

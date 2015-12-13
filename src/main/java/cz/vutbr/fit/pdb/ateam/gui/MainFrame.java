@@ -32,6 +32,7 @@ public class MainFrame extends JFrame {
 	public MainFrame() {
 		this.mainFrameController = new MainFrameController(this);
 		contentPanel = new ContentPanel();
+
 		initUI();
 	}
 
@@ -58,6 +59,7 @@ public class MainFrame extends JFrame {
 
 		// ------ content
 		switchContent(contentPanel);
+
 		pack();
 	}
 

@@ -37,9 +37,18 @@ public class ContentPanel extends JPanel {
 		// map tabs
 		mapTabbedPane.addTab("ZOO map", mapPanelContent);
 		// detail tabs
+
 		detailTabbedPane.addTab("Objects", spatialObjectsTab);
-		detailTabbedPane.addTab("Animals", animalsTab);
-		detailTabbedPane.addTab("Employees", employeesTab);
+
+		JScrollPane animalScrolPane = new JScrollPane(animalsTab);
+		animalScrolPane.getVerticalScrollBar().setUnitIncrement(16);
+		detailTabbedPane.add(animalScrolPane, "Animals");
+
+		JScrollPane employeeScrolPane = new JScrollPane(employeesTab);
+		employeeScrolPane.getVerticalScrollBar().setUnitIncrement(16);
+		detailTabbedPane.add(employeeScrolPane, "Employees");
+
+		detailTabbedPane.setPreferredSize(new Dimension(600, 600));
 	}
 
 	{
