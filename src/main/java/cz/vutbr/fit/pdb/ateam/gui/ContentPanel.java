@@ -6,6 +6,7 @@ import cz.vutbr.fit.pdb.ateam.gui.map.ZooMapPanel;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.AnimalsTab;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.EmployeesTab;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.SpatialObjectsTab;
+import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,10 +31,10 @@ public class ContentPanel extends JPanel {
 	 * (pointer to this is because it's possible they will have to communicate with each other)
 	 */
 	private void initUI() {
-		mapPanelContent = new ZooMapPanel(this);
-		spatialObjectsTab = new SpatialObjectsTab(this);
-		animalsTab = new AnimalsTab(this, detailTabbedPane);
-		employeesTab = new EmployeesTab(this, detailTabbedPane);
+		ZooMapPanel mapPanelContent = new ZooMapPanel(this);
+		SpatialObjectsTab spatialObjectsTab = new SpatialObjectsTab(this);
+		AnimalsTab animalsTab = new AnimalsTab(this, detailTabbedPane);
+		EmployeesTab employeesTab = new EmployeesTab(this, detailTabbedPane);
 		// map tabs
 		mapTabbedPane.addTab("ZOO map", mapPanelContent);
 		// detail tabs
