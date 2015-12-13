@@ -44,6 +44,7 @@ public class MainFrameController extends Controller {
 			@Override
 			protected Boolean doInBackground() throws Exception {
 				try {
+					dataManager.clearCache();
 					dataManager.disconnectDatabase();
 					return true;
 				} catch (DataManagerException e) {

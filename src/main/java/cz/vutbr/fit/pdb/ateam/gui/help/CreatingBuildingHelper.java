@@ -59,10 +59,10 @@ public class CreatingBuildingHelper extends JPanel {
 		rootPanel.setLayout(new GridLayoutManager(5, 3, new Insets(15, 15, 15, 15), -1, -1));
 		final JLabel label1 = new JLabel();
 		label1.setFont(new Font(label1.getFont().getName(), label1.getFont().getStyle(), 18));
-		label1.setText("Create building on map.");
+		label1.setText("Create shape on map.");
 		rootPanel.add(label1, new GridConstraints(0, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final JLabel label2 = new JLabel();
-		label2.setText("Note: Click on the map until building is created.");
+		label2.setText("Note: Click on the map until shape is created or click finish.");
 		rootPanel.add(label2, new GridConstraints(1, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final JLabel label3 = new JLabel();
 		label3.setText("Clicks represent edges of the building.");

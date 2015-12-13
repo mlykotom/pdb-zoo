@@ -1,3 +1,5 @@
 xmlyna06 100 %
 xtutko00 100 %
 xhanus11 100 %
+Vedoucim projektu je Tomas Mlynaric (xmlyna06). Pracoval na kostre projektu, obecnem principu fungovani GUI a prostorove casti projektu.
+TODO doplnit kdo co delal

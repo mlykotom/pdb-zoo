@@ -15,6 +15,9 @@ import java.util.*;
  */
 public class SpatialDetailTable extends JTable {
 
+	/**
+	 * Class for column setup in table
+	 */
 	private class Column {
 		private String name;
 		private int preferredWidth;
@@ -36,6 +39,9 @@ public class SpatialDetailTable extends JTable {
 	private BaseTableModel tableModel;
 	private List<Column> columns = new ArrayList<>();
 
+	/**
+	 * Helper for setting up sorting in table
+	 */
 	private void setSorter() {
 		TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
 		sorter.setComparator(0, new Comparator<Long>() {

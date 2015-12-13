@@ -18,14 +18,25 @@
         <border type="none"/>
         <children/>
       </tabbedpane>
-      <tabbedpane id="c33c3" binding="detailTabbedPane" default-binding="true">
+      <scrollpane id="565a3">
         <constraints>
-          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="-1" height="500"/>
+          </grid>
         </constraints>
-        <properties/>
+        <properties>
+          <verticalScrollBarPolicy value="20"/>
+        </properties>
         <border type="none"/>
-        <children/>
-      </tabbedpane>
+        <children>
+          <tabbedpane id="c33c3" binding="detailTabbedPane" default-binding="true">
+            <constraints/>
+            <properties/>
+            <border type="none"/>
+            <children/>
+          </tabbedpane>
+        </children>
+      </scrollpane>
     </children>
   </grid>
 </form>
