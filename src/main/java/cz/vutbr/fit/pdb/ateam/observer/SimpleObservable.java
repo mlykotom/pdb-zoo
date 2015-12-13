@@ -35,6 +35,7 @@ abstract public class SimpleObservable<T> {
 
 	/**
 	 * Notifies all listeners and injects any object as parameter
+	 *
 	 * @param arg Object injected to the listener method in interface
 	 */
 	public void notifyObservers(Object arg) {

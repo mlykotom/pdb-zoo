@@ -2,6 +2,7 @@ package cz.vutbr.fit.pdb.ateam.exception;
 
 /**
  * Exception used by Models
+ *
  * @author Tomas Mlynaric
  */
 public class ControllerException extends Exception {

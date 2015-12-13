@@ -46,7 +46,7 @@ public class ImagePanel extends JPanel {
 
 	public byte[] getByteArray() {
 		try {
-			if(originalImage == null) return null;
+			if (originalImage == null) return null;
 
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			ImageIO.write(originalImage, "png", outputStream);
@@ -68,9 +68,9 @@ public class ImagePanel extends JPanel {
 
 	private void changeImageFromObject(Object object) {
 		try {
-			if(object instanceof File) {
+			if (object instanceof File) {
 				originalImage = ImageIO.read((File) object);
-			} else if(object instanceof InputStream) {
+			} else if (object instanceof InputStream) {
 				originalImage = ImageIO.read((InputStream) object);
 			}
 
@@ -83,12 +83,12 @@ public class ImagePanel extends JPanel {
 
 	@Override
 	protected void paintComponent(Graphics g) {
-		if(originalImage == null) return;
+		if (originalImage == null) return;
 
 		super.paintComponent(g);
 
 		Image scaledImage;
-		if(parentPanel != null)
+		if (parentPanel != null)
 			scaledImage = originalImage.getScaledInstance(parentPanel.getWidth(), parentPanel.getHeight(), Image.SCALE_SMOOTH);
 		else
 			scaledImage = originalImage;

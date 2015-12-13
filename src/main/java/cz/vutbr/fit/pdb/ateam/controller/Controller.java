@@ -151,7 +151,7 @@ public class Controller {
 			protected void onDone(boolean success) {
 				if (!success) {
 					int errorCode = getErrorCode();
-					if(errorCode == 2396 || errorCode == 1012){
+					if (errorCode == 2396 || errorCode == 1012) {
 						LoginForm loginForm = new LoginForm();
 						loginForm.setVisible(true);
 						appStateChangedObservable.notifyStateChanged("Could not reload data.");

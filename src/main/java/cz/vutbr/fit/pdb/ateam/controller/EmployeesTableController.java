@@ -7,5 +7,6 @@ import cz.vutbr.fit.pdb.ateam.model.employee.EmployeeModel;
  */
 public interface EmployeesTableController {
 	void EmployeesTableEditAction(EmployeeModel employeeModel);
+
 	void EmployeesTableDeleteAction(EmployeeModel employeeModel);
 }

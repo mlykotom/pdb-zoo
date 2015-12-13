@@ -9,6 +9,7 @@ import java.awt.geom.Point2D;
 
 /**
  * Representation of multipoint model. Renders as circle in Swing (point wouldn't be visible)
+ *
  * @author Tomas Mlynaric
  */
 public class SpatialMultiPointModel extends SpatialPointModel {
@@ -21,7 +22,7 @@ public class SpatialMultiPointModel extends SpatialPointModel {
 		Point2D[] points = geometry.getJavaPoints();
 		GeneralPath p = new GeneralPath();
 
-		for(Point2D point : points){
+		for (Point2D point : points) {
 			Ellipse2D el = new Ellipse2D.Double(point.getX() - SPATIAL_POINT_SIZE / 2, point.getY() - SPATIAL_POINT_SIZE / 2, SPATIAL_POINT_SIZE, SPATIAL_POINT_SIZE);
 			p.append(el, false);
 		}
@@ -31,7 +32,7 @@ public class SpatialMultiPointModel extends SpatialPointModel {
 
 	@Override
 	public boolean isWithin(int x, int y) {
-		return shape.intersects(x - INTERSECT_BOX_SIZE / 2,  y - INTERSECT_BOX_SIZE / 2, INTERSECT_BOX_SIZE, INTERSECT_BOX_SIZE);
+		return shape.intersects(x - INTERSECT_BOX_SIZE / 2, y - INTERSECT_BOX_SIZE / 2, INTERSECT_BOX_SIZE, INTERSECT_BOX_SIZE);
 	}
 
 	/**

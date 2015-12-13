@@ -19,12 +19,11 @@ import java.util.ArrayList;
  * @author Tomas Mlynaric
  */
 abstract public class SpatialObjectModel extends BaseModel implements Comparable<SpatialObjectModel> {
-	private static final Paint DEFAULT_BORDER_COLOR = Color.BLACK;
-	private static final BasicStroke DEFAULT_STROKE = new BasicStroke(1);
-	protected static final int INTERSECT_BOX_SIZE = 10;
 	public static final int NO_SRID = 0;
 	public static final String ADDITIONAL_CLOSEST_DISTANCE = "ClosestDistance";
-
+	protected static final int INTERSECT_BOX_SIZE = 10;
+	private static final Paint DEFAULT_BORDER_COLOR = Color.BLACK;
+	private static final BasicStroke DEFAULT_STROKE = new BasicStroke(1);
 	protected int zIndex;
 	protected JGeometry geometry;
 	protected Shape shape;
@@ -32,35 +31,6 @@ abstract public class SpatialObjectModel extends BaseModel implements Comparable
 	protected Paint borderColor;
 	protected BasicStroke stroke;
 	private boolean isSelected = false;
-
-	/**
-	 * Helper enum for checking map boundaries
-	 */
-	private enum IsInMapAxis {
-		AXIS_Y, AXIS_X
-	}
-
-	/**
-	 * Enum for selection types (specifies color of selection)
-	 */
-	public enum SelectionType {
-		DEFAULT(Color.RED),
-		MULTI(Color.ORANGE);
-
-		private Color color;
-
-		SelectionType(String colorHex) {
-			this.color = Color.decode(colorHex);
-		}
-
-		SelectionType(Color color) {
-			this.color = color;
-		}
-
-		public Color getColor() {
-			return color;
-		}
-	}
 
 	/**
 	 * Setups object and creates shape for graphic representation from jGeometry.
@@ -102,7 +72,7 @@ abstract public class SpatialObjectModel extends BaseModel implements Comparable
 		}
 		SpatialObjectModel model = createFromJGeometry(name, spatialType, geometry);
 		model.zIndex = zIndex;
-		model.id = id; 		// id is set here so that we can create model without Id (new model)
+		model.id = id;        // id is set here so that we can create model without Id (new model)
 		return model;
 	}
 
@@ -455,8 +425,6 @@ abstract public class SpatialObjectModel extends BaseModel implements Comparable
 		return result;
 	}
 
-	// ---- GETTERS && SETTERS ---- //
-
 	/**
 	 * Gets stroke type
 	 *
@@ -466,7 +434,6 @@ abstract public class SpatialObjectModel extends BaseModel implements Comparable
 		return DEFAULT_STROKE;
 	}
 
-
 	/**
 	 * Gets border type
 	 *
@@ -475,6 +442,8 @@ abstract public class SpatialObjectModel extends BaseModel implements Comparable
 	protected Paint getDefaultBorderColor() {
 		return DEFAULT_BORDER_COLOR;
 	}
+
+	// ---- GETTERS && SETTERS ---- //
 
 	@Override
 	public String getTableName() {
@@ -536,5 +505,34 @@ abstract public class SpatialObjectModel extends BaseModel implements Comparable
 			return -1;
 
 		return 0;
+	}
+
+	/**
+	 * Helper enum for checking map boundaries
+	 */
+	private enum IsInMapAxis {
+		AXIS_Y, AXIS_X
+	}
+
+	/**
+	 * Enum for selection types (specifies color of selection)
+	 */
+	public enum SelectionType {
+		DEFAULT(Color.RED),
+		MULTI(Color.ORANGE);
+
+		private Color color;
+
+		SelectionType(String colorHex) {
+			this.color = Color.decode(colorHex);
+		}
+
+		SelectionType(Color color) {
+			this.color = color;
+		}
+
+		public Color getColor() {
+			return color;
+		}
 	}
 }

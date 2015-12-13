@@ -47,8 +47,8 @@ public class EmployeeDetailTable extends JTable {
 	}
 
 	public void setColumnsWidth() {
-		for (int i = 0; i<= 3; i++){
-			switch (i){
+		for (int i = 0; i <= 3; i++) {
+			switch (i) {
 				case 0:
 					getColumnModel().getColumn(i).setPreferredWidth(35);
 					getColumnModel().getColumn(i).setMaxWidth(35);
@@ -61,7 +61,8 @@ public class EmployeeDetailTable extends JTable {
 				case 3:
 					getColumnModel().getColumn(i).setPreferredWidth(80);
 					break;
-				default: getColumnModel().getColumn(i).setPreferredWidth(80);
+				default:
+					getColumnModel().getColumn(i).setPreferredWidth(80);
 			}
 		}
 	}
@@ -71,7 +72,7 @@ public class EmployeeDetailTable extends JTable {
 		private ArrayList<EmployeeModel> objectsList;
 
 		public EmployeeDetailTableModel() {
-			columnNames = new String[] {"ID", "FROM", "TO", "LOCATION"};
+			columnNames = new String[]{"ID", "FROM", "TO", "LOCATION"};
 			objectsList = new ArrayList<>();
 		}
 
@@ -99,7 +100,7 @@ public class EmployeeDetailTable extends JTable {
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			EmployeeModel employeeModel = objectsList.get(rowIndex);
 
-			if (employeeModel == null) return (Object)"";
+			if (employeeModel == null) return (Object) "";
 
 			switch (columnIndex) {
 				case 0:
@@ -126,7 +127,7 @@ public class EmployeeDetailTable extends JTable {
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
-			if (Utils.removeTime(dateTo).equals(foreverDate)){
+			if (Utils.removeTime(dateTo).equals(foreverDate)) {
 				return "now";
 			}
 			return dateTo.toString();
@@ -134,7 +135,7 @@ public class EmployeeDetailTable extends JTable {
 
 		@Override
 		public String getColumnName(int columnIndex) {
-			if(columnIndex >= columnNames.length)
+			if (columnIndex >= columnNames.length)
 				return "";
 
 			return columnNames[columnIndex];
@@ -203,15 +204,15 @@ public class EmployeeDetailTable extends JTable {
 			button.setText(label);
 			isPushed = true;
 
-			this.EmployeeModel = ((EmployeeDetailTableModel)table.getModel()).getEmployeeModel(row);
-			if(column == 4) this.pushedButton = "edit";
+			this.EmployeeModel = ((EmployeeDetailTableModel) table.getModel()).getEmployeeModel(row);
+			if (column == 4) this.pushedButton = "edit";
 
 			return button;
 		}
 
 		public Object getCellEditorValue() {
 			if (isPushed) {
-				if(pushedButton.equals("edit")) controller.EmployeesTableEditAction(EmployeeModel);
+				if (pushedButton.equals("edit")) controller.EmployeesTableEditAction(EmployeeModel);
 			}
 			isPushed = false;
 			return label;

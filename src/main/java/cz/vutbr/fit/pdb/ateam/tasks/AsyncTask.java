@@ -19,19 +19,9 @@ import javax.swing.*;
  */
 public abstract class AsyncTask extends SwingWorker<Boolean, String> {
 	private LoadingDialogController loadingDialogController;
-
-	/**
-	 * Allowed ways of creating async task
-	 */
-	private enum ProgressType {
-		TYPE_DIALOG,
-		TYPE_PROGRESSBAR,
-	}
-
 	private ProgressType type;
 	private JProgressBar progressBar;
 	private int errorCode;
-
 	/**
 	 * Creates async task with dialog type
 	 */
@@ -106,6 +96,15 @@ public abstract class AsyncTask extends SwingWorker<Boolean, String> {
 	abstract protected void onDone(boolean success);
 
 	/**
+	 * Gets error code which was set in method {@link #setErrorCode(int)}
+	 *
+	 * @return error code
+	 */
+	protected int getErrorCode() {
+		return this.errorCode;
+	}
+
+	/**
 	 * When error code inside background thread, we can push it to method {@link #onDone(boolean)}
 	 * Later code rewrite earliers!
 	 *
@@ -116,11 +115,10 @@ public abstract class AsyncTask extends SwingWorker<Boolean, String> {
 	}
 
 	/**
-	 * Gets error code which was set in method {@link #setErrorCode(int)}
-	 *
-	 * @return error code
+	 * Allowed ways of creating async task
 	 */
-	protected int getErrorCode() {
-		return this.errorCode;
+	private enum ProgressType {
+		TYPE_DIALOG,
+		TYPE_PROGRESSBAR,
 	}
 }

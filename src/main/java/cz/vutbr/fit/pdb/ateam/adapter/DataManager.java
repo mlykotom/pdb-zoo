@@ -14,20 +14,14 @@ import oracle.jdbc.OracleResultSet;
 import oracle.jdbc.pool.OracleDataSource;
 import oracle.ord.im.OrdImage;
 import oracle.spatial.geometry.JGeometry;
-import oracle.sql.ORAData;
 
 import java.io.IOException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Stack;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.sql.*;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * Class for communicating with the database.
@@ -42,18 +36,14 @@ import java.util.Scanner;
  * @author Jakub Tutko
  */
 public class DataManager {
+	public static final int SQL_FUNCTION_WITHIN_DISTANCE = 1;
+	public static final int SQL_FUNCTION_SDO_RELATE = 2;
 	private static DataManager instance = new DataManager();
-
 	private Connection connection;
-
 	private List<SpatialObjectModel> spatialObjects = new ArrayList<>();
 	private List<SpatialObjectTypeModel> spatialObjectTypes = new ArrayList<>();
 	private List<EmployeeModel> employees;
 	private List<AnimalModel> animals;
-
-
-	public static final int SQL_FUNCTION_WITHIN_DISTANCE = 1;
-	public static final int SQL_FUNCTION_SDO_RELATE = 2;
 
 	public DataManager() {
 		this.spatialObjects = new ArrayList<>();
@@ -150,7 +140,7 @@ public class DataManager {
 			initScripts.add("DROP TABLE Spatial_Objects");
 			initScripts.add("DROP TABLE Spatial_Object_Types");
 
-			for (String sql: initScripts) {
+			for (String sql : initScripts) {
 				try {
 					Logger.createLog(Logger.DEBUG_LOG, "INIT SCRIPT: " + sql);
 					stmt.executeUpdate(sql);
@@ -165,64 +155,64 @@ public class DataManager {
 
 			initScripts.add(
 					"CREATE TABLE Spatial_Object_Types ( " +
-					"  ID    INT                       NOT NULL, " +
-					"  Name  VARCHAR(255)              NOT NULL, " +
-					"  Color VARCHAR(6) DEFAULT 000000 NOT NULL, " +
-					"  PRIMARY KEY (ID) " +
-					")"
+							"  ID    INT                       NOT NULL, " +
+							"  Name  VARCHAR(255)              NOT NULL, " +
+							"  Color VARCHAR(6) DEFAULT 000000 NOT NULL, " +
+							"  PRIMARY KEY (ID) " +
+							")"
 			);
 			initScripts.add(
-				"CREATE TABLE Spatial_Objects ( " +
-				"  ID       INT          NOT NULL, " +
-				"  Name     VARCHAR(255) NOT NULL, " +
-				"  Type     INT, " +
-				"  Geometry SDO_GEOMETRY NOT NULL, " +
-				" " +
-				"  PRIMARY KEY (ID), " +
-				"  FOREIGN KEY (Type) REFERENCES Spatial_Object_Types (ID) " +
-				")"
+					"CREATE TABLE Spatial_Objects ( " +
+							"  ID       INT          NOT NULL, " +
+							"  Name     VARCHAR(255) NOT NULL, " +
+							"  Type     INT, " +
+							"  Geometry SDO_GEOMETRY NOT NULL, " +
+							" " +
+							"  PRIMARY KEY (ID), " +
+							"  FOREIGN KEY (Type) REFERENCES Spatial_Object_Types (ID) " +
+							")"
 			);
 			initScripts.add(
-				"INSERT INTO USER_SDO_GEOM_METADATA VALUES ( " +
-				"  'SPATIAL_OBJECTS', " +
-				"  'GEOMETRY', " +
-				"  SDO_DIM_ARRAY(SDO_DIM_ELEMENT('X', 0, 640, 1), SDO_DIM_ELEMENT('Y', 0, 480, 1)), " +
-				"  NULL " +
-				")"
+					"INSERT INTO USER_SDO_GEOM_METADATA VALUES ( " +
+							"  'SPATIAL_OBJECTS', " +
+							"  'GEOMETRY', " +
+							"  SDO_DIM_ARRAY(SDO_DIM_ELEMENT('X', 0, 640, 1), SDO_DIM_ELEMENT('Y', 0, 480, 1)), " +
+							"  NULL " +
+							")"
 			);
 			initScripts.add(
-				"CREATE INDEX SPATIAL_OBJECTS_INDEX ON SPATIAL_OBJECTS(GEOMETRY) INDEXTYPE IS MDSYS.SPATIAL_INDEX"
+					"CREATE INDEX SPATIAL_OBJECTS_INDEX ON SPATIAL_OBJECTS(GEOMETRY) INDEXTYPE IS MDSYS.SPATIAL_INDEX"
 			);
 			initScripts.add(
-				"CREATE SEQUENCE Spatial_Object_Types_seq"
+					"CREATE SEQUENCE Spatial_Object_Types_seq"
 			);
 			initScripts.add(
-				"CREATE OR REPLACE TRIGGER Spatial_Object_Types_bir " +
-				"BEFORE INSERT ON Spatial_Object_Types " +
-				"FOR EACH ROW " +
-				"  BEGIN " +
-				"    SELECT Spatial_Object_Types_seq.NEXTVAL " +
-				"    INTO :new.id " +
-				"    FROM dual; " +
-				"  END;"
+					"CREATE OR REPLACE TRIGGER Spatial_Object_Types_bir " +
+							"BEFORE INSERT ON Spatial_Object_Types " +
+							"FOR EACH ROW " +
+							"  BEGIN " +
+							"    SELECT Spatial_Object_Types_seq.NEXTVAL " +
+							"    INTO :new.id " +
+							"    FROM dual; " +
+							"  END;"
 			);
 			initScripts.add(
-				"CREATE SEQUENCE Spatial_Objects_seq"
+					"CREATE SEQUENCE Spatial_Objects_seq"
 			);
 			initScripts.add(
-				"CREATE OR REPLACE TRIGGER Spatial_Objects_bir " +
-				"BEFORE INSERT ON Spatial_Objects " +
-				"FOR EACH ROW " +
-				"  BEGIN " +
-				"    SELECT Spatial_Objects_seq.NEXTVAL " +
-				"    INTO :new.id " +
-				"    FROM dual; " +
-				"  END;"
+					"CREATE OR REPLACE TRIGGER Spatial_Objects_bir " +
+							"BEFORE INSERT ON Spatial_Objects " +
+							"FOR EACH ROW " +
+							"  BEGIN " +
+							"    SELECT Spatial_Objects_seq.NEXTVAL " +
+							"    INTO :new.id " +
+							"    FROM dual; " +
+							"  END;"
 			);
 
 			// TODO: CREATE TABLE employees + animals
 
-			for (String sql: initScripts) {
+			for (String sql : initScripts) {
 				Logger.createLog(Logger.DEBUG_LOG, "INIT SCRIPT: " + sql);
 				stmt.executeUpdate(sql);
 			}
@@ -230,7 +220,7 @@ public class DataManager {
 			initScripts.clear();
 			// TODO inserts
 
-			for (String sql: initScripts) {
+			for (String sql : initScripts) {
 				Logger.createLog(Logger.DEBUG_LOG, "INIT SCRIPT: " + sql);
 				stmt.executeUpdate(sql);
 			}
@@ -617,7 +607,7 @@ public class DataManager {
 					model.setId(getIdResultSet.getLong(1));
 				}
 				statement.close();
-			} else if(model.getImage() == null && model.getImageByteArray() != null) {
+			} else if (model.getImage() == null && model.getImageByteArray() != null) {
 				Statement statement = connection.createStatement();
 				String updateSQL = "UPDATE Animals SET photo = ordsys.ordimage.init() WHERE id = " + model.getId();
 				Logger.createLog(Logger.DEBUG_LOG, "SENDING UPDATE: " + updateSQL);
@@ -628,10 +618,10 @@ public class DataManager {
 			Statement stmt = connection.createStatement();
 
 			String selectSQL = ""
-				+ "SELECT photo "
-				+ "FROM " + model.getTableName() + " "
-				+ "WHERE id=" + model.getId() + " "
-				+ " FOR UPDATE";
+					+ "SELECT photo "
+					+ "FROM " + model.getTableName() + " "
+					+ "WHERE id=" + model.getId() + " "
+					+ " FOR UPDATE";
 
 			Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + selectSQL);
 			OracleResultSet rset = (OracleResultSet) stmt.executeQuery(selectSQL);
@@ -661,7 +651,7 @@ public class DataManager {
 			preparedStmt.executeUpdate();
 			preparedStmt.close();
 
-			if(model.getImageByteArray() != null) {
+			if (model.getImageByteArray() != null) {
 				stmt = connection.createStatement();
 				String updateStillImageSQL = "";
 				updateStillImageSQL += "UPDATE " + model.getTableName() + " t ";
@@ -690,8 +680,7 @@ public class DataManager {
 			throw new DataManagerException("SQLException: " + e.getMessage());
 		} catch (IOException e) {
 			throw new DataManagerException("IOException: " + e.getMessage());
-		}
-		finally {
+		} finally {
 			try {
 				connection.setAutoCommit(true);
 			} catch (SQLException e) {
@@ -817,7 +806,7 @@ public class DataManager {
 	public SpatialObjectTypeModel getSpatialObjectType(Long typeID) throws DataManagerException {
 		if (typeID == null) throw new DataManagerException("getType: Null typeID received");
 
-		if(spatialObjectTypes == null || spatialObjectTypes.isEmpty()) reloadAllSpatialObjectTypes();
+		if (spatialObjectTypes == null || spatialObjectTypes.isEmpty()) reloadAllSpatialObjectTypes();
 
 		for (SpatialObjectTypeModel type : spatialObjectTypes) {
 			if (type.getId().equals(typeID)) return type;
@@ -1304,7 +1293,7 @@ public class DataManager {
 	}
 
 
-	public boolean deleteAnimalRecords(final Long animalID, final Date arDateFrom, final Date arDateTo){
+	public boolean deleteAnimalRecords(final Long animalID, final Date arDateFrom, final Date arDateTo) {
 
 		AsyncTask asyncTask = new AsyncTask() {
 			@Override
@@ -1317,7 +1306,7 @@ public class DataManager {
 				java.sql.Date dateFrom = new java.sql.Date(arDateFrom.getTime());
 				java.sql.Date dateTo = new java.sql.Date(arDateTo.getTime());
 
-				CallableStatement cstmt = connection.prepareCall ("BEGIN deleteAnimalsRecordsTable(?, ?, ?); END;");
+				CallableStatement cstmt = connection.prepareCall("BEGIN deleteAnimalsRecordsTable(?, ?, ?); END;");
 
 				cstmt.setLong(1, animalID);
 				cstmt.setDate(2, dateFrom);
@@ -1383,7 +1372,7 @@ public class DataManager {
 						"JOIN Employees_Shift es on empl.ID = es.EmplID " +
 						"JOIN Animals_Records ar on es.Location = ar.Location " +
 						"JOIN Animals an on an.ID = ar.AnimalID " +
-						"WHERE es.dFrom <= ar.dTo AND es.dTo >= ar.dFrom and an.ID = " + animalModel.getId() ;
+						"WHERE es.dFrom <= ar.dTo AND es.dTo >= ar.dFrom and an.ID = " + animalModel.getId();
 
 				ResultSet resultSet = createDatabaseQuery(sqlQuery);
 

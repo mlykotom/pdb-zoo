@@ -61,18 +61,18 @@ public class ZooMapCanvas extends BasePanel {
 
 		List<SpatialObjectModel> renderLatestModels = new ArrayList<>();
 		for (SpatialObjectModel model : controller.getSpatialObjects()) {
-			if(model.isSelected()){
+			if (model.isSelected()) {
 				renderLatestModels.add(model);
 				continue;
 			}
 			model.render(g2D);
 		}
 
-		for(SpatialObjectModel renderLatest : renderLatestModels){
+		for (SpatialObjectModel renderLatest : renderLatestModels) {
 			renderLatest.render(g2D);
 		}
 
-		if(controller.creatingModel != null) controller.creatingModel.render(g2D);
+		if (controller.creatingModel != null) controller.creatingModel.render(g2D);
 	}
 
 	@Override

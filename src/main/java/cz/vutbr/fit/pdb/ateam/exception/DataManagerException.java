@@ -22,7 +22,7 @@ public class DataManagerException extends Exception {
 		this.message = message;
 	}
 
-	public DataManagerException(String message, int errorCode){
+	public DataManagerException(String message, int errorCode) {
 		this.errorCode = errorCode;
 		this.message = message;
 	}
@@ -39,7 +39,10 @@ public class DataManagerException extends Exception {
 
 	/**
 	 * Can pass error code from SQLException
+	 *
 	 * @return error code
 	 */
-	public int getErrorCode(){ return this.errorCode; }
+	public int getErrorCode() {
+		return this.errorCode;
+	}
 }

@@ -32,7 +32,7 @@ public class EmployeeModel extends BaseModel {
 	}
 
 	public EmployeeModel(String name, String surname) {
-		this(0, name, surname, Long.valueOf(0) ,null, null);
+		this(0, name, surname, Long.valueOf(0), null, null);
 		this.surname = surname;
 	}
 

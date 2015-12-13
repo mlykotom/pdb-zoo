@@ -7,5 +7,6 @@ import cz.vutbr.fit.pdb.ateam.model.animal.AnimalModel;
  */
 public interface AnimalsTableController {
 	void AnimalsTableEditAction(AnimalModel animalModel);
+
 	void AnimalsTableDeleteAction(AnimalModel animalModel);
 }

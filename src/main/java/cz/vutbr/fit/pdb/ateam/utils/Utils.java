@@ -17,11 +17,12 @@ import java.util.Date;
  */
 public class Utils {
 	private static final String FOREVER_DATE = "01-Jan-2500";
+
 	/**
 	 * Disconnects database and closes application.
 	 */
 	public static void whenApplicationClosing() {
-		try{
+		try {
 			DataManager dbManager = DataManager.getInstance();
 			dbManager.clearCache();
 			dbManager.disconnectDatabase();
@@ -35,10 +36,10 @@ public class Utils {
 	 * Method set fixed size for the given JComponent.
 	 *
 	 * @param component JComponent to work with
-	 * @param width final width of the component
-	 * @param height final height of the component
+	 * @param width     final width of the component
+	 * @param height    final height of the component
 	 */
-	public static void setComponentFixSize( JComponent component ,int width, int height) {
+	public static void setComponentFixSize(JComponent component, int width, int height) {
 		component.setMinimumSize(new Dimension(width, height));
 		component.setMaximumSize(new Dimension(width, height));
 		component.setPreferredSize(new Dimension(width, height));
@@ -47,7 +48,7 @@ public class Utils {
 	/**
 	 * Static method for changing whole content of the JPanel
 	 *
-	 * @param panel content will be changed in this panel
+	 * @param panel   content will be changed in this panel
 	 * @param content content, which will replace old content
 	 */
 	public static void changePanelContent(JPanel panel, JComponent content) {
@@ -57,16 +58,16 @@ public class Utils {
 		panel.repaint();
 	}
 
-	public static int getMin(int num, int num2){
-		if(num < num2){
-			return  num;
+	public static int getMin(int num, int num2) {
+		if (num < num2) {
+			return num;
 		}
 
 		return num2;
 	}
 
-	public static int getMax(int num, int num2){
-		if(num > num2){
+	public static int getMax(int num, int num2) {
+		if (num > num2) {
 			return num;
 		}
 
@@ -75,6 +76,7 @@ public class Utils {
 
 	/**
 	 * If you want use date only as Year, Mont, Day this function removes any extra time units (hours, minutes, ... )
+	 *
 	 * @param date
 	 * @return
 	 */
@@ -88,7 +90,7 @@ public class Utils {
 		return cal.getTime();
 	}
 
-	public static Date getForeverDate(){
+	public static Date getForeverDate() {
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
 		Date foreverDate = new Date();
 		try {
@@ -104,8 +106,8 @@ public class Utils {
 	 * Changes table's button background and foreground according to button's selection.
 	 *
 	 * @param isSelected flag if button is selected
-	 * @param button table's button
-	 * @param table button
+	 * @param button     table's button
+	 * @param table      button
 	 */
 	public static void setButtonForegroundAndBackground(boolean isSelected, JButton button, JTable table) {
 		if (isSelected) {

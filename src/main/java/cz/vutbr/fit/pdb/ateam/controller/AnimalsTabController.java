@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * Created by Tomas on 12/12/2015.
  */
-public class AnimalsTabController  extends Controller
+public class AnimalsTabController extends Controller
 		implements
 		ISpatialObjectSelectionChangedListener,
 		AnimalsTableController {
@@ -75,14 +75,14 @@ public class AnimalsTabController  extends Controller
 	/**
 	 * Creates Panel to show actual Animals list.
 	 */
-	public void showAnimalList(){
+	public void showAnimalList() {
 		showAnimalList(Calendar.getInstance().getTime());
 	}
 
 	/**
 	 * Populate list panel to show Animals list to actually selected date
 	 */
-	public void showAnimalList(Date date){
+	public void showAnimalList(Date date) {
 		fillUpAnimalsTable(date);
 		Utils.changePanelContent(this.animalsTab, this.animalsListPanel);
 	}
@@ -93,6 +93,7 @@ public class AnimalsTabController  extends Controller
 
 	/**
 	 * Filling up data table in the animal tab
+	 *
 	 * @param dateToDisplay
 	 */
 	private void fillUpAnimalsTable(Date dateToDisplay) {
@@ -109,10 +110,9 @@ public class AnimalsTabController  extends Controller
 		}
 
 		for (AnimalModel model : models) {
-			if (selectedSpatialObject == null){
+			if (selectedSpatialObject == null) {
 				table.addAnimalModel(model);
-			}
-			else{
+			} else {
 				if (selectedSpatialObject.getId() == model.getLocation())
 					table.addAnimalModel(model);
 			}
@@ -124,7 +124,7 @@ public class AnimalsTabController  extends Controller
 	/**
 	 * This method is supposed to show AddNewAnimal animalsTab.
 	 */
-	public void addNewAnimalAction(){
+	public void addNewAnimalAction() {
 		AnimalModel newAnimalModel = new AnimalModel("", "");
 
 		editAnimalDetail(newAnimalModel, AnimalDetailPanel.NEW_EMPLOYEE);
@@ -132,10 +132,11 @@ public class AnimalsTabController  extends Controller
 
 	/**
 	 * Populates edit/new animal animalsTab and then shows it
-	 * @param animal Shows detail animalsTab with new/existing animal.
+	 *
+	 * @param animal          Shows detail animalsTab with new/existing animal.
 	 * @param newOrEditHeader
 	 */
-	public void editAnimalDetail(AnimalModel animal, int newOrEditHeader){
+	public void editAnimalDetail(AnimalModel animal, int newOrEditHeader) {
 		this.animalDetailPanel = new AnimalDetailPanel(this.animalsTab);
 
 		this.multimediaPanel = this.animalDetailPanel.getMultimediaPanel();
@@ -155,6 +156,7 @@ public class AnimalsTabController  extends Controller
 
 	/**
 	 * Gets list of locations in ZOO.
+	 *
 	 * @return Returns only spatial objects which represent a certain location.
 	 */
 	private ArrayList<SpatialObjectModel> getLocationsFromSpatialObjects(ArrayList<SpatialObjectModel> spatialObjects) {
@@ -173,19 +175,20 @@ public class AnimalsTabController  extends Controller
 	/**
 	 * Called after hit on SaveEmpployee Button on AnimalDetail Panel. It creates new Animal or update selected animal
 	 * from actualDate to 'forever'.
+	 *
 	 * @param animalDetailPanelMode
 	 */
 	public void saveAnimal(int animalDetailPanelMode) {
 
-		if (animalDetailPanel.getNameTextFieldValue().equals("")){
+		if (animalDetailPanel.getNameTextFieldValue().equals("")) {
 			showDialog(ERROR_MESSAGE, "You must insert a name.");
 			return;
 		}
-		if (animalDetailPanel.getSpeciesTextFieldValue().equals("")){
+		if (animalDetailPanel.getSpeciesTextFieldValue().equals("")) {
 			showDialog(ERROR_MESSAGE, "You must insert a species.");
 			return;
 		}
-		
+
 		this.selectedAnimalModel.setName(animalDetailPanel.getNameTextFieldValue());
 		this.selectedAnimalModel.setSpecies(animalDetailPanel.getSpeciesTextFieldValue());
 		this.selectedAnimalModel.setLocation(animalDetailPanel.getLocationComboBoxValue());
@@ -193,7 +196,7 @@ public class AnimalsTabController  extends Controller
 		this.selectedAnimalModel.setDateFrom(Utils.removeTime(Calendar.getInstance().getTime()));
 		this.selectedAnimalModel.setDateTo(Utils.getForeverDate());
 
-		if (animalDetailPanelMode == AnimalDetailPanel.EDIT_EMPLOYEE){
+		if (animalDetailPanelMode == AnimalDetailPanel.EDIT_EMPLOYEE) {
 			selectedAnimalModel.setIsChanged(true);
 		}
 
@@ -203,7 +206,7 @@ public class AnimalsTabController  extends Controller
 
 		isImageChangedFlag = false;
 
-		if (animalDetailPanelMode == AnimalDetailPanel.NEW_EMPLOYEE){
+		if (animalDetailPanelMode == AnimalDetailPanel.NEW_EMPLOYEE) {
 			editAnimalDetail(selectedAnimalModel, AnimalDetailPanel.EDIT_EMPLOYEE);
 		}
 	}
@@ -217,7 +220,7 @@ public class AnimalsTabController  extends Controller
 	public void spatialObjectSelectionChangedListener(SpatialObjectModel spatialObjectModel) {
 		this.selectedSpatialObject = spatialObjectModel;
 
-		if (animalsTab.isVisible()){
+		if (animalsTab.isVisible()) {
 			showAnimalList(dateToDisplay);
 		}
 
@@ -225,6 +228,7 @@ public class AnimalsTabController  extends Controller
 
 	/**
 	 * Action triggered after hit on Edit button in AnimalsTable. It calls method to display animalDetail Panel.
+	 *
 	 * @param animalModel
 	 */
 	@Override
@@ -241,8 +245,9 @@ public class AnimalsTabController  extends Controller
 	/**
 	 * Whenever user select a date from datePicker on AnimalListPanel this action is triggered.
 	 * Content of AnimalListPanel is then updated if date is corret.
-	 *
+	 * <p/>
 	 * If newDate is from future ??alert message pops up??
+	 *
 	 * @param newDate New date selected from DatePicker
 	 */
 	public void datePickerChangedAction(Date newDate) {
@@ -250,8 +255,8 @@ public class AnimalsTabController  extends Controller
 		Date currentlyDisplayedDateWithoutTime = Utils.removeTime(dateToDisplay);
 		Date todayDateWithoutTime = Utils.removeTime(Calendar.getInstance().getTime());
 
-		try{
-			if (newDateWithoutTime.after(todayDateWithoutTime)){
+		try {
+			if (newDateWithoutTime.after(todayDateWithoutTime)) {
 				throw new ControllerException("datePickerChangedAction: " + "Future date selected!");
 			}
 		} catch (ControllerException e) {
@@ -260,7 +265,7 @@ public class AnimalsTabController  extends Controller
 			newDateWithoutTime = todayDateWithoutTime;
 			//TODO Create Alert message ??here or in the listPanel??
 		} finally {
-			if (!currentlyDisplayedDateWithoutTime.equals(newDateWithoutTime)){
+			if (!currentlyDisplayedDateWithoutTime.equals(newDateWithoutTime)) {
 				dateToDisplay = newDateWithoutTime;
 				showAnimalList(dateToDisplay);
 			}
@@ -269,6 +274,7 @@ public class AnimalsTabController  extends Controller
 
 	/**
 	 * It displays records which are valid today on AnimalsListPanel table
+	 *
 	 * @param isSelected
 	 */
 	public void actualDateSwitchAction(boolean isSelected) {
@@ -292,7 +298,7 @@ public class AnimalsTabController  extends Controller
 	public void contentPanelTabSwitchAction() {
 		Component selectedComponent = animalsTab.getTabPanel().getSelectedComponent();
 		Component animalTab = this.animalsTab;
-		if (selectedComponent == animalTab){
+		if (selectedComponent == animalTab) {
 			fillUpAnimalsTable(dateToDisplay);
 		}
 	}
@@ -301,7 +307,7 @@ public class AnimalsTabController  extends Controller
 	/**
 	 * Creates AnimalDetail table and populates it with data. Then this table is added on AnimalDetailPanel.
 	 */
-	public void fillAnimalDetailTable(){
+	public void fillAnimalDetailTable() {
 		AnimalDetailTable table = new AnimalDetailTable();
 		table.setColumnsWidth();
 
@@ -313,7 +319,7 @@ public class AnimalsTabController  extends Controller
 		} catch (DataManagerException e) {
 			Logger.createLog(Logger.ERROR_LOG, e.getMessage());
 		}
-		if (models != null && models.size() > 0){
+		if (models != null && models.size() > 0) {
 			for (AnimalModel model : models) {
 				table.addAnimalModel(model);
 			}
@@ -324,7 +330,7 @@ public class AnimalsTabController  extends Controller
 	}
 
 
-	public void fillEmployeesHistoryDetailTable(){
+	public void fillEmployeesHistoryDetailTable() {
 		EmployeesHistoryTable table = new EmployeesHistoryTable();
 		table.setColumnsWidth();
 		List<EmployeeModel> models;
@@ -346,13 +352,14 @@ public class AnimalsTabController  extends Controller
 
 	/**
 	 * Action triggered when Show History checkbox is ticked on AnimalDetailPanel
+	 *
 	 * @param selected set to true/false if checkbox is selected or not
 	 */
 	public void showHistoryAction(boolean selected) {
-		if (selected == true){
+		if (selected == true) {
 			animalDetailPanel.showHistoryShiftPane();
 			fillAnimalDetailTable();
-		}else {
+		} else {
 //			animalDetailPanel.clearButtonGroupSelection();
 //			animalDetailPanel.hideHistoryShiftPane();
 		}
@@ -360,9 +367,10 @@ public class AnimalsTabController  extends Controller
 
 	/**
 	 * Returns actually selected AnimalModel.
+	 *
 	 * @return
 	 */
-	public AnimalModel getSelectedAnimalModel(){
+	public AnimalModel getSelectedAnimalModel() {
 		return selectedAnimalModel;
 	}
 
@@ -381,12 +389,13 @@ public class AnimalsTabController  extends Controller
 
 	/**
 	 * Action called after click on confirmUpdateDeleteAction on AnimalShiftEdit Panel
+	 *
 	 * @param isHistoryUpdate it's true/false in order action should be update/delete.
 	 */
 	public void confirmUpdateDeleteAction(boolean isHistoryUpdate) {
-		if (isHistoryUpdate){
+		if (isHistoryUpdate) {
 			DataManager.getInstance().updateAnimalShifts(selectedAnimalModel.getId(), animalShiftEditPanel.getDateFrom(), animalShiftEditPanel.getDateTo(), animalShiftEditPanel.getSelectedLocation(), animalShiftEditPanel.getWeightTextField());
-		}else { // if it's not edit action, it's DELETE action
+		} else { // if it's not edit action, it's DELETE action
 			DataManager.getInstance().deleteAnimalRecords(selectedAnimalModel.getId(), animalShiftEditPanel.getDateFrom(), animalShiftEditPanel.getDateTo());
 		}
 		editAnimalDetail(selectedAnimalModel, AnimalDetailPanel.EDIT_EMPLOYEE);
@@ -395,9 +404,9 @@ public class AnimalsTabController  extends Controller
 	}
 
 	public void switchBetweenEditAndDeleteAction(boolean selected) {
-		if (selected == true){
+		if (selected == true) {
 			animalShiftEditPanel.setShiftEditPanelToEdit();
-		} else{
+		} else {
 			animalShiftEditPanel.setShiftEditPanelToDelete();
 		}
 	}
@@ -429,7 +438,7 @@ public class AnimalsTabController  extends Controller
 		AsyncTask asyncTask = new AsyncTask() {
 			@Override
 			protected void onDone(boolean success) {
-				if (!success){
+				if (!success) {
 					showDialog(ERROR_MESSAGE, "Cannot mirror image.");
 				}
 			}
@@ -475,9 +484,9 @@ public class AnimalsTabController  extends Controller
 
 			@Override
 			protected void onDone(boolean success) {
-				if (!success){
+				if (!success) {
 					showDialog(ERROR_MESSAGE, "Cannot compare images.");
-				} else{
+				} else {
 					CompareImagesDialog dialog = new CompareImagesDialog(multimediaPanel, selectedAnimalModel, animal1, animal2, animal3);
 					dialog.setVisible(true);
 				}
@@ -493,10 +502,10 @@ public class AnimalsTabController  extends Controller
 					if (models.size() > 0) {
 						animal1 = models.get(0);
 					}
-					if (models.size() > 1){
+					if (models.size() > 1) {
 						animal2 = models.get(1);
 					}
-					if (models.size() > 2){
+					if (models.size() > 2) {
 						animal3 = models.get(2);
 					}
 
@@ -512,7 +521,7 @@ public class AnimalsTabController  extends Controller
 	}
 
 	public void showEmployeesHistory(boolean selected) {
-		if (selected){
+		if (selected) {
 			animalDetailPanel.showHistoryShiftPane();
 			fillEmployeesHistoryDetailTable();
 		}

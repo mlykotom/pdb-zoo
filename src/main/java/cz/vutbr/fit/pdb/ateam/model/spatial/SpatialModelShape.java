@@ -2,6 +2,7 @@ package cz.vutbr.fit.pdb.ateam.model.spatial;
 
 /**
  * Enum for available spatial object shapes
+ *
  * @author Tomas Mlynaric
  */
 public enum SpatialModelShape {

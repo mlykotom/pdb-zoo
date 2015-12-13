@@ -51,7 +51,7 @@ public class LoginFormController extends Controller {
 
 			@Override
 			protected void onDone(boolean success) {
-				if (success){
+				if (success) {
 					form.dispose();
 					new MainFrame().setVisible(true);
 					Logger.createLog(Logger.DEBUG_LOG, "Database connected successfully.");
@@ -59,7 +59,7 @@ public class LoginFormController extends Controller {
 					String errorTitle;
 					String errorMessage;
 
-					switch(this.getErrorCode()){
+					switch (this.getErrorCode()) {
 						case DataManagerException.ERROR_CODE_INVALID_LOGIN:
 							errorTitle = "Login failed";
 							errorMessage = "Invalid username or password!";

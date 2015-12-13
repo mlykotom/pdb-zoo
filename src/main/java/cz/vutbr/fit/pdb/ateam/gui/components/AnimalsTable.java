@@ -21,7 +21,7 @@ import java.util.Comparator;
 public class AnimalsTable extends JTable {
 	private AnimalsTableModel tableModel;
 
-	public AnimalsTable (AnimalsTableController controller) {
+	public AnimalsTable(AnimalsTableController controller) {
 		super();
 
 		tableModel = new AnimalsTableModel();
@@ -47,8 +47,8 @@ public class AnimalsTable extends JTable {
 	}
 
 	public void setColumnsWidth() {
-		for (int i = 0; i<= 4; i++){
-			switch (i){
+		for (int i = 0; i <= 4; i++) {
+			switch (i) {
 				case 0:
 					getColumnModel().getColumn(i).setPreferredWidth(35);
 					getColumnModel().getColumn(i).setMaxWidth(35);
@@ -65,7 +65,8 @@ public class AnimalsTable extends JTable {
 					getColumnModel().getColumn(i).setMaxWidth(55);
 					break;
 
-				default: getColumnModel().getColumn(i).setPreferredWidth(80);
+				default:
+					getColumnModel().getColumn(i).setPreferredWidth(80);
 			}
 		}
 	}
@@ -75,7 +76,7 @@ public class AnimalsTable extends JTable {
 		private ArrayList<AnimalModel> objectsList;
 
 		public AnimalsTableModel() {
-			columnNames = new String[] {"ID", "NAME", "SPECIES", "LOCATION", "WEIGHT", "EDIT"};
+			columnNames = new String[]{"ID", "NAME", "SPECIES", "LOCATION", "WEIGHT", "EDIT"};
 			objectsList = new ArrayList<>();
 		}
 
@@ -123,7 +124,7 @@ public class AnimalsTable extends JTable {
 
 		@Override
 		public String getColumnName(int columnIndex) {
-			if(columnIndex >= columnNames.length)
+			if (columnIndex >= columnNames.length)
 				return "";
 
 			return columnNames[columnIndex];
@@ -192,15 +193,15 @@ public class AnimalsTable extends JTable {
 			button.setText(label);
 			isPushed = true;
 
-			this.animalModel = ((AnimalsTableModel)table.getModel()).getAnimalModel(row);
-			if(column == 5) this.pushedButton = "edit";
+			this.animalModel = ((AnimalsTableModel) table.getModel()).getAnimalModel(row);
+			if (column == 5) this.pushedButton = "edit";
 
 			return button;
 		}
 
 		public Object getCellEditorValue() {
 			if (isPushed) {
-				if(pushedButton.equals("edit")) controller.AnimalsTableEditAction(animalModel);
+				if (pushedButton.equals("edit")) controller.AnimalsTableEditAction(animalModel);
 			}
 			isPushed = false;
 			return label;

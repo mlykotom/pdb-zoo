@@ -21,7 +21,7 @@ public class SpatialObjectMultiSelectionChangeObservable extends SimpleObservabl
 		}
 	}
 
-	public void notifyObservers(Object object){
+	public void notifyObservers(Object object) {
 		notifyObservers(Collections.singletonList((SpatialObjectModel) object));
 	}
 }

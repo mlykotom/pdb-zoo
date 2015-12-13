@@ -7,6 +7,15 @@ import cz.vutbr.fit.pdb.ateam.model.BaseModel;
  */
 public interface IModelChangedStateListener {
 	/**
+	 * Listener for any model saved to DB.
+	 * Must have conditions on model type!
+	 *
+	 * @param model      any model saved to DB
+	 * @param modelState specifies what happened to the model (possibly SAVED, DELETED) see {@link ModelState}
+	 */
+	void modelChangedStateListener(BaseModel model, ModelState modelState);
+
+	/**
 	 * Possible model states
 	 */
 	enum ModelState {
@@ -15,7 +24,7 @@ public interface IModelChangedStateListener {
 
 		String debugName;
 
-		ModelState(String name){
+		ModelState(String name) {
 			debugName = name;
 		}
 
@@ -23,13 +32,4 @@ public interface IModelChangedStateListener {
 			return debugName;
 		}
 	}
-
-	/**
-	 * Listener for any model saved to DB.
-	 * Must have conditions on model type!
-	 *
-	 * @param model any model saved to DB
-	 * @param modelState specifies what happened to the model (possibly SAVED, DELETED) see {@link ModelState}
-	 */
-	void modelChangedStateListener(BaseModel model, ModelState modelState);
 }

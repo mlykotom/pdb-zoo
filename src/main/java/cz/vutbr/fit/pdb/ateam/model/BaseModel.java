@@ -10,12 +10,11 @@ import java.util.HashMap;
  */
 abstract public class BaseModel {
 	public static final String NEW_MODEL_NAME = "<< New >>";
+	public static final long NULL_ID = -1L;
 	protected long id;
 	protected String name;
 	protected boolean isChanged = false;
 	protected boolean isDeleted = false;
-	public static final long NULL_ID = -1L;
-
 	private HashMap<String, Object> additionalInformations = new HashMap<>();
 
 	public BaseModel(long id, String name) {
@@ -27,12 +26,29 @@ abstract public class BaseModel {
 	}
 
 	/**
+	 * Finds model by specified Id
+	 *
+	 * @param Id       of any model, if null -> does not even try to find
+	 * @param hayStack list of objects which inherits of BaseModel
+	 * @param <T>      any model inheriting from BaseModel
+	 * @return null if not found, otherwise found model
+	 */
+	public static <T extends BaseModel> T findById(Long Id, Collection<T> hayStack) {
+		if (Id == null) return null;
+
+		for (T obj : hayStack) {
+			if (Id.equals(obj.getId())) return obj;
+		}
+
+		return null;
+	}
+
+	/**
 	 * Serves for manipulating with any model in DataManager
 	 *
 	 * @return SQL table name
 	 */
 	abstract public String getTableName();
-
 
 	/**
 	 * Compares id && name for
@@ -77,21 +93,21 @@ abstract public class BaseModel {
 		return isNew() || isChanged;
 	}
 
+	public Long getId() {
+		return id;
+	}
+
 	// TODO shouln't be this way, because we can easily change object's primary key!
 	public void setId(Long id) {
 		this.id = id;
 	}
 
-	public Long getId() {
-		return id;
+	public String getName() {
+		return name;
 	}
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public String getName() {
-		return name;
 	}
 
 	public boolean isDeleted() {
@@ -100,23 +116,5 @@ abstract public class BaseModel {
 
 	public void setDeleted(boolean deleted) {
 		isDeleted = deleted;
-	}
-
-	/**
-	 * Finds model by specified Id
-	 *
-	 * @param Id       of any model, if null -> does not even try to find
-	 * @param hayStack list of objects which inherits of BaseModel
-	 * @param <T>      any model inheriting from BaseModel
-	 * @return null if not found, otherwise found model
-	 */
-	public static <T extends BaseModel> T findById(Long Id, Collection<T> hayStack) {
-		if (Id == null) return null;
-
-		for (T obj : hayStack) {
-			if (Id.equals(obj.getId())) return obj;
-		}
-
-		return null;
 	}
 }

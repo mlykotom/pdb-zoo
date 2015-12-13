@@ -2,7 +2,6 @@ package cz.vutbr.fit.pdb.ateam.controller;
 
 import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
-import cz.vutbr.fit.pdb.ateam.gui.components.SpatialDetailTable;
 import cz.vutbr.fit.pdb.ateam.gui.components.SpatialObjectsTable;
 import cz.vutbr.fit.pdb.ateam.gui.help.CreatingBuildingHelper;
 import cz.vutbr.fit.pdb.ateam.gui.tabs.SpatialObjectsTab;
@@ -311,7 +310,8 @@ public class SpatialObjectTabController extends Controller
 
 	/**
 	 * Spatial operator for selecting closest N objects
-	 * @param count how many closest objects will be selected
+	 *
+	 * @param count      how many closest objects will be selected
 	 * @param isSameType whether will be selected only objects with the same spatial type
 	 */
 	public void selectClosestN(final Integer count, final boolean isSameType) {

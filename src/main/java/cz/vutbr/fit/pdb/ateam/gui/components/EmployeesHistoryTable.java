@@ -42,8 +42,8 @@ public class EmployeesHistoryTable extends JTable {
 	}
 
 	public void setColumnsWidth() {
-		for (int i = 0; i<= 4; i++){
-			switch (i){
+		for (int i = 0; i <= 4; i++) {
+			switch (i) {
 				case 0:
 					getColumnModel().getColumn(i).setPreferredWidth(80);
 					getColumnModel().getColumn(i).setMaxWidth(80);
@@ -59,7 +59,8 @@ public class EmployeesHistoryTable extends JTable {
 				case 4:
 					getColumnModel().getColumn(i).setPreferredWidth(120);
 					break;
-				default: getColumnModel().getColumn(i).setPreferredWidth(80);
+				default:
+					getColumnModel().getColumn(i).setPreferredWidth(80);
 			}
 		}
 	}
@@ -69,7 +70,7 @@ public class EmployeesHistoryTable extends JTable {
 		private ArrayList<EmployeeModel> objectsList;
 
 		public EmployeesHistoryTableModel() {
-			columnNames = new String[] {"FROM", "TO", "NAME", "SURNAME", "LOCATION"};
+			columnNames = new String[]{"FROM", "TO", "NAME", "SURNAME", "LOCATION"};
 			objectsList = new ArrayList<>();
 		}
 
@@ -97,7 +98,7 @@ public class EmployeesHistoryTable extends JTable {
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			EmployeeModel employeeModel = objectsList.get(rowIndex);
 
-			if (employeeModel == null) return (Object)"";
+			if (employeeModel == null) return (Object) "";
 
 			switch (columnIndex) {
 				case 0:
@@ -126,7 +127,7 @@ public class EmployeesHistoryTable extends JTable {
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
-			if (Utils.removeTime(dateTo).equals(foreverDate)){
+			if (Utils.removeTime(dateTo).equals(foreverDate)) {
 				return "now";
 			}
 			return dateTo.toString();
@@ -134,7 +135,7 @@ public class EmployeesHistoryTable extends JTable {
 
 		@Override
 		public String getColumnName(int columnIndex) {
-			if(columnIndex >= columnNames.length)
+			if (columnIndex >= columnNames.length)
 				return "";
 
 			return columnNames[columnIndex];

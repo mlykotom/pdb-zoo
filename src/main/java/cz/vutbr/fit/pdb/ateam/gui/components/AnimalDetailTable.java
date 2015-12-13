@@ -42,8 +42,8 @@ public class AnimalDetailTable extends JTable {
 	}
 
 	public void setColumnsWidth() {
-		for (int i = 0; i<= 4; i++){
-			switch (i){
+		for (int i = 0; i <= 4; i++) {
+			switch (i) {
 				case 0:
 					getColumnModel().getColumn(i).setPreferredWidth(35);
 					getColumnModel().getColumn(i).setMaxWidth(35);
@@ -60,7 +60,8 @@ public class AnimalDetailTable extends JTable {
 					getColumnModel().getColumn(i).setPreferredWidth(70);
 					getColumnModel().getColumn(i).setMaxWidth(70);
 					break;
-				default: getColumnModel().getColumn(i).setPreferredWidth(80);
+				default:
+					getColumnModel().getColumn(i).setPreferredWidth(80);
 			}
 		}
 	}
@@ -70,7 +71,7 @@ public class AnimalDetailTable extends JTable {
 		private ArrayList<AnimalModel> objectsList;
 
 		public AnimalDetailTableModel() {
-			columnNames = new String[] {"ID", "FROM", "TO", "LOCATION", "WEIGHT"};
+			columnNames = new String[]{"ID", "FROM", "TO", "LOCATION", "WEIGHT"};
 			objectsList = new ArrayList<>();
 		}
 
@@ -98,7 +99,7 @@ public class AnimalDetailTable extends JTable {
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			AnimalModel animalModel = objectsList.get(rowIndex);
 
-			if (animalModel == null) return (Object)"";
+			if (animalModel == null) return (Object) "";
 
 			switch (columnIndex) {
 				case 0:
@@ -112,7 +113,7 @@ public class AnimalDetailTable extends JTable {
 					if (DataManager.getInstance().getSpatialObjectModelWithID(animalModel.getLocation()) != null)
 						return DataManager.getInstance().getSpatialObjectModelWithID(animalModel.getLocation()).toString();
 				case 4:
-						return animalModel.getWeight();
+					return animalModel.getWeight();
 				default:
 					return "";
 			}
@@ -127,7 +128,7 @@ public class AnimalDetailTable extends JTable {
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
-			if (Utils.removeTime(dateTo).equals(foreverDate)){
+			if (Utils.removeTime(dateTo).equals(foreverDate)) {
 				return "now";
 			}
 			return dateTo.toString();
@@ -135,7 +136,7 @@ public class AnimalDetailTable extends JTable {
 
 		@Override
 		public String getColumnName(int columnIndex) {
-			if(columnIndex >= columnNames.length)
+			if (columnIndex >= columnNames.length)
 				return "";
 
 			return columnNames[columnIndex];

@@ -8,51 +8,18 @@ import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * @author Tomas Mlynaric
  */
 public class SpatialDetailTable extends JTable {
 
-	/**
-	 * Class for column setup in table
-	 */
-	private class Column {
-		private String name;
-		private int preferredWidth;
-
-		public Column(String name, int preferredWidth) {
-			this.name = name;
-			this.preferredWidth = preferredWidth;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public int getPreferredWidth() {
-			return preferredWidth;
-		}
-	}
-
 	private BaseTableModel tableModel;
 	private List<Column> columns = new ArrayList<>();
-
-	/**
-	 * Helper for setting up sorting in table
-	 */
-	private void setSorter() {
-		TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
-		sorter.setComparator(0, new Comparator<Long>() {
-			@Override
-			public int compare(Long o1, Long o2) {
-				return o1.compareTo(o2);
-			}
-		});
-		this.setRowSorter(sorter);
-	}
-
 	public SpatialDetailTable() {
 		super();
 
@@ -67,6 +34,20 @@ public class SpatialDetailTable extends JTable {
 
 		setColumnsWidth();
 		setSorter();
+	}
+
+	/**
+	 * Helper for setting up sorting in table
+	 */
+	private void setSorter() {
+		TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
+		sorter.setComparator(0, new Comparator<Long>() {
+			@Override
+			public int compare(Long o1, Long o2) {
+				return o1.compareTo(o2);
+			}
+		});
+		this.setRowSorter(sorter);
 	}
 
 	public void addModel(BaseModel model) {
@@ -87,6 +68,27 @@ public class SpatialDetailTable extends JTable {
 			getColumnModel().getColumn(i).setPreferredWidth(column.getPreferredWidth());
 			getColumnModel().getColumn(i).setMaxWidth(column.getPreferredWidth());
 			i++;
+		}
+	}
+
+	/**
+	 * Class for column setup in table
+	 */
+	private class Column {
+		private String name;
+		private int preferredWidth;
+
+		public Column(String name, int preferredWidth) {
+			this.name = name;
+			this.preferredWidth = preferredWidth;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public int getPreferredWidth() {
+			return preferredWidth;
 		}
 	}
 

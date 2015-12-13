@@ -29,7 +29,7 @@ public class SpatialObjectsTable extends JTable {
 	 *
 	 * @param controller controller which implements delete & edit actions of the SpatialObjectsTable
 	 */
-	public SpatialObjectsTable (SpatialObjectTableController controller) {
+	public SpatialObjectsTable(SpatialObjectTableController controller) {
 		super();
 
 		tableModel = new SpatialObjectsTableModel();
@@ -76,7 +76,7 @@ public class SpatialObjectsTable extends JTable {
 		 * Constructor creates columns in the table (ID, NAME, TYPE, DELETE, EDIT).
 		 */
 		public SpatialObjectsTableModel() {
-			columnNames = new String[] {"ID", "NAME", "TYPE", "DELETE", "EDIT"};
+			columnNames = new String[]{"ID", "NAME", "TYPE", "DELETE", "EDIT"};
 			objectsList = new ArrayList<>();
 		}
 
@@ -123,7 +123,7 @@ public class SpatialObjectsTable extends JTable {
 		/**
 		 * Returns object value according to column and row index.
 		 *
-		 * @param rowIndex row index of the value
+		 * @param rowIndex    row index of the value
 		 * @param columnIndex column index of the value
 		 * @return value at selected row & column
 		 */
@@ -155,7 +155,7 @@ public class SpatialObjectsTable extends JTable {
 		 */
 		@Override
 		public String getColumnName(int columnIndex) {
-			if(columnIndex >= columnNames.length)
+			if (columnIndex >= columnNames.length)
 				return "";
 
 			return columnNames[columnIndex];
@@ -164,7 +164,7 @@ public class SpatialObjectsTable extends JTable {
 		/**
 		 * Tells if specified cell is editable.
 		 *
-		 * @param rowIndex index of the row
+		 * @param rowIndex    index of the row
 		 * @param columnIndex index of the column
 		 * @return false if cell contains button, true otherwise
 		 */
@@ -231,17 +231,17 @@ public class SpatialObjectsTable extends JTable {
 			button.setText(label);
 			isPushed = true;
 
-			this.spatialObjectModel = ((SpatialObjectsTableModel)table.getModel()).getSpatialObjectModel(row);
-			if(column == 3) this.pushedButton = "delete";
-			if(column == 4) this.pushedButton = "edit";
+			this.spatialObjectModel = ((SpatialObjectsTableModel) table.getModel()).getSpatialObjectModel(row);
+			if (column == 3) this.pushedButton = "delete";
+			if (column == 4) this.pushedButton = "edit";
 
 			return button;
 		}
 
 		public Object getCellEditorValue() {
 			if (isPushed) {
-				if(pushedButton.equals("delete")) controller.spatialObjectsTableDeleteAction(spatialObjectModel);
-				if(pushedButton.equals("edit")) controller.spatialObjectsTableEditAction(spatialObjectModel);
+				if (pushedButton.equals("delete")) controller.spatialObjectsTableDeleteAction(spatialObjectModel);
+				if (pushedButton.equals("edit")) controller.spatialObjectsTableEditAction(spatialObjectModel);
 			}
 			isPushed = false;
 			return label;

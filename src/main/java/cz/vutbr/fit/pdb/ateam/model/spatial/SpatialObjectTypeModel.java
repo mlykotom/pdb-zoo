@@ -9,9 +9,8 @@ import java.awt.*;
  * Created by Tomas Mlynaric on 20.10.2015.
  */
 public class SpatialObjectTypeModel extends BaseModel {
-	private java.awt.Color color;
-
 	public static SpatialObjectTypeModel UnknownSpatialType = new SpatialObjectTypeModel(NULL_ID, "<< Basic >>", "b8b894");
+	private java.awt.Color color;
 
 	public SpatialObjectTypeModel(long id, String name, String colorHex) {
 		super(id, name);

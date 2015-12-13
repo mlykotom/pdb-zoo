@@ -23,12 +23,12 @@ public class ImageModel extends BaseModel {
 		this.imageByteArray = imageByteArray;
 	}
 
-	public void setImage(OrdImage image) {
-		this.image = image;
-	}
-
 	public OrdImage getImage() {
 		return this.image;
+	}
+
+	public void setImage(OrdImage image) {
+		this.image = image;
 	}
 
 	public ImageModel copy() {

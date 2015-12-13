@@ -10,7 +10,7 @@ import java.util.TimerTask;
  *
  * @author Tomas Mlynaric
  */
-public class AppStateChangedObservable{
+public class AppStateChangedObservable {
 	private static AppStateChangedObservable instance = new AppStateChangedObservable();
 	private MainFrameController mainFrameController;
 	private Timer timer = new Timer();
@@ -19,17 +19,17 @@ public class AppStateChangedObservable{
 		return instance;
 	}
 
-	public void notifyStateChanged(){
+	public void notifyStateChanged() {
 		notifyStateChanged("", false);
 	}
 
-	public void notifyStateChanged(String state){
+	public void notifyStateChanged(String state) {
 		notifyStateChanged(state, false);
 	}
 
 	synchronized public void notifyStateChanged(String state, boolean hideAutomatically) {
 		mainFrameController.appStateChangedListener(state);
-		if(hideAutomatically){
+		if (hideAutomatically) {
 			timer.schedule(new TimerTask() {
 				@Override
 				public void run() {

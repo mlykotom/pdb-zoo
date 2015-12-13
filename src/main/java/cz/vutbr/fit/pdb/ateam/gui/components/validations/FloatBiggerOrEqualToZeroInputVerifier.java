@@ -13,20 +13,22 @@ public class FloatBiggerOrEqualToZeroInputVerifier extends InputVerifier {
 		String text = ((JTextField) input).getText();
 		try {
 			Float number = Float.valueOf(text);
-			if (number < 0){
+			if (number < 0) {
 				((JTextField) input).setText(String.valueOf(0.0));
-						JOptionPane.showMessageDialog(null,
-								"Error: Please enter number bigger than or equal to 0", "Error Massage",
-								JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null,
+						"Error: Please enter number bigger than or equal to 0", "Error Massage",
+						JOptionPane.ERROR_MESSAGE);
 				return false;
 			}
 		} catch (NumberFormatException e) {
 			((JTextField) input).setText(String.valueOf(0.0));
 			JOptionPane.showMessageDialog(null,
-							"Error: Input must be a floating point number", "Error Massage",
-							JOptionPane.ERROR_MESSAGE);
+					"Error: Input must be a floating point number", "Error Massage",
+					JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 		return true;
-	};
+	}
+
+	;
 }

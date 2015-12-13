@@ -14,12 +14,9 @@ public class Coordinate {
 		this.y = y;
 	}
 
-	public double[] toArray(){
-		return new double[]{x, y};
-	}
-
 	/**
 	 * Makes one dimensional array of coordinates from list
+	 *
 	 * @param coordinates
 	 * @return
 	 */
@@ -33,13 +30,17 @@ public class Coordinate {
 		return points;
 	}
 
-	public static Object[] fromListToArrayOfArray(ArrayList<Coordinate> coordinates){
+	public static Object[] fromListToArrayOfArray(ArrayList<Coordinate> coordinates) {
 		Object[] objects = new Object[coordinates.size()];
 		int i = 0;
-		for(Coordinate coordinate: coordinates){
+		for (Coordinate coordinate : coordinates) {
 			objects[i++] = coordinate.toArray();
 		}
 
 		return objects;
+	}
+
+	public double[] toArray() {
+		return new double[]{x, y};
 	}
 }

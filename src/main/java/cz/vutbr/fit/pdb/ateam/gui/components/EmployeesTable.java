@@ -21,7 +21,7 @@ import java.util.Comparator;
 public class EmployeesTable extends JTable {
 	private EmployeesTableModel tableModel;
 
-	public EmployeesTable (EmployeesTableController controller) {
+	public EmployeesTable(EmployeesTableController controller) {
 		super();
 
 		tableModel = new EmployeesTableModel();
@@ -47,8 +47,8 @@ public class EmployeesTable extends JTable {
 	}
 
 	public void setColumnsWidth() {
-		for (int i = 0; i<= 4; i++){
-			switch (i){
+		for (int i = 0; i <= 4; i++) {
+			switch (i) {
 				case 0:
 					getColumnModel().getColumn(i).setPreferredWidth(35);
 					getColumnModel().getColumn(i).setMaxWidth(35);
@@ -67,7 +67,8 @@ public class EmployeesTable extends JTable {
 					getColumnModel().getColumn(i).setMaxWidth(55);
 					break;
 
-				default: getColumnModel().getColumn(i).setPreferredWidth(80);
+				default:
+					getColumnModel().getColumn(i).setPreferredWidth(80);
 			}
 		}
 	}
@@ -77,7 +78,7 @@ public class EmployeesTable extends JTable {
 		private ArrayList<EmployeeModel> objectsList;
 
 		public EmployeesTableModel() {
-			columnNames = new String[] {"ID", "NAME", "SURNAME", "LOCATION", "EDIT"};
+			columnNames = new String[]{"ID", "NAME", "SURNAME", "LOCATION", "EDIT"};
 			objectsList = new ArrayList<>();
 		}
 
@@ -123,7 +124,7 @@ public class EmployeesTable extends JTable {
 
 		@Override
 		public String getColumnName(int columnIndex) {
-			if(columnIndex >= columnNames.length)
+			if (columnIndex >= columnNames.length)
 				return "";
 
 			return columnNames[columnIndex];
@@ -192,15 +193,15 @@ public class EmployeesTable extends JTable {
 			button.setText(label);
 			isPushed = true;
 
-			this.employeeModel = ((EmployeesTableModel)table.getModel()).getEmployeeModel(row);
-			if(column == 4) this.pushedButton = "edit";
+			this.employeeModel = ((EmployeesTableModel) table.getModel()).getEmployeeModel(row);
+			if (column == 4) this.pushedButton = "edit";
 
 			return button;
 		}
 
 		public Object getCellEditorValue() {
 			if (isPushed) {
-				if(pushedButton.equals("edit")) controller.EmployeesTableEditAction(employeeModel);
+				if (pushedButton.equals("edit")) controller.EmployeesTableEditAction(employeeModel);
 			}
 			isPushed = false;
 			return label;

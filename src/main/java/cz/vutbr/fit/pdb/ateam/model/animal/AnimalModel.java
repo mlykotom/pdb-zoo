@@ -52,8 +52,6 @@ public class AnimalModel extends BaseModel {
 	}
 
 
-
-
 	public void setLocation(long location) {
 		this.location = location;
 	}

@@ -29,8 +29,8 @@ import java.util.List;
  */
 public class EmployeesTabController extends Controller
 		implements
-			ISpatialObjectSelectionChangedListener,
-			EmployeesTableController {
+		ISpatialObjectSelectionChangedListener,
+		EmployeesTableController {
 	public static final Long ALL_LOCATIONS = Long.valueOf(-1);
 	public static final Boolean SHOW_ACTUAL_DATA = true;
 	public static final Boolean SHOW_HISTORY = false;
@@ -67,14 +67,14 @@ public class EmployeesTabController extends Controller
 	/**
 	 * Creates Panel to show actual Employees list.
 	 */
-	public void showEmployeeList(){
+	public void showEmployeeList() {
 		showEmployeeList(Calendar.getInstance().getTime());
 	}
 
 	/**
 	 * Populate list panel to show Employees list to actually selected date
 	 */
-	public void showEmployeeList(Date date){
+	public void showEmployeeList(Date date) {
 		fillUpEmployeesTable(date);
 		Utils.changePanelContent(this.employeesTab, this.employeesListPanel);
 	}
@@ -85,6 +85,7 @@ public class EmployeesTabController extends Controller
 
 	/**
 	 * Filling up data table in the employee tab
+	 *
 	 * @param dateToDisplay
 	 */
 	private void fillUpEmployeesTable(Date dateToDisplay) {
@@ -101,10 +102,9 @@ public class EmployeesTabController extends Controller
 		}
 
 		for (EmployeeModel model : models) {
-			if (selectedSpatialObject == null){
+			if (selectedSpatialObject == null) {
 				table.addEmployeeModel(model);
-			}
-			else{
+			} else {
 				if (selectedSpatialObject.getId() == model.getLocation())
 					table.addEmployeeModel(model);
 			}
@@ -117,7 +117,7 @@ public class EmployeesTabController extends Controller
 	/**
 	 * This method is supposed to show AddNewEmployee employeesTab.
 	 */
-	public void addNewEmployeeAction(){
+	public void addNewEmployeeAction() {
 		EmployeeModel newEmployeeModel = new EmployeeModel("", ""); //TODO Generate new ID
 
 		editEmployeeDetail(newEmployeeModel, EmployeeDetailPanel.NEW_EMPLOYEE);
@@ -127,7 +127,7 @@ public class EmployeesTabController extends Controller
 	/**
 	 * Action called when EditEmployee button is clicked.
 	 */
-	public void editEmployeeAction(){
+	public void editEmployeeAction() {
 		//TODO get selected Employee
 		EmployeeModel selectedEmployee = new EmployeeModel(2, "pa", "pi", (long) 2, null, null); // TODO REMOVE LATER
 
@@ -136,10 +136,11 @@ public class EmployeesTabController extends Controller
 
 	/**
 	 * Populates edit/new employee employeesTab and then shows it
-	 * @param employee Shows detail employeesTab with new/existing employee.
+	 *
+	 * @param employee        Shows detail employeesTab with new/existing employee.
 	 * @param newOrEditHeader
 	 */
-	public void editEmployeeDetail(EmployeeModel employee, int newOrEditHeader){
+	public void editEmployeeDetail(EmployeeModel employee, int newOrEditHeader) {
 		this.employeeDetailPanel = new EmployeeDetailPanel(this.employeesTab);
 
 		List<SpatialObjectModel> locations = getSpatialObjects();
@@ -156,6 +157,7 @@ public class EmployeesTabController extends Controller
 
 	/**
 	 * Gets list of locations in ZOO.
+	 *
 	 * @return Returns only spatial objects which represent a certain location.
 	 */
 	private ArrayList<SpatialObjectModel> getLocationsFromSpatialObjects(ArrayList<SpatialObjectModel> spatialObjects) {
@@ -174,14 +176,15 @@ public class EmployeesTabController extends Controller
 	/**
 	 * Called after hit on SaveEmpployee Button on EmployeeDetail Panel. It creates new Employee or update selected employee
 	 * from actualDate to 'forever'.
+	 *
 	 * @param employeeDetailPanelMode
 	 */
 	public void saveEmployee(int employeeDetailPanelMode) {
-		if (employeeDetailPanel.getNameTextFieldValue().equals("")){
+		if (employeeDetailPanel.getNameTextFieldValue().equals("")) {
 			showDialog(ERROR_MESSAGE, "You must insert a name.");
 			return;
 		}
-		if (employeeDetailPanel.getSurnameTextFieldValue().equals("")){
+		if (employeeDetailPanel.getSurnameTextFieldValue().equals("")) {
 			showDialog(ERROR_MESSAGE, "You must insert a surname.");
 			return;
 		}
@@ -192,7 +195,7 @@ public class EmployeesTabController extends Controller
 		this.selectedEmployeeModel.setDateFrom(Utils.removeTime(Calendar.getInstance().getTime()));
 		this.selectedEmployeeModel.setDateTo(Utils.getForeverDate());
 
-		if (employeeDetailPanelMode == EmployeeDetailPanel.EDIT_EMPLOYEE){
+		if (employeeDetailPanelMode == EmployeeDetailPanel.EDIT_EMPLOYEE) {
 			selectedEmployeeModel.setIsChanged(true);
 		}
 
@@ -210,7 +213,7 @@ public class EmployeesTabController extends Controller
 	public void spatialObjectSelectionChangedListener(SpatialObjectModel spatialObjectModel) {
 		this.selectedSpatialObject = spatialObjectModel;
 
-		if (employeesTab.isVisible()){
+		if (employeesTab.isVisible()) {
 			showEmployeeList(dateToDisplay);
 		}
 
@@ -218,6 +221,7 @@ public class EmployeesTabController extends Controller
 
 	/**
 	 * Action triggered after hit on Edit button in EmployeesTable. It calls method to display employeeDetail Panel.
+	 *
 	 * @param employeeModel
 	 */
 	@Override
@@ -234,8 +238,9 @@ public class EmployeesTabController extends Controller
 	/**
 	 * Whenever user select a date from datePicker on EmployeeListPanel this action is triggered.
 	 * Content of EmployeeListPanel is then updated if date is corret.
-	 *
+	 * <p/>
 	 * If newDate is from future ??alert message pops up??
+	 *
 	 * @param newDate New date selected from DatePicker
 	 */
 	public void datePickerChangedAction(Date newDate) {
@@ -243,8 +248,8 @@ public class EmployeesTabController extends Controller
 		Date currentlyDisplayedDateWithoutTime = Utils.removeTime(dateToDisplay);
 		Date todayDateWithoutTime = Utils.removeTime(Calendar.getInstance().getTime());
 
-		try{
-			if (newDateWithoutTime.after(todayDateWithoutTime)){
+		try {
+			if (newDateWithoutTime.after(todayDateWithoutTime)) {
 				throw new ControllerException("datePickerChangedAction: " + "Future date selected!");
 			}
 		} catch (ControllerException e) {
@@ -253,7 +258,7 @@ public class EmployeesTabController extends Controller
 			newDateWithoutTime = todayDateWithoutTime;
 			//TODO Create Alert message ??here or in the listPanel??
 		} finally {
-			if (!currentlyDisplayedDateWithoutTime.equals(newDateWithoutTime)){
+			if (!currentlyDisplayedDateWithoutTime.equals(newDateWithoutTime)) {
 				dateToDisplay = newDateWithoutTime;
 				showEmployeeList(dateToDisplay);
 			}
@@ -262,6 +267,7 @@ public class EmployeesTabController extends Controller
 
 	/**
 	 * It displays records which are valid today on EmployeesListPanel table
+	 *
 	 * @param isSelected
 	 */
 	public void actualDateSwitchAction(boolean isSelected) {
@@ -285,7 +291,7 @@ public class EmployeesTabController extends Controller
 	public void contentPanelTabSwitchAction() {
 		Component selectedComponent = employeesTab.getTabPanel().getSelectedComponent();
 		Component employeeTab = this.employeesTab;
-		if (selectedComponent == employeeTab){
+		if (selectedComponent == employeeTab) {
 			fillUpEmployeesTable(dateToDisplay);
 		}
 	}
@@ -294,7 +300,7 @@ public class EmployeesTabController extends Controller
 	/**
 	 * Creates EmployeeDetail table and populates it with data. Then this table is added on EmployeeDetailPanel.
 	 */
-	public void fillEmployeeDetailTable(){
+	public void fillEmployeeDetailTable() {
 		EmployeeDetailTable table = new EmployeeDetailTable();
 		table.setColumnsWidth();
 
@@ -306,7 +312,7 @@ public class EmployeesTabController extends Controller
 		} catch (DataManagerException e) {
 			Logger.createLog(Logger.ERROR_LOG, e.getMessage());
 		}
-		if (models != null && models.size() > 0){
+		if (models != null && models.size() > 0) {
 			for (EmployeeModel model : models) {
 				table.addEmployeeModel(model);
 			}
@@ -319,21 +325,23 @@ public class EmployeesTabController extends Controller
 
 	/**
 	 * Action triggered when Show History checkbox is ticked on EmployeeDetailPanel
+	 *
 	 * @param selected set to true/false if checkbox is selected or not
 	 */
 	public void showHistoryAction(boolean selected) {
-		if (selected == true){
+		if (selected == true) {
 			employeeDetailPanel.showHistoryShiftPane();
-		}else {
+		} else {
 			employeeDetailPanel.hideHistoryShiftPane();
 		}
 	}
 
 	/**
 	 * Returns actually selected EmployeeModel.
+	 *
 	 * @return
 	 */
-	public EmployeeModel getSelectedEmployeeModel(){
+	public EmployeeModel getSelectedEmployeeModel() {
 		return selectedEmployeeModel;
 	}
 
@@ -352,12 +360,13 @@ public class EmployeesTabController extends Controller
 
 	/**
 	 * Action called after click on confirmUpdateDeleteAction on EmployeeShiftEdit Panel
+	 *
 	 * @param isHistoryUpdate it's true/false in order action should be update/delete.
 	 */
 	public void confirmUpdateDeleteAction(boolean isHistoryUpdate) {
-		if (isHistoryUpdate){
+		if (isHistoryUpdate) {
 			DataManager.getInstance().updateEmployeeShifts(selectedEmployeeModel.getId(), employeeShiftEditPanel.getDateFrom(), employeeShiftEditPanel.getDateTo(), employeeShiftEditPanel.getSelectedLocation());
-		}else { // if it's not edit action, it's DELETE action
+		} else { // if it's not edit action, it's DELETE action
 			DataManager.getInstance().deleteEmployeeShifts(selectedEmployeeModel.getId(), employeeShiftEditPanel.getDateFrom(), employeeShiftEditPanel.getDateTo());
 		}
 		editEmployeeDetail(selectedEmployeeModel, EmployeeDetailPanel.EDIT_EMPLOYEE);
@@ -366,9 +375,9 @@ public class EmployeesTabController extends Controller
 	}
 
 	public void switchBetweenEditAndDeleteAction(boolean selected) {
-		if (selected == true){
+		if (selected == true) {
 			employeeShiftEditPanel.showLocationPicker();
-		} else{
+		} else {
 			employeeShiftEditPanel.hideLocationPicker();
 		}
 	}

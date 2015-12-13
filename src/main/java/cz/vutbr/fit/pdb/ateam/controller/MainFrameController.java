@@ -33,7 +33,7 @@ public class MainFrameController extends Controller {
 		AsyncTask task = new AsyncTask() {
 			@Override
 			protected void onDone(boolean success) {
-				if(success) {
+				if (success) {
 					mainFrame.dispose();
 					new LoginForm().setVisible(true);
 				} else {
@@ -81,7 +81,7 @@ public class MainFrameController extends Controller {
 
 		task.start();
 	}
-	
+
 	public void appStateChangedListener(String state) {
 		mainFrame.getAppStateLabel().setText(state);
 	}

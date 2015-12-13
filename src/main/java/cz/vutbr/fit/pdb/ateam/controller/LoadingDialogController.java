@@ -9,8 +9,10 @@ import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
  * @Author Tomas Hanus
  */
 public class LoadingDialogController extends Controller {
-	/** Constant for setting true in order to cancel process even if it is already working
-	 * on calling cancel method of AsyncTask  */
+	/**
+	 * Constant for setting true in order to cancel process even if it is already working
+	 * on calling cancel method of AsyncTask
+	 */
 	private static final boolean CANCEL_IF_RUNNING = true;
 
 	private AsyncTask asyncTask;
@@ -28,7 +30,7 @@ public class LoadingDialogController extends Controller {
 	/**
 	 * Method cancels the process of asyncTask and disposes Loading Dialog.
 	 */
-	public void cancelProcessAction(){
+	public void cancelProcessAction() {
 		this.asyncTask.cancel(CANCEL_IF_RUNNING);
 		this.loadingDialog.dispose();
 	}

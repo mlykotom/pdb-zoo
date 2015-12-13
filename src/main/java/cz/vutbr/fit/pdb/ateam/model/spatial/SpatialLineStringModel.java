@@ -34,9 +34,9 @@ public class SpatialLineStringModel extends SpatialObjectModel {
 
 	@Override
 	public Shape createShape() {
-		double[] points =  geometry.getOrdinatesArray();
+		double[] points = geometry.getOrdinatesArray();
 		// line should have at least 2 points
-		if(points.length < 2) geometry.createShape();
+		if (points.length < 2) geometry.createShape();
 
 		Path2D path = new Path2D.Double();
 		path.moveTo(points[0], points[1]);
@@ -44,15 +44,15 @@ public class SpatialLineStringModel extends SpatialObjectModel {
 		double pointX, pointY;
 
 		int i = 2;  // skip first point (2 coords) because its movedTo
-		while(i < points.length){
+		while (i < points.length) {
 			pointX = points[i++];
 			pointY = points[i++];
 
 			path.lineTo(pointX, pointY);
 		}
 
-		i-=2;   // skip last point (2 coords) because we are in this point
-		while(i > 0){
+		i -= 2;   // skip last point (2 coords) because we are in this point
+		while (i > 0) {
 			pointY = points[--i];
 			pointX = points[--i];
 
@@ -64,6 +64,6 @@ public class SpatialLineStringModel extends SpatialObjectModel {
 
 	@Override
 	public boolean isWithin(int x, int y) {
-		return shape.intersects(x - INTERSECT_BOX_SIZE / 2,  y - INTERSECT_BOX_SIZE / 2, INTERSECT_BOX_SIZE, INTERSECT_BOX_SIZE);
+		return shape.intersects(x - INTERSECT_BOX_SIZE / 2, y - INTERSECT_BOX_SIZE / 2, INTERSECT_BOX_SIZE, INTERSECT_BOX_SIZE);
 	}
 }

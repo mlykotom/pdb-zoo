@@ -19,10 +19,8 @@ import java.awt.event.ActionListener;
 public class MainFrame extends JFrame {
 	private static final int WINDOW_DEFAULT_WIDTH = 1024;
 	private static final int WINDOW_DEFAULT_HEIGHT = 768;
-
-	private MainFrameController mainFrameController;
 	public ContentPanel contentPanel;
-
+	private MainFrameController mainFrameController;
 	private JLabel appStateLabel = new JLabel();
 
 	/**
@@ -123,7 +121,6 @@ public class MainFrame extends JFrame {
 
 		return initDBButton;
 	}
-
 
 
 }

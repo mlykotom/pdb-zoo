@@ -7,5 +7,6 @@ import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
  */
 public interface SpatialObjectTableController {
 	void spatialObjectsTableEditAction(SpatialObjectModel spatialObjectModel);
+
 	void spatialObjectsTableDeleteAction(SpatialObjectModel spatialObjectModel);
 }
