@@ -177,6 +177,15 @@ public class EmployeesTabController extends Controller
 	 * @param employeeDetailPanelMode
 	 */
 	public void saveEmployee(int employeeDetailPanelMode) {
+		if (employeeDetailPanel.getNameTextFieldValue().equals("")){
+			showDialog(ERROR_MESSAGE, "You must insert a name.");
+			return;
+		}
+		if (employeeDetailPanel.getSurnameTextFieldValue().equals("")){
+			showDialog(ERROR_MESSAGE, "You must insert a surname.");
+			return;
+		}
+
 		this.selectedEmployeeModel.setName(employeeDetailPanel.getNameTextFieldValue());
 		this.selectedEmployeeModel.setSurname(employeeDetailPanel.getSurnameTextFieldValue());
 		this.selectedEmployeeModel.setLocation(employeeDetailPanel.getLocationComboBoxValue());
@@ -365,4 +374,8 @@ public class EmployeesTabController extends Controller
 	}
 
 
+	public void calculateMaxWeightAction() {
+		Float maxWeight = DataManager.getInstance().calculateMaxWeightForEmployee(selectedEmployeeModel);
+		employeeDetailPanel.setEmployeeHonorWeight(maxWeight);
+	}
 }

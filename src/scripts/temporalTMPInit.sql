@@ -513,6 +513,11 @@ SELECT empl.id, empl.name, empl.Surname, es.Location, GREATEST(es.dFrom, ar.dFro
     JOIN Animals an on an.ID = ar.AnimalID
 WHERE es.dFrom <= ar.dTo AND es.dTo >= ar.dFrom and an.ID = 4 ;
 
+SELECT MAX(weight) FROM (SELECT ar.Weight as weight FROM Employees empl JOIN Employees_Shift es on empl.ID = es.EmplID
+  JOIN Animals_Records ar on es.Location = ar.Location
+WHERE es.dFrom <= ar.dTo AND es.dTo >= ar.dFrom AND empl.id = 4);
+
+
 -- WHERE an.ID = 4 ;
 
 

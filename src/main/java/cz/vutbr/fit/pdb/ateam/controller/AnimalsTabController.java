@@ -176,6 +176,16 @@ public class AnimalsTabController  extends Controller
 	 * @param animalDetailPanelMode
 	 */
 	public void saveAnimal(int animalDetailPanelMode) {
+
+		if (animalDetailPanel.getNameTextFieldValue().equals("")){
+			showDialog(ERROR_MESSAGE, "You must insert a name.");
+			return;
+		}
+		if (animalDetailPanel.getSpeciesTextFieldValue().equals("")){
+			showDialog(ERROR_MESSAGE, "You must insert a species.");
+			return;
+		}
+		
 		this.selectedAnimalModel.setName(animalDetailPanel.getNameTextFieldValue());
 		this.selectedAnimalModel.setSpecies(animalDetailPanel.getSpeciesTextFieldValue());
 		this.selectedAnimalModel.setLocation(animalDetailPanel.getLocationComboBoxValue());

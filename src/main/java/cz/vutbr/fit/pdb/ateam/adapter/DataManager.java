@@ -1274,4 +1274,33 @@ public class DataManager {
 		asyncTask.start();
 		return employees;
 	}
+
+	public Float calculateMaxWeightForEmployee(final EmployeeModel employeeModel) {
+		final Float[] maxWeight = {0f};
+		AsyncTask asyncTask = new AsyncTask() {
+			@Override
+			protected void onDone(boolean success) {
+
+			}
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				String sqlQuery = "SELECT MAX(weight) as Weight FROM (SELECT ar.Weight as weight FROM Employees empl JOIN Employees_Shift es on empl.ID = es.EmplID " +
+						"JOIN Animals_Records ar on es.Location = ar.Location " +
+						"WHERE es.dFrom <= ar.dTo AND es.dTo >= ar.dFrom AND empl.id = " + employeeModel.getId() + ") ";
+
+				ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+				try {
+					if (resultSet.next())
+						maxWeight[0] = resultSet.getFloat("Weight");
+				} catch (SQLException e) {
+					throw new DataManagerException("getAllEmployeesForAnimal: SQLException: " + e.getMessage());
+				}
+				return true;
+			}
+		};
+		asyncTask.start();
+		return maxWeight[0];
+	}
 }

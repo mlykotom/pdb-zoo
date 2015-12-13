@@ -15,7 +15,7 @@ import java.util.Comparator;
 import java.util.Date;
 
 /**
- * Created by Tomas on 12/13/2015.
+ * @Author Tomas Hanus on 12/13/2015.
  */
 public class EmployeesHistoryTable extends JTable {
 	private static final String FOREVER_DATE = "01-Jan-2500";
