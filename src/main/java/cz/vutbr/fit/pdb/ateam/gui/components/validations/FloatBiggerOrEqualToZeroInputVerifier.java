@@ -30,5 +30,4 @@ public class FloatBiggerOrEqualToZeroInputVerifier extends InputVerifier {
 		return true;
 	}
 
-	;
 }

@@ -100,7 +100,7 @@ public class EmployeeDetailTable extends JTable {
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			EmployeeModel employeeModel = objectsList.get(rowIndex);
 
-			if (employeeModel == null) return (Object) "";
+			if (employeeModel == null) return "";
 
 			switch (columnIndex) {
 				case 0:

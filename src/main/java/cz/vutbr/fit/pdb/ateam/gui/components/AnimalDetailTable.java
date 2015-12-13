@@ -99,7 +99,7 @@ public class AnimalDetailTable extends JTable {
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			AnimalModel animalModel = objectsList.get(rowIndex);
 
-			if (animalModel == null) return (Object) "";
+			if (animalModel == null) return "";
 
 			switch (columnIndex) {
 				case 0:

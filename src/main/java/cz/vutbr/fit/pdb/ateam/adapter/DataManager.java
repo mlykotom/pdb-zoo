@@ -372,7 +372,6 @@ public class DataManager {
 			createDatabaseUpdate(sql);
 		}
 
-		// TODO should be specified from which cache will be deleted
 		if (model instanceof SpatialObjectModel) {
 			spatialObjects.remove(model);
 		} else if (model instanceof SpatialObjectTypeModel) {
@@ -383,7 +382,7 @@ public class DataManager {
 	}
 
 	/**
-	 * // TODO need to specify which type of BaseModel can be saved
+	 * Saves model based on its type
 	 *
 	 * @param model any model extendind BaseModel which is implemented here
 	 * @return success
@@ -399,20 +398,22 @@ public class DataManager {
 			return false;
 		}
 
-
 		if (model instanceof SpatialObjectModel) {
 			return saveSpatial((SpatialObjectModel) model);
 		} else if (model instanceof EmployeeModel) {
 			return saveEmployee((EmployeeModel) model);
 		} else if (model instanceof AnimalModel) {
 			return saveAnimal((AnimalModel) model);
-		}
-		// TODO here specify model's saving methods!
-		else {
+		} else {
 			throw new DataManagerException("saveModel(): Unsupported model to save");
 		}
 	}
 
+	/**
+	 * Saves employee model to DB
+	 * @param employee model which will be inserted or updated
+	 * @return success
+	 */
 	private boolean saveEmployee(EmployeeModel employee) {
 		try {
 			String sqlPrep = null;
