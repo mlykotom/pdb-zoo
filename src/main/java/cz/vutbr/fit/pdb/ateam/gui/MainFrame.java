@@ -54,6 +54,7 @@ public class MainFrame extends JFrame {
 		menuBar.add(stateTextLabel);
 		menuBar.add(appStateLabel);
 		menuBar.add(Box.createHorizontalGlue());
+		menuBar.add(createInitDBButton());
 		menuBar.add(createLogoutButton());
 		setJMenuBar(menuBar);
 
@@ -104,5 +105,25 @@ public class MainFrame extends JFrame {
 	public JLabel getAppStateLabel() {
 		return appStateLabel;
 	}
+
+	/**
+	 * Factory for initialize DB menu button
+	 *
+	 * @return created initialize DB button
+	 */
+	private Component createInitDBButton() {
+		JButton initDBButton = new JButton("Initialize DB");
+		initDBButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mainFrameController.initDBMenuAction();
+			}
+		});
+		Utils.setComponentFixSize(initDBButton, 100, 30);
+
+		return initDBButton;
+	}
+
+
 
 }

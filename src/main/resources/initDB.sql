@@ -4,8 +4,6 @@
 
 DROP SEQUENCE Spatial_Object_Types_seq;
 DROP SEQUENCE Spatial_Objects_seq;
-DROP INDEX SPATIAL_OBJECTS_INDEX;
-DELETE FROM USER_SDO_GEOM_METADATA WHERE TABLE_NAME = 'SPATIAL_OBJECTS';
 DROP TABLE Spatial_Objects;
 DROP TABLE Spatial_Object_Types;
 
@@ -21,25 +19,14 @@ CREATE TABLE Spatial_Object_Types (
 );
 
 CREATE TABLE Spatial_Objects (
-  ID       INT           NOT NULL,
-  ZIndex   INT DEFAULT 0 NOT NULL,
-  Name     VARCHAR(255)  NOT NULL,
-  Type     INT,
-  Geometry SDO_GEOMETRY  NOT NULL,
+  ID       INT          NOT NULL,
+  Name     VARCHAR(255) NOT NULL,
+  Type     INT          NOT NULL,
+  Geometry SDO_GEOMETRY NOT NULL,
 
   PRIMARY KEY (ID),
-  FOREIGN KEY (Type) REFERENCES Spatial_Object_Types (ID) -- ON DELETE SET NULL -- TODO should be here! or sth like this
+  FOREIGN KEY (Type) REFERENCES Spatial_Object_Types (ID)
 );
-
--- metadata for spatial objects --
-INSERT INTO USER_SDO_GEOM_METADATA VALUES (
-  'SPATIAL_OBJECTS',
-  'GEOMETRY',
-  SDO_DIM_ARRAY(SDO_DIM_ELEMENT('X', 0, 640, 1), SDO_DIM_ELEMENT('Y', 0, 480, 1)),
-  NULL
-);
-
-CREATE INDEX SPATIAL_OBJECTS_INDEX ON SPATIAL_OBJECTS (GEOMETRY) INDEXTYPE IS MDSYS.SPATIAL_INDEX;
 
 -- ----------------------------------------------------------------------------------------
 -- CREATING SEQUENCES
@@ -105,31 +92,31 @@ INSERT INTO Spatial_Objects (Name, Type, Geometry) VALUES (
                NULL, NULL)
 );
 
-INSERT INTO Spatial_Objects (Name, Type, Geometry) VALUES (
+INSERT INTO Spatial_Objects (Name, Type, Geometry) VALUES(
   'paty_objekt',
   3,
   SDO_GEOMETRY(2002, NULL, NULL,
                SDO_ELEM_INFO_ARRAY(1, 2, 1),
-               SDO_ORDINATE_ARRAY(100, 100, 150, 150, 300, 50)
+               SDO_ORDINATE_ARRAY(100, 100, 150,150, 300, 50)
   )
 );
 
-INSERT INTO Spatial_Objects (Name, Type, Geometry) VALUES (
+INSERT INTO Spatial_Objects (Name, Type, Geometry) VALUES(
   'curve_object',
   3,
   SDO_GEOMETRY(2002, NULL, NULL,
                SDO_ELEM_INFO_ARRAY(1, 2, 2),
-               SDO_ORDINATE_ARRAY(400, 400, 250, 250, 300, 50)
+               SDO_ORDINATE_ARRAY(400, 400, 250,250, 300, 50)
   )
 );
 
 
-INSERT INTO Spatial_Objects (Name, Type, Geometry) VALUES (
+INSERT INTO Spatial_Objects (Name, Type, Geometry) VALUES(
   'curve_object_2',
   3,
   SDO_GEOMETRY(2002, NULL, NULL,
                SDO_ELEM_INFO_ARRAY(1, 2, 2),
-               SDO_ORDINATE_ARRAY(400, 400, 250, 250, 300, 50)
+               SDO_ORDINATE_ARRAY(400, 400, 250,250, 300, 50)
   )
 );
 
@@ -138,7 +125,7 @@ INSERT INTO Spatial_Objects (Name, Type, Geometry) VALUES (
   2,
   SDO_GEOMETRY(2003, NULL, NULL,
                SDO_ELEM_INFO_ARRAY(1, 1003, 4),
-               SDO_ORDINATE_ARRAY(75, 15, 75, 95, 115, 55)
+               SDO_ORDINATE_ARRAY(75,15, 75,95, 115,55)
   )
 );
 
@@ -146,12 +133,11 @@ INSERT INTO Spatial_Objects (Name, Type, Geometry) VALUES (
   'kolekce test',
   2,
   SDO_GEOMETRY(2004, NULL, NULL, -- 2D collection
-               SDO_ELEM_INFO_ARRAY(1, 1003, 4, 7, 1003, 4, 13, 1003, 4),
-               -- 3x exterior circle (center-bottom, right-middle, center-top)
+               SDO_ELEM_INFO_ARRAY(1,1003,4, 7,1003,4, 13,1003,4), -- 3x exterior circle (center-bottom, right-middle, center-top)
                SDO_ORDINATE_ARRAY(
-                   85, 102.5, 87.5, 105, 85, 107.5, -- exterior circle, start=1
-                   85, 112.5, 87.5, 115, 85, 117.5, -- exterior circle, start=7
-                   85, 122.5, 87.5, 125, 85, 127.5 -- exterior circle, start=13
+                   85,102.5, 87.5,105, 85,107.5, -- exterior circle, start=1
+                   85,112.5, 87.5,115, 85,117.5, -- exterior circle, start=7
+                   85,122.5, 87.5,125, 85,127.5 -- exterior circle, start=13
                )
   )
 );

@@ -57,6 +57,31 @@ public class MainFrameController extends Controller {
 		task.start();
 	}
 
+	/**
+	 * Initialize database from the initialization script.
+	 */
+	public void initDBMenuAction() {
+		AsyncTask task = new AsyncTask() {
+			@Override
+			protected void onDone(boolean success) {
+				//reloadAllData();
+			}
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				try {
+					dataManager.initDatabase();
+				} catch (DataManagerException e) {
+					Logger.createLog(Logger.ERROR_LOG, e.getMessage());
+					return false;
+				}
+				return true;
+			}
+		};
+
+		task.start();
+	}
+	
 	public void appStateChangedListener(String state) {
 		mainFrame.getAppStateLabel().setText(state);
 	}
