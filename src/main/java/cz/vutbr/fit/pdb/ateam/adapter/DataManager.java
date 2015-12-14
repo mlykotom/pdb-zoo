@@ -2,13 +2,11 @@ package cz.vutbr.fit.pdb.ateam.adapter;
 
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.exception.ModelException;
-import cz.vutbr.fit.pdb.ateam.gui.components.ImagePanel;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import cz.vutbr.fit.pdb.ateam.model.animal.AnimalModel;
 import cz.vutbr.fit.pdb.ateam.model.employee.EmployeeModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
-import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
 import oracle.jdbc.OraclePreparedStatement;
 import oracle.jdbc.OracleResultSet;
@@ -593,7 +591,7 @@ public class DataManager {
 	 * Inserts animal image from resources into database animal record.
 	 *
 	 * @param resourceFileName name of the file in resource file
-	 * @param animalID id of the animal
+	 * @param animalID         id of the animal
 	 * @throws DataManagerException when resource file can not be open or when animal do not exists
 	 */
 	private void insertImageIntoAnimalModel(String resourceFileName, Long animalID) throws DataManagerException {
@@ -810,7 +808,7 @@ public class DataManager {
 				preparedStatement.executeUpdate();
 			}
 
-			saveEmployeeTemporalData(employee, isNewEmployee);
+			updateEmployeeShifts(employee.getId(), employee.getDateFrom(), employee.getDateTo(), employee.getLocation());
 
 			employee.setIsChanged(false);
 			return true;
@@ -852,11 +850,6 @@ public class DataManager {
 			return false;
 		}
 	}
-
-	private void saveEmployeeTemporalData(EmployeeModel employee, boolean isNewEmployee) throws SQLException {
-		updateEmployeeShifts(employee.getId(), employee.getDateFrom(), employee.getDateTo(), employee.getLocation());
-	}
-
 
 	// -----------------------------------------
 	// ------------- METHODS FOR SPATIAL OBJECTS
@@ -1454,34 +1447,23 @@ public class DataManager {
 	 * @param location
 	 * @return
 	 */
-	public boolean updateEmployeeShifts(final Long employeeID, final Date arDateFrom, final Date arDateTo, final Long location) {
-		AsyncTask asyncTask = new AsyncTask() {
-			@Override
-			protected void onDone(boolean success) {
-				//
-			}
+	public boolean updateEmployeeShifts(final Long employeeID, final Date arDateFrom, final Date arDateTo, final Long location) throws DataManagerException {
+		try {
+			java.sql.Date dateFrom = new java.sql.Date(arDateFrom.getTime());
+			java.sql.Date dateTo = new java.sql.Date(arDateTo.getTime());
 
-			@Override
-			protected Boolean doInBackground() throws Exception {
-				java.sql.Date dateFrom = new java.sql.Date(arDateFrom.getTime());
-				java.sql.Date dateTo = new java.sql.Date(arDateTo.getTime());
+			CallableStatement cstmt = connection.prepareCall("BEGIN updateEmployeeTable(?, ?, ?, ?); END;");
+			cstmt.setLong(1, employeeID);
+			cstmt.setDate(2, dateFrom);
+			cstmt.setDate(3, dateTo);
+			cstmt.setLong(4, location);
 
-				CallableStatement cstmt = connection.prepareCall("BEGIN updateEmployeeTable(?, ?, ?, ?); END;");
-
-				cstmt.setLong(1, employeeID);
-				cstmt.setDate(2, dateFrom);
-				cstmt.setDate(3, dateTo);
-				cstmt.setLong(4, location);
-
-				cstmt.execute();
-
-				return true;
-			}
-		};
-		asyncTask.start();
-		return true;
+			cstmt.execute();
+			return true;
+		} catch (SQLException e) {
+			throw new DataManagerException("updateEmployeeShifts: SQLException: " + e.getMessage());
+		}
 	}
-
 
 	/**
 	 * Method is used to delete temporalData from Employees_Shift table from specified interval.
@@ -1491,32 +1473,23 @@ public class DataManager {
 	 * @param arDateTo
 	 * @return
 	 */
-	public boolean deleteEmployeeShifts(final Long employeeID, final Date arDateFrom, final Date arDateTo) {
+	public boolean deleteEmployeeShifts(final Long employeeID, final Date arDateFrom, final Date arDateTo) throws DataManagerException {
+		java.sql.Date dateFrom = new java.sql.Date(arDateFrom.getTime());
+		java.sql.Date dateTo = new java.sql.Date(arDateTo.getTime());
 
-		AsyncTask asyncTask = new AsyncTask() {
-			@Override
-			protected void onDone(boolean success) {
-				//
-			}
+		try {
+			CallableStatement cstmt = connection.prepareCall("BEGIN deleteEmployeeShiftTable(?, ?, ?); END;");
+			cstmt.setLong(1, employeeID);
+			cstmt.setDate(2, dateFrom);
+			cstmt.setDate(3, dateTo);
 
-			@Override
-			protected Boolean doInBackground() throws Exception {
-				java.sql.Date dateFrom = new java.sql.Date(arDateFrom.getTime());
-				java.sql.Date dateTo = new java.sql.Date(arDateTo.getTime());
+			cstmt.execute();
 
-				CallableStatement cstmt = connection.prepareCall("BEGIN deleteEmployeeShiftTable(?, ?, ?); END;");
-
-				cstmt.setLong(1, employeeID);
-				cstmt.setDate(2, dateFrom);
-				cstmt.setDate(3, dateTo);
-
-				cstmt.execute();
-
-				return true;
-			}
-		};
-		asyncTask.start();
-		return true;
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new DataManagerException("deleteEmployeeShifts: SQLException: " + e.getMessage());
+		}
 	}
 
 
@@ -1529,42 +1502,32 @@ public class DataManager {
 	 */
 	public ArrayList<EmployeeModel> getEmployeeHistory(final long employeeID) throws DataManagerException {
 		final ArrayList<EmployeeModel> employees = new ArrayList<>();
-		AsyncTask asyncTask = new AsyncTask() {
-			@Override
-			protected void onDone(boolean success) {
+		String sqlQuery = "SELECT e.ID as EmployeeID, e.name, e.surname, s.ID as ShiftID, s.Location, s.dFrom, s.dTo " +
+				"FROM EMPLOYEES e LEFT JOIN Employees_Shift s ON e.ID = s.EmplId WHERE e.ID = " + employeeID;
+
+		ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+		try {
+			while (resultSet.next()) {
+				Long emplID = resultSet.getLong("EmployeeID");
+				Long shiftID = resultSet.getLong("ShiftID");
+				String name = resultSet.getString("Name");
+				String surname = resultSet.getString("Surname");
+				Long location = resultSet.getLong("Location");
+				Date dateFrom = resultSet.getDate("dFrom");
+				Date dateTo = resultSet.getDate("dTo");
+				employees.add(new EmployeeModel(emplID, name, surname, location, dateFrom, dateTo, shiftID));
 			}
+		} catch (SQLException e) {
+			throw new DataManagerException("getAllEmployeesAtDate: SQLException: " + e.getMessage());
+		}
 
-			@Override
-			protected Boolean doInBackground() throws Exception {
-				String sqlQuery = "SELECT e.ID as EmployeeID, e.name, e.surname, s.ID as ShiftID, s.Location, s.dFrom, s.dTo " +
-						"FROM EMPLOYEES e LEFT JOIN Employees_Shift s ON e.ID = s.EmplId WHERE e.ID = " + employeeID;
-
-				ResultSet resultSet = createDatabaseQuery(sqlQuery);
-
-				try {
-					while (resultSet.next()) {
-						Long emplID = resultSet.getLong("EmployeeID");
-						Long shiftID = resultSet.getLong("ShiftID");
-						String name = resultSet.getString("Name");
-						String surname = resultSet.getString("Surname");
-						Long location = resultSet.getLong("Location");
-						Date dateFrom = resultSet.getDate("dFrom");
-						Date dateTo = resultSet.getDate("dTo");
-						employees.add(new EmployeeModel(emplID, name, surname, location, dateFrom, dateTo, shiftID));
-					}
-				} catch (SQLException e) {
-					throw new DataManagerException("getAllEmployeesAtDate: SQLException: " + e.getMessage());
-				}
-				return true;
-			}
-		};
-		asyncTask.start();
 		return employees;
 	}
 
-	// -----------------------------------------
-	// ------------- METHODS FOR ANIMALS -------
-	// -----------------------------------------
+// -----------------------------------------
+// ------------- METHODS FOR ANIMALS -------
+// -----------------------------------------
 
 	/**
 	 * Method returns record for all animals from specific date.
@@ -1575,45 +1538,38 @@ public class DataManager {
 	 */
 	public ArrayList<AnimalModel> getAnimalsAtDate(final Date date) throws DataManagerException {
 		final ArrayList<AnimalModel> animals = new ArrayList<>();
-		AsyncTask asyncTask = new AsyncTask() {
-			@Override
-			protected void onDone(boolean success) {
+
+		String datum = new SimpleDateFormat("dd-MMM-yyyy").format(date);
+		String sqlQuery = "" +
+				"SELECT an.ID as AnimalID, an.Name, an.Species, an.photo, ar.Location, ar.Weight, ar.dFrom, ar.dTo " +
+				"FROM Animals an INNER JOIN Animals_Records ar on an.ID = ar.AnimalID " +
+				"WHERE ar.dFrom <= '" + datum + "' AND ar.dTo >= '" + datum + "' ";
+
+		ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+		try {
+			while (resultSet.next()) {
+				Long id = resultSet.getLong("AnimalID");
+				String name = resultSet.getString("Name");
+				String species = resultSet.getString("Species");
+				Long location = resultSet.getLong("Location");
+				Float weight = resultSet.getFloat("Weight");
+
+				OracleResultSet rset = (OracleResultSet) resultSet;
+				OrdImage image = (OrdImage) rset.getORAData("photo", OrdImage.getORADataFactory());
+
+				Date dateFrom = resultSet.getDate("dFrom");
+				Date dateTo = resultSet.getDate("dTo");
+
+				AnimalModel animal = new AnimalModel(id, name, species, location, weight, dateFrom, dateTo);
+				animal.setImage(image);
+
+				animals.add(animal);
+
 			}
-
-			@Override
-			protected Boolean doInBackground() throws Exception {
-				String datum = new SimpleDateFormat("dd-MMM-yyyy").format(date);
-				String sqlQuery = "SELECT an.ID as AnimalID, an.Name, an.Species, an.photo, ar.Location, ar.Weight, ar.dFrom, ar.dTo FROM Animals an INNER JOIN Animals_Records ar on an.ID = ar.AnimalID " +
-						"WHERE ar.dFrom <= '" + datum + "' AND ar.dTo >= '" + datum + "' ";
-				ResultSet resultSet = createDatabaseQuery(sqlQuery);
-
-				try {
-					while (resultSet.next()) {
-						Long id = resultSet.getLong("AnimalID");
-						String name = resultSet.getString("Name");
-						String species = resultSet.getString("Species");
-						Long location = resultSet.getLong("Location");
-						Float weight = resultSet.getFloat("Weight");
-
-						OracleResultSet rset = (OracleResultSet) resultSet;
-						OrdImage image = (OrdImage) rset.getORAData("photo", OrdImage.getORADataFactory());
-
-						Date dateFrom = resultSet.getDate("dFrom");
-						Date dateTo = resultSet.getDate("dTo");
-
-						AnimalModel animal = new AnimalModel(id, name, species, location, weight, dateFrom, dateTo);
-						animal.setImage(image);
-
-						animals.add(animal);
-
-					}
-				} catch (SQLException e) {
-					throw new DataManagerException("getAllAnimalsAtDate: SQLException: " + e.getMessage());
-				}
-				return true;
-			}
-		};
-		asyncTask.start();
+		} catch (SQLException e) {
+			throw new DataManagerException("getAllAnimalsAtDate: SQLException: " + e.getMessage());
+		}
 		return animals;
 	}
 
@@ -1626,33 +1582,27 @@ public class DataManager {
 	 * @param location
 	 * @param weight
 	 * @return
+	 * @throws DataManagerException
 	 */
-	public boolean updateAnimalShifts(final Long animalID, final Date arDateFrom, final Date arDateTo, final Long location, final float weight) {
-		AsyncTask asyncTask = new AsyncTask() {
-			@Override
-			protected void onDone(boolean success) {
-				//
-			}
+	public boolean updateAnimalShifts(final Long animalID, final Date arDateFrom, final Date arDateTo, final Long location, final float weight) throws DataManagerException {
+		java.sql.Date dateFrom = new java.sql.Date(arDateFrom.getTime());
+		java.sql.Date dateTo = new java.sql.Date(arDateTo.getTime());
 
-			@Override
-			protected Boolean doInBackground() throws Exception {
-				java.sql.Date dateFrom = new java.sql.Date(arDateFrom.getTime());
-				java.sql.Date dateTo = new java.sql.Date(arDateTo.getTime());
+		try {
+			CallableStatement cstmt = connection.prepareCall("BEGIN updateAnimalTable(?, ?, ?, ?, ?); END;");
 
-				CallableStatement cstmt = connection.prepareCall("BEGIN updateAnimalTable(?, ?, ?, ?, ?); END;");
-				cstmt.setLong(1, animalID);
-				cstmt.setDate(2, dateFrom);
-				cstmt.setDate(3, dateTo);
-				cstmt.setLong(4, location);
-				cstmt.setFloat(5, weight);
+			cstmt.setLong(1, animalID);
+			cstmt.setDate(2, dateFrom);
+			cstmt.setDate(3, dateTo);
+			cstmt.setLong(4, location);
+			cstmt.setFloat(5, weight);
 
-				cstmt.execute();
+			cstmt.execute();
 
-				return true;
-			}
-		};
-		asyncTask.start();
-		return true;
+			return true;
+		} catch (SQLException e) {
+			throw new DataManagerException("updateAnimalShifts: SQLException: " + e.getMessage());
+		}
 	}
 
 
@@ -1664,31 +1614,22 @@ public class DataManager {
 	 * @param arDateTo
 	 * @return
 	 */
-	public boolean deleteAnimalRecords(final Long animalID, final Date arDateFrom, final Date arDateTo) {
+	public boolean deleteAnimalRecords(final Long animalID, final Date arDateFrom, final Date arDateTo) throws DataManagerException {
+		java.sql.Date dateFrom = new java.sql.Date(arDateFrom.getTime());
+		java.sql.Date dateTo = new java.sql.Date(arDateTo.getTime());
 
-		AsyncTask asyncTask = new AsyncTask() {
-			@Override
-			protected void onDone(boolean success) {
-				//
-			}
+		try {
+			CallableStatement cstmt = connection.prepareCall("BEGIN deleteAnimalsRecordsTable(?, ?, ?); END;");
 
-			@Override
-			protected Boolean doInBackground() throws Exception {
-				java.sql.Date dateFrom = new java.sql.Date(arDateFrom.getTime());
-				java.sql.Date dateTo = new java.sql.Date(arDateTo.getTime());
+			cstmt.setLong(1, animalID);
+			cstmt.setDate(2, dateFrom);
+			cstmt.setDate(3, dateTo);
 
-				CallableStatement cstmt = connection.prepareCall("BEGIN deleteAnimalsRecordsTable(?, ?, ?); END;");
+			cstmt.execute();
+		} catch (SQLException e) {
+			throw new DataManagerException("deleteAnimalRecords: SQLException: " + e.getMessage());
+		}
 
-				cstmt.setLong(1, animalID);
-				cstmt.setDate(2, dateFrom);
-				cstmt.setDate(3, dateTo);
-
-				cstmt.execute();
-
-				return true;
-			}
-		};
-		asyncTask.start();
 		return true;
 	}
 
@@ -1702,38 +1643,28 @@ public class DataManager {
 	 */
 	public ArrayList<AnimalModel> getAnimalHistory(final long animalID) throws DataManagerException {
 		final ArrayList<AnimalModel> animals = new ArrayList<>();
-		AsyncTask asyncTask = new AsyncTask() {
-			@Override
-			protected void onDone(boolean success) {
+		String sqlQuery = "" +
+				"SELECT a.ID as AnimalID, a.name, a.Species, s.ID as ShiftID, s.Location, s.Weight, s.dFrom, s.dTo " +
+				"FROM Animals a LEFT JOIN Animals_Records s ON a.ID = s.AnimalID " +
+				"WHERE a.ID = " + animalID;
 
+		ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+		try {
+			while (resultSet.next()) {
+				Long emplID = resultSet.getLong("AnimalID");
+				Long shiftID = resultSet.getLong("ShiftID");
+				String name = resultSet.getString("Name");
+				String species = resultSet.getString("Species");
+				Float weight = resultSet.getFloat("Weight");
+				Long location = resultSet.getLong("Location");
+				Date dateFrom = resultSet.getDate("dFrom");
+				Date dateTo = resultSet.getDate("dTo");
+				animals.add(new AnimalModel(emplID, name, species, location, weight, dateFrom, dateTo, shiftID));
 			}
-
-			@Override
-			protected Boolean doInBackground() throws Exception {
-				String sqlQuery = "SELECT a.ID as AnimalID, a.name, a.Species, s.ID as ShiftID, s.Location, s.Weight, s.dFrom, s.dTo " +
-						"FROM Animals a LEFT JOIN Animals_Records s ON a.ID = s.AnimalID WHERE a.ID = " + animalID;
-
-				ResultSet resultSet = createDatabaseQuery(sqlQuery);
-
-				try {
-					while (resultSet.next()) {
-						Long emplID = resultSet.getLong("AnimalID");
-						Long shiftID = resultSet.getLong("ShiftID");
-						String name = resultSet.getString("Name");
-						String species = resultSet.getString("Species");
-						Float weight = resultSet.getFloat("Weight");
-						Long location = resultSet.getLong("Location");
-						Date dateFrom = resultSet.getDate("dFrom");
-						Date dateTo = resultSet.getDate("dTo");
-						animals.add(new AnimalModel(emplID, name, species, location, weight, dateFrom, dateTo, shiftID));
-					}
-				} catch (SQLException e) {
-					throw new DataManagerException("getAllAnimalsAtDate: SQLException: " + e.getMessage());
-				}
-				return true;
-			}
-		};
-		asyncTask.start();
+		} catch (SQLException e) {
+			throw new DataManagerException("getAllAnimalsAtDate: SQLException: " + e.getMessage());
+		}
 		return animals;
 	}
 
@@ -1746,39 +1677,27 @@ public class DataManager {
 	 */
 	public List<EmployeeModel> getEmployeesForAnimal(final AnimalModel animalModel) throws DataManagerException {
 		final ArrayList<EmployeeModel> employees = new ArrayList<>();
-		AsyncTask asyncTask = new AsyncTask() {
-			@Override
-			protected void onDone(boolean success) {
+		String sqlQuery = "SELECT empl.id, empl.name, empl.Surname, es.Location, GREATEST(es.dFrom, ar.dFrom) as dateFrom, LEAST(es.dTo,ar.dTo) as dateTo FROM Employees empl " +
+				"JOIN Employees_Shift es on empl.ID = es.EmplID " +
+				"JOIN Animals_Records ar on es.Location = ar.Location " +
+				"JOIN Animals an on an.ID = ar.AnimalID " +
+				"WHERE es.dFrom <= ar.dTo AND es.dTo >= ar.dFrom and an.ID = " + animalModel.getId();
 
+		ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+		try {
+			while (resultSet.next()) {
+				Long emplID = resultSet.getLong("ID");
+				String name = resultSet.getString("Name");
+				String surname = resultSet.getString("Surname");
+				Long location = resultSet.getLong("Location");
+				Date dateFrom = resultSet.getDate("dateFrom");
+				Date dateTo = resultSet.getDate("dateTo");
+				employees.add(new EmployeeModel(emplID, name, surname, location, dateFrom, dateTo));
 			}
-
-			@Override
-			protected Boolean doInBackground() throws Exception {
-				String sqlQuery = "SELECT empl.id, empl.name, empl.Surname, es.Location, GREATEST(es.dFrom, ar.dFrom) as dateFrom, LEAST(es.dTo,ar.dTo) as dateTo FROM Employees empl " +
-						"JOIN Employees_Shift es on empl.ID = es.EmplID " +
-						"JOIN Animals_Records ar on es.Location = ar.Location " +
-						"JOIN Animals an on an.ID = ar.AnimalID " +
-						"WHERE es.dFrom <= ar.dTo AND es.dTo >= ar.dFrom and an.ID = " + animalModel.getId();
-
-				ResultSet resultSet = createDatabaseQuery(sqlQuery);
-
-				try {
-					while (resultSet.next()) {
-						Long emplID = resultSet.getLong("ID");
-						String name = resultSet.getString("Name");
-						String surname = resultSet.getString("Surname");
-						Long location = resultSet.getLong("Location");
-						Date dateFrom = resultSet.getDate("dateFrom");
-						Date dateTo = resultSet.getDate("dateTo");
-						employees.add(new EmployeeModel(emplID, name, surname, location, dateFrom, dateTo));
-					}
-				} catch (SQLException e) {
-					throw new DataManagerException("getAllEmployeesForAnimal: SQLException: " + e.getMessage());
-				}
-				return true;
-			}
-		};
-		asyncTask.start();
+		} catch (SQLException e) {
+			throw new DataManagerException("getAllEmployeesForAnimal: SQLException: " + e.getMessage());
+		}
 		return employees;
 	}
 
@@ -1788,32 +1707,21 @@ public class DataManager {
 	 * @param employeeModel
 	 * @return
 	 */
-	public Float calculateMaxWeightForEmployee(final EmployeeModel employeeModel) {
-		final Float[] maxWeight = {0f};
-		AsyncTask asyncTask = new AsyncTask() {
-			@Override
-			protected void onDone(boolean success) {
+	public Float calculateMaxWeightForEmployee(final EmployeeModel employeeModel) throws DataManagerException {
+		String sqlQuery = "SELECT MAX(weight) as Weight FROM (SELECT ar.Weight as weight FROM Employees empl JOIN Employees_Shift es on empl.ID = es.EmplID " +
+				"JOIN Animals_Records ar on es.Location = ar.Location " +
+				"WHERE es.dFrom <= ar.dTo AND es.dTo >= ar.dFrom AND empl.id = " + employeeModel.getId() + ") ";
 
+		ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+		try {
+			if (!resultSet.next()) {
+				throw new DataManagerException("getAllEmployeesForAnimal: Statement result not successfull");
 			}
 
-			@Override
-			protected Boolean doInBackground() throws Exception {
-				String sqlQuery = "SELECT MAX(weight) as Weight FROM (SELECT ar.Weight as weight FROM Employees empl JOIN Employees_Shift es on empl.ID = es.EmplID " +
-						"JOIN Animals_Records ar on es.Location = ar.Location " +
-						"WHERE es.dFrom <= ar.dTo AND es.dTo >= ar.dFrom AND empl.id = " + employeeModel.getId() + ") ";
-
-				ResultSet resultSet = createDatabaseQuery(sqlQuery);
-
-				try {
-					if (resultSet.next())
-						maxWeight[0] = resultSet.getFloat("Weight");
-				} catch (SQLException e) {
-					throw new DataManagerException("getAllEmployeesForAnimal: SQLException: " + e.getMessage());
-				}
-				return true;
-			}
-		};
-		asyncTask.start();
-		return maxWeight[0];
+			return resultSet.getFloat("Weight");
+		} catch (SQLException e) {
+			throw new DataManagerException("getAllEmployeesForAnimal: SQLException: " + e.getMessage());
+		}
 	}
 }
