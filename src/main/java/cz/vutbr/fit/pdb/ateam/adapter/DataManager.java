@@ -1388,7 +1388,7 @@ public class DataManager {
 			protected Boolean doInBackground() throws Exception {
 				java.sql.Date dateToShow = new java.sql.Date(date.getTime());
 				String datum = new SimpleDateFormat("dd-MMM-yyyy").format(date);
-				String sqlQuery = "SELECT e.ID as EmployeeID, e.Name, e.Surname, s.Location, s.dFrom, s.dTo " +
+				String sqlQuery = "SELECT DISTINCT e.ID as EmployeeID, e.Name, e.Surname, s.Location, s.dFrom, s.dTo " +
 						"FROM EMPLOYEES e LEFT JOIN Employees_Shift s ON e.ID = s.EmplId " +
 						"WHERE s.dFrom <= '" + datum + "' AND s.dTo >= '" + datum + "'";
 
