@@ -598,19 +598,98 @@ public class DataManager {
 		try {
 			ClassLoader classLoader = getClass().getClassLoader();
 			URL resourceFile = classLoader.getResource(resourceFileName);
-			if (resourceFile == null)
-				throw new DataManagerException("Cannot open resource file [insertData.sql]!");
+			if (resourceFile == null) {
+				Logger.createLog(Logger.ERROR_LOG, "Cannot open resource file: " + resourceFileName);
+				throw new DataManagerException("Cannot open resource file!");
+			}
 			File file = new File(resourceFile.getFile());
-			AnimalModel animal;
+			AnimalModel model;
 			BufferedImage image;
-			animal = getAnimal(animalID);
+			model = getAnimal(animalID);
 			image = ImageIO.read(file);
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			ImageIO.write(image, "png", outputStream);
-			animal.setImageByteArray(outputStream.toByteArray());
-			animal.setIsChanged(true);
-			saveAnimal(animal);
+			model.setImageByteArray(outputStream.toByteArray());
+			try {
+
+				connection.setAutoCommit(false);
+
+				Statement statement = connection.createStatement();
+				String updateSQL = "UPDATE Animals SET photo = ordsys.ordimage.init() WHERE id = " + model.getId();
+				Logger.createLog(Logger.DEBUG_LOG, "SENDING UPDATE: " + updateSQL);
+				statement.executeUpdate(updateSQL);
+				statement.close();
+
+				Statement stmt = connection.createStatement();
+
+				String selectSQL = ""
+						+ "SELECT photo "
+						+ "FROM " + model.getTableName() + " "
+						+ "WHERE id=" + model.getId() + " "
+						+ " FOR UPDATE";
+
+				Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + selectSQL);
+				OracleResultSet rset = (OracleResultSet) stmt.executeQuery(selectSQL);
+				if (!rset.next()) {
+					throw new DataManagerException("Object with id=[" + model.getId() + "] not found!");
+				}
+				OrdImage imageDB = (OrdImage) rset.getORAData("photo", OrdImage.getORADataFactory());
+				rset.close();
+				stmt.close();
+
+				model.setImage(imageDB);
+
+				model.getImage().loadDataFromByteArray(model.getImageByteArray());
+				model.getImage().setProperties();
+
+				updateSQL = "";
+				updateSQL += "UPDATE " + model.getTableName() + " ";
+				if(model.getImage() != null)
+					updateSQL += "SET name = ?, Species = ?, photo = ? ";
+				else
+					updateSQL += "SET name = ?, Species = ? ";
+				updateSQL += "WHERE id=" + model.getId();
+				OraclePreparedStatement preparedStmt = (OraclePreparedStatement) connection.prepareStatement(updateSQL);
+				preparedStmt.setString(1, model.getName());
+				preparedStmt.setString(2, model.getSpecies());
+				if(model.getImage() != null) preparedStmt.setORAData(3, model.getImage());
+				Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + updateSQL + " | photo=" + (imageDB == null ? null : imageDB.toString()));
+				preparedStmt.executeUpdate();
+				preparedStmt.close();
+
+				stmt = connection.createStatement();
+				String updateStillImageSQL = "";
+				updateStillImageSQL += "UPDATE " + model.getTableName() + " t ";
+				updateStillImageSQL += "SET t.photo_si=SI_STILLImage(t.photo.getContent()) ";
+				updateStillImageSQL += "WHERE id=" + model.getId();
+				Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + updateStillImageSQL);
+				stmt.executeQuery(updateStillImageSQL);
+
+				String updateFeaturesSQL = "";
+				updateFeaturesSQL += "UPDATE " + model.getTableName() + " t SET ";
+				updateFeaturesSQL += "t.photo_ac=SI_AverageColor(t.photo_si), ";
+				updateFeaturesSQL += "t.photo_ch=SI_ColorHistogram(t.photo_si), ";
+				updateFeaturesSQL += "t.photo_pc=SI_PositionalColor(t.photo_si), ";
+				updateFeaturesSQL += "t.photo_tx=SI_Texture(t.photo_si) ";
+				updateFeaturesSQL += "WHERE id=" + model.getId();
+				Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + updateFeaturesSQL);
+				stmt.executeQuery(updateFeaturesSQL);
+				stmt.close();
+
+				connection.commit();
+			} catch (SQLException e) {
+				throw new DataManagerException("SQLException: " + e.getMessage());
+			} catch (IOException e) {
+				throw new DataManagerException("IOException: " + e.getMessage());
+			} finally {
+				try {
+					connection.setAutoCommit(true);
+				} catch (SQLException e) {
+					Logger.createLog(Logger.ERROR_LOG, "Cannot set auto-commit to true");
+				}
+			}
 		} catch (IOException e) {
+			Logger.createLog(Logger.ERROR_LOG, "IOEXception: " + e.getMessage());
 			throw new DataManagerException("IOException: " + e.getMessage());
 		}
 	}
@@ -1011,9 +1090,9 @@ public class DataManager {
 				stmt.close();
 			}
 
-			updateAnimalShifts(model.getId(), model.getDateFrom(), model.getDateTo(), model.getLocation(), model.getWeight());
-
 			connection.commit();
+
+			updateAnimalShifts(model.getId(), model.getDateFrom(), model.getDateTo(), model.getLocation(), model.getWeight());
 
 		} catch (SQLException e) {
 			throw new DataManagerException("SQLException: " + e.getMessage());
@@ -1564,6 +1643,7 @@ public class DataManager {
 
 			return true;
 		} catch (SQLException e) {
+			Logger.createLog(Logger.ERROR_LOG, "SQLException: " + e.getMessage());
 			throw new DataManagerException("updateAnimalShifts: SQLException: " + e.getMessage());
 		}
 	}
