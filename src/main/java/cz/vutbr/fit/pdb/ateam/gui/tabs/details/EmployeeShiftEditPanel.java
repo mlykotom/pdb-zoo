@@ -39,7 +39,7 @@ public class EmployeeShiftEditPanel extends BasePanel {
 	private JDatePickerImpl shiftFromDatePicker;
 	private JDatePickerImpl shiftToDatePicker;
 	private JButton confirmButton;
-	private JComboBox shiftLocationComboBox;
+	private JComboBox<SpatialObjectModel> shiftLocationComboBox;
 	private JButton discardButton;
 	private JLabel nameLabel;
 	private JPanel employeeTitlePane;

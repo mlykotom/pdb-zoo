@@ -818,39 +818,6 @@ public class DataManager {
 		}
 	}
 
-	private boolean saveAnimalOld(AnimalModel animalModel) {
-		try {
-			String sqlPrep = null;
-			Boolean isNewAnimal = animalModel.isNew();
-
-			if (isNewAnimal) {
-				sqlPrep = "INSERT INTO Animals (Name, Species) VALUES(?, ?)";
-			} else {
-				sqlPrep = "UPDATE Animals SET Name = ?, Species = ? WHERE ID = ?";
-			}
-
-			PreparedStatement preparedStatement = connection.prepareStatement(sqlPrep);
-			preparedStatement.setString(1, animalModel.getName());
-			preparedStatement.setString(2, animalModel.getSpecies());
-
-			Logger.createLog(Logger.DEBUG_LOG, "Sending query: " + sqlPrep + " | name = '" + animalModel.getName() + "', species = '" + animalModel.getSpecies() + "', id = '" + animalModel.getId() + "'");
-			if (isNewAnimal) {
-				this.executeInsertAndSetId(preparedStatement, animalModel);
-			} else {
-				preparedStatement.setLong(3, animalModel.getId());
-				preparedStatement.executeUpdate();
-			}
-
-			updateAnimalShifts(animalModel.getId(), animalModel.getDateFrom(), animalModel.getDateTo(), animalModel.getLocation(), animalModel.getWeight());
-
-			animalModel.setIsChanged(false);
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-
 	// -----------------------------------------
 	// ------------- METHODS FOR SPATIAL OBJECTS
 	// -----------------------------------------
@@ -1388,36 +1355,6 @@ public class DataManager {
 		return null;
 	}
 
-	/**
-	 * Method returns all spatial objects types from the database.
-	 *
-	 * @return Set of the SpacialObjectType, which contains all object types saved in the database
-	 * @throws DataManagerException when exception from createDatabaseQuery() is received
-	 */
-	public ArrayList<EmployeeModel> reloadAllEmployees() throws DataManagerException {
-		ArrayList<EmployeeModel> employees = new ArrayList<>();
-
-		String sqlQuery = "SELECT * FROM Employees";
-		ResultSet resultSet = createDatabaseQuery(sqlQuery);
-
-		try {
-			while (resultSet.next()) {
-				Long id = resultSet.getLong("ID");
-				String name = resultSet.getString("Name");
-				String surname = resultSet.getString("Surname");
-				Long location = Long.valueOf(4);//resultSet.getLong("Location");
-				employees.add(new EmployeeModel(id, name, surname, location, null, null));
-			}
-		} catch (SQLException ex) {
-			throw new DataManagerException("getAllEmployees: SQLException: " + ex.getMessage());
-		}
-
-		this.employees = employees;
-
-		return employees;
-	}
-
-
 	// -----------------------------------------
 	// ------------- METHODS FOR EMPLOYEES -----
 	// -----------------------------------------
@@ -1440,10 +1377,10 @@ public class DataManager {
 	 */
 	public List<EmployeeModel> getEmployeesAtDate(final Date date) throws DataManagerException {
 		final ArrayList<EmployeeModel> employees = new ArrayList<>();
-		String datum = new SimpleDateFormat("dd-MMM-yyyy").format(date);
+		String simpleDate = new SimpleDateFormat("dd-MMM-yyyy").format(date);
 		String sqlQuery = "SELECT DISTINCT e.ID as EmployeeID, e.Name, e.Surname, s.Location, s.dFrom, s.dTo " +
 				"FROM EMPLOYEES e LEFT JOIN Employees_Shift s ON e.ID = s.EmplId " +
-				"WHERE s.dFrom <= '" + datum + "' AND s.dTo >= '" + datum + "'";
+				"WHERE s.dFrom <= '" + simpleDate + "' AND s.dTo >= '" + simpleDate + "'";
 
 		System.out.println(sqlQuery);
 		ResultSet resultSet = createDatabaseQuery(sqlQuery);
@@ -1566,11 +1503,11 @@ public class DataManager {
 	public ArrayList<AnimalModel> getAnimalsAtDate(final Date date) throws DataManagerException {
 		final ArrayList<AnimalModel> animals = new ArrayList<>();
 
-		String datum = new SimpleDateFormat("dd-MMM-yyyy").format(date);
+		String simpleDate = new SimpleDateFormat("dd-MMM-yyyy").format(date);
 		String sqlQuery = "" +
 				"SELECT an.ID as AnimalID, an.Name, an.Species, an.photo, ar.Location, ar.Weight, ar.dFrom, ar.dTo " +
 				"FROM Animals an INNER JOIN Animals_Records ar on an.ID = ar.AnimalID " +
-				"WHERE ar.dFrom <= '" + datum + "' AND ar.dTo >= '" + datum + "' ";
+				"WHERE ar.dFrom <= '" + simpleDate + "' AND ar.dTo >= '" + simpleDate + "' ";
 
 		ResultSet resultSet = createDatabaseQuery(sqlQuery);
 

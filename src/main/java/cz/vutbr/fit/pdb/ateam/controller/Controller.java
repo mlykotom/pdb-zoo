@@ -51,7 +51,6 @@ public class Controller {
 	 */
 	public void reloadAllData() {
 		reloadSpatialObjects();
-		reloadEmployees();
 		SpatialObjectSelectionChangeObservable.getInstance().notifyObservers(null);
 	}
 
@@ -187,32 +186,6 @@ public class Controller {
 		return dataManager.getSpatialObjectTypes();
 	}
 
-
-	/**
-	 * Asynchronously reloads data and store as cached data in dataManager.
-	 * Data are accessible through {@link #getEmployees()} method
-	 */
-	public void reloadEmployees() {
-		AsyncTask task = new AsyncTask() {
-			@Override
-			protected void onDone(boolean success) {
-				SpatialObjectsReloadObservable.getInstance().notifyObservers();
-			}
-
-			@Override
-			protected Boolean doInBackground() throws Exception {
-				try {
-					dataManager.reloadAllEmployees();
-					return true;
-				} catch (DataManagerException e) {
-					Logger.createLog(Logger.ERROR_LOG, e.getMessage());
-				}
-				return false;
-			}
-		};
-
-		task.start();
-	}
 
 	/**
 	 * Synchronouse method (available everywhere)

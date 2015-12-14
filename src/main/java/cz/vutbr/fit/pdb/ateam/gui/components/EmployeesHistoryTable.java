@@ -131,7 +131,7 @@ public class EmployeesHistoryTable extends JTable {
 				e.printStackTrace();
 			}
 			if (Utils.removeTime(dateTo).equals(foreverDate)) {
-				return "now";
+				return "forever";
 			}
 			return dateTo.toString();
 		}
