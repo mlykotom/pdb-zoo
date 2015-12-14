@@ -543,7 +543,7 @@ public class DataManager {
 			ClassLoader classLoader = getClass().getClassLoader();
 			URL resourceFile = classLoader.getResource("insertData.sql");
 			if (resourceFile == null)
-				throw new DataManagerException("Cannot open resource file [initDatabase.sql]!");
+				throw new DataManagerException("Cannot open resource file [insertData.sql]!");
 			File file = new File(resourceFile.getFile());
 
 			Scanner scanner = new Scanner(file);
@@ -599,7 +599,7 @@ public class DataManager {
 			ClassLoader classLoader = getClass().getClassLoader();
 			URL resourceFile = classLoader.getResource(resourceFileName);
 			if (resourceFile == null)
-				throw new DataManagerException("Cannot open resource file [initDatabase.sql]!");
+				throw new DataManagerException("Cannot open resource file [insertData.sql]!");
 			File file = new File(resourceFile.getFile());
 			AnimalModel animal;
 			BufferedImage image;

@@ -115,7 +115,6 @@ abstract public class BaseModel {
 		return id;
 	}
 
-	// TODO shouln't be this way, because we can easily change object's primary key!
 	public void setId(Long id) {
 		this.id = id;
 	}
