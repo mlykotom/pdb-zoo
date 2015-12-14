@@ -317,47 +317,52 @@ public class DataManager {
 			);
 			initScripts.add(
 				"CREATE OR REPLACE PROCEDURE updateEmployeeTable(employeeID IN INT, dateFrom IN Date, dateTo IN Date, new_location in INT) IS " +
-						"  A_OLD_FROM DATE; " +
-						"  A_OLD_TO DATE; " +
-						"  A_OLD_LOC INT; " +
-						"BEGIN " +
-						"  FOR rec IN (SELECT * FROM EMPLOYEES_SHIFT sh WHERE sh.EmplID = employeeID AND  ((dFrom <= dateFrom AND dTo >= dateFrom) OR (dFrom > dateTo AND dFrom <= dateTo ))) " +
-						"  LOOP " +
-						"    IF (rec.DFROM < dateFrom) THEN " +
-						"      IF (rec.Location = new_location) THEN " +
-						"        dateFrom := rec.dFrom; " +
-						"      ELSE " +
-						"        A_OLD_FROM := rec.dFrom; " +
-						"        A_OLD_LOC := rec.Location; " +
-						"        A_OLD_TO := dateFrom -1; " +
-						" " +
-						"        UPDATE Employees_Shift " +
-						"        SET dTo = A_OLD_TO, dFrom = A_OLD_FROM, Location = A_OLD_LOC " +
-						"        WHERE ID = rec.ID; " +
-						" " +
-						"        rec.dFrom := dateFrom; " +
-						"      END IF; " +
-						"    END IF; " +
-						" " +
-						"    IF (rec.dTo <= dateTo) THEN " +
-						"      DELETE Employees_Shift WHERE ID = rec.ID; " +
-						"    ELSE " +
-						"      IF (rec.Location = new_location) THEN " +
-						"        dateTo := rec.dTo; " +
-						"        DELETE Employees_Shift WHERE ID = rec.ID; " +
-						"      ELSE " +
-						"        rec.dFrom := dateTo + 1; " +
-						"        INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) " +
-						"        VALUES (employeeID, rec.Location, rec.dFrom, rec.dTo ); " +
-						"      END IF; " +
-						"    END IF; " +
-						" " +
-						"  END LOOP; " +
-						" " +
-						"  INSERT INTO Employees_Shift (EmplID, Location, dFrom, dTo) " +
-						"  VALUES (employeeID, new_location, dateFrom, dateTo); " +
-						" " +
-						"end;"
+					"employeeID INT; " +
+					"dateFrom DATE; " +
+					"dateTo DATE; " +
+					"new_location INT; " +
+					"isUpdated BOOLEAN;" +
+					"  A_OLD_FROM DATE; " +
+					"  A_OLD_TO DATE; " +
+					"  A_OLD_LOC INT; " +
+					"BEGIN " +
+					"  FOR rec IN (SELECT * FROM EMPLOYEES_SHIFT sh WHERE sh.EmplID = employeeID AND  ((dFrom <= dateFrom AND dTo >= dateFrom) OR (dFrom > dateTo AND dFrom <= dateTo ))) " +
+					"  LOOP " +
+					"    IF (rec.DFROM < dateFrom) THEN " +
+					"      IF (rec.Location = new_location) THEN " +
+					"        dateFrom := rec.dFrom; " +
+					"      ELSE " +
+					"        A_OLD_FROM := rec.dFrom; " +
+					"        A_OLD_LOC := rec.Location; " +
+					"        A_OLD_TO := dateFrom -1; " +
+					" " +
+					"        UPDATE Employees_Shift " +
+					"        SET dTo = A_OLD_TO, dFrom = A_OLD_FROM, Location = A_OLD_LOC " +
+					"        WHERE ID = rec.ID; " +
+					" " +
+					"        rec.dFrom := dateFrom; " +
+					"      END IF; " +
+					"    END IF; " +
+					" " +
+					"    IF (rec.dTo <= dateTo) THEN " +
+					"      DELETE Employees_Shift WHERE ID = rec.ID; " +
+					"    ELSE " +
+					"      IF (rec.Location = new_location) THEN " +
+					"        dateTo := rec.dTo; " +
+					"        DELETE Employees_Shift WHERE ID = rec.ID; " +
+					"      ELSE " +
+					"        rec.dFrom := dateTo + 1; " +
+					"        INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) " +
+					"        VALUES (employeeID, rec.Location, rec.dFrom, rec.dTo ); " +
+					"      END IF; " +
+					"    END IF; " +
+					" " +
+					"  END LOOP; " +
+					" " +
+					"  INSERT INTO Employees_Shift (EmplID, Location, dFrom, dTo) " +
+					"  VALUES (employeeID, new_location, dateFrom, dateTo); " +
+					" " +
+					"END;"
 			);
 			initScripts.add(
 				"CREATE OR REPLACE PROCEDURE deleteEmployeeShiftTable(p_animalID IN INT, p_dateFrom IN Date, p_dateTo IN Date) IS " +
@@ -1376,41 +1381,35 @@ public class DataManager {
 		return employees;
 	}
 
-
-	public ArrayList<EmployeeModel> getEmployeesAtDate(final Date date) throws DataManagerException {
+	/**
+	 * Returns all employes which are valid in specified date
+	 * @param date
+	 * @return
+	 * @throws DataManagerException
+	 */
+	public List<EmployeeModel> getEmployeesAtDate(final Date date) throws DataManagerException {
 		final ArrayList<EmployeeModel> employees = new ArrayList<>();
-		AsyncTask asyncTask = new AsyncTask() {
-			@Override
-			protected void onDone(boolean success) {
+		String datum = new SimpleDateFormat("dd-MMM-yyyy").format(date);
+		String sqlQuery = "SELECT DISTINCT e.ID as EmployeeID, e.Name, e.Surname, s.Location, s.dFrom, s.dTo " +
+				"FROM EMPLOYEES e LEFT JOIN Employees_Shift s ON e.ID = s.EmplId " +
+				"WHERE s.dFrom <= '" + datum + "' AND s.dTo >= '" + datum + "'";
+
+		ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+		try {
+			while (resultSet.next()) {
+				Long id = resultSet.getLong("EmployeeID");
+				String name = resultSet.getString("Name");
+				String surname = resultSet.getString("Surname");
+				Long location = resultSet.getLong("Location");
+				Date dateFrom = resultSet.getDate("dFrom");
+				Date dateTo = resultSet.getDate("dTo");
+				employees.add(new EmployeeModel(id, name, surname, location, dateFrom, dateTo));
 			}
+		} catch (SQLException e) {
+			throw new DataManagerException("getAllEmployeesAtDate: SQLException: " + e.getMessage());
+		}
 
-			@Override
-			protected Boolean doInBackground() throws Exception {
-				java.sql.Date dateToShow = new java.sql.Date(date.getTime());
-				String datum = new SimpleDateFormat("dd-MMM-yyyy").format(date);
-				String sqlQuery = "SELECT DISTINCT e.ID as EmployeeID, e.Name, e.Surname, s.Location, s.dFrom, s.dTo " +
-						"FROM EMPLOYEES e LEFT JOIN Employees_Shift s ON e.ID = s.EmplId " +
-						"WHERE s.dFrom <= '" + datum + "' AND s.dTo >= '" + datum + "'";
-
-				ResultSet resultSet = createDatabaseQuery(sqlQuery);
-
-				try {
-					while (resultSet.next()) {
-						Long id = resultSet.getLong("EmployeeID");
-						String name = resultSet.getString("Name");
-						String surname = resultSet.getString("Surname");
-						Long location = resultSet.getLong("Location");
-						Date dateFrom = resultSet.getDate("dFrom");
-						Date dateTo = resultSet.getDate("dTo");
-						employees.add(new EmployeeModel(id, name, surname, location, dateFrom, dateTo));
-					}
-				} catch (SQLException e) {
-					throw new DataManagerException("getAllEmployeesAtDate: SQLException: " + e.getMessage());
-				}
-				return true;
-			}
-		};
-		asyncTask.start();
 		return employees;
 	}
 

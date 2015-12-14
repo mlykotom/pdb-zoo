@@ -13,15 +13,14 @@ import cz.vutbr.fit.pdb.ateam.model.employee.EmployeeModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.observer.ISpatialObjectSelectionChangedListener;
 import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectSelectionChangeObservable;
+import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -91,28 +90,38 @@ public class EmployeesTabController extends Controller
 	 *
 	 * @param dateToDisplay
 	 */
-	private void fillUpEmployeesTable(Date dateToDisplay) {
-		EmployeesTable table = new EmployeesTable(this);
+	private void fillUpEmployeesTable(final Date dateToDisplay) {
+		final EmployeesTable table = new EmployeesTable(this);
 		table.setColumnsWidth();
-		List<EmployeeModel> models;
 
-		models = new ArrayList<>();
-		try {
-			models = dataManager.getEmployeesAtDate(dateToDisplay);
-		} catch (DataManagerException e) {
-			Logger.createLog(Logger.ERROR_LOG, e.getMessage());
-		}
+		new AsyncTask(){
+			List<EmployeeModel> models = new ArrayList<>();
 
-		for (EmployeeModel model : models) {
-			if (selectedSpatialObject == null) {
-				table.addEmployeeModel(model);
-			} else {
-				if (selectedSpatialObject.getId() == model.getLocation())
-					table.addEmployeeModel(model);
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				try {
+					models = dataManager.getEmployeesAtDate(dateToDisplay);
+					return true;
+				} catch (DataManagerException e) {
+					Logger.createLog(Logger.ERROR_LOG, e.getMessage());
+				}
+				return false;
 			}
-		}
 
-		employeesListPanel.setEmployeesTable(table);
+			@Override
+			protected void onDone(boolean success) {
+				for (EmployeeModel model : models) {
+					if (selectedSpatialObject == null) {
+						table.addEmployeeModel(model);
+					} else {
+						if (Objects.equals(selectedSpatialObject.getId(), model.getLocation()))
+							table.addEmployeeModel(model);
+					}
+				}
+
+				employeesListPanel.setEmployeesTable(table);
+			}
+		}.start();
 	}
 
 
