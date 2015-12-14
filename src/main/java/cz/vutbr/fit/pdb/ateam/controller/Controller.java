@@ -138,8 +138,8 @@ public class Controller {
 			@Override
 			protected Boolean doInBackground() {
 				try {
-					dataManager.reloadAllSpatialObjects();
 					dataManager.reloadAllSpatialObjectTypes();
+					dataManager.reloadAllSpatialObjects();
 					return true;
 				} catch (DataManagerException e) {
 					setErrorCode(e.getErrorCode());

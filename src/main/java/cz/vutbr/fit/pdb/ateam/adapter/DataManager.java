@@ -15,13 +15,16 @@ import oracle.jdbc.pool.OracleDataSource;
 import oracle.ord.im.OrdImage;
 import oracle.spatial.geometry.JGeometry;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * Class for communicating with the database.
@@ -173,6 +176,7 @@ public class DataManager {
 						"  Name     VARCHAR(255) NOT NULL, " +
 						"  Type     INT, " +
 						"  Geometry SDO_GEOMETRY NOT NULL, " +
+						"  ZIndex INT DEFAULT 0 NULL, " +
 						" " +
 						"  PRIMARY KEY (ID), " +
 						"  FOREIGN KEY (Type) REFERENCES Spatial_Object_Types (ID) " +
@@ -315,7 +319,24 @@ public class DataManager {
 			}
 
 			initScripts.clear();
-			// TODO inserts
+			
+			ClassLoader classLoader = getClass().getClassLoader();
+			URL resourceFile = classLoader.getResource("insertData.sql");
+			if(resourceFile == null)
+				throw new DataManagerException("Cannot open resource file [initDatabase.sql]!");
+			File file = new File(resourceFile.getFile());
+
+			Scanner scanner = new Scanner(file);
+
+			while (scanner.hasNextLine()) {
+				String line = scanner.nextLine();
+				if(line.length() == 0) continue;
+				if(line.charAt(0) == '-') continue;
+				String insertSQL = line.substring(0, line.length() - 1);
+				initScripts.add(insertSQL);
+			}
+
+			scanner.close();
 
 			for (String sql : initScripts) {
 				Logger.createLog(Logger.DEBUG_LOG, "INIT SCRIPT: " + sql);
@@ -328,7 +349,7 @@ public class DataManager {
 			Logger.createLog(Logger.DEBUG_LOG, "DATABASE INITIALIZED");
 			Logger.createLog(Logger.DEBUG_LOG, "-----------------------------------------------------");
 
-		} catch (SQLException e) {
+		} catch (SQLException | IOException e) {
 			Logger.createLog(Logger.DEBUG_LOG, "DATABASE NOT INITIALIZED");
 			Logger.createLog(Logger.DEBUG_LOG, "-----------------------------------------------------");
 			try {
