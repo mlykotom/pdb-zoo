@@ -44,6 +44,24 @@ abstract public class BaseModel {
 	}
 
 	/**
+	 * Finds model by specified name
+	 *
+	 * @param name     of any model, if null -> does not even try to find
+	 * @param hayStack list of objects which inherits of BaseModel
+	 * @param <T>      any model inheriting from BaseModel
+	 * @return null if not found, otherwise found model
+	 */
+	public static <T extends BaseModel> T findByName(String name, Collection<T> hayStack) {
+		if (name == null) return null;
+
+		for (T obj : hayStack) {
+			if (name.equals(obj.getName())) return obj;
+		}
+
+		return null;
+	}
+
+	/**
 	 * Serves for manipulating with any model in DataManager
 	 *
 	 * @return SQL table name
@@ -97,7 +115,6 @@ abstract public class BaseModel {
 		return id;
 	}
 
-	// TODO shouln't be this way, because we can easily change object's primary key!
 	public void setId(Long id) {
 		this.id = id;
 	}

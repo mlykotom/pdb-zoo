@@ -11,8 +11,6 @@ import javax.swing.*;
  * To use this Async task you have to override doInBackground() void method.
  * Content of this method is executed on a separate thread. While executing
  * doInBackground method a dialog with cancel btn is shown.
- * <p/>
- * // TODO make adapter on this class so that cannot be called execute()
  *
  * @author Tomas Hanus
  * @author Tomas Mlynaric
@@ -22,6 +20,7 @@ public abstract class AsyncTask extends SwingWorker<Boolean, String> {
 	private ProgressType type;
 	private JProgressBar progressBar;
 	private int errorCode;
+
 	/**
 	 * Creates async task with dialog type
 	 */

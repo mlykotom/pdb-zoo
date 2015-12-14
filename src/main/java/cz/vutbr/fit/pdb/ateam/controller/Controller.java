@@ -85,7 +85,7 @@ public class Controller {
 						}
 					} catch (DataManagerException e) {
 						Logger.createLog(Logger.ERROR_LOG, e.getMessage());
-						// TODO how to handle exceptions?
+						showDialog(INFO_MESSAGE, "No data changed");
 					}
 				}
 
@@ -140,7 +140,6 @@ public class Controller {
 					return true;
 				} catch (DataManagerException e) {
 					setErrorCode(e.getErrorCode());
-					// TODO should check ORA-02396(max nevyuzity cas) or ORA-01012(neprihlaseno do systemu)
 					Logger.createLog(Logger.ERROR_LOG, e.getMessage());
 				}
 				return false;
@@ -149,14 +148,7 @@ public class Controller {
 			@Override
 			protected void onDone(boolean success) {
 				if (!success) {
-					int errorCode = getErrorCode();
-					if (errorCode == 2396 || errorCode == 1012) {
-						LoginForm loginForm = new LoginForm();
-						loginForm.setVisible(true);
-						appStateChangedObservable.notifyStateChanged("Could not reload data.");
-						return;
-					}
-
+					appStateChangedObservable.notifyStateChanged("Could not reload data.", true);
 					showDialog(ERROR_MESSAGE, "Can not reload data!");
 					return;
 				}

@@ -65,45 +65,6 @@ public class MultimediaPanel extends JPanel {
 				controller.mirrorImageAction();
 			}
 		});
-
-//		saveImageButton.addActionListener(new ActionListener() {
-//			@Override
-//			public void actionPerformed(ActionEvent e) {
-//				try {
-//					byte[] bytes = imagePanel.getByteArray();
-//					if (bytes == null) {
-//						// TODO open something first ERROR MESSAGE
-//						return;
-//					}
-//
-////					if (model == null) {
-////						model = new ImageModel(0, "<<new>>");
-////					}
-//
-//					model.setImageByteArray(bytes);
-//					model.setIsChanged(true);
-//					DataManager.getInstance().saveModel(model);
-//				} catch (DataManagerException e1) {
-//					Logger.createLog(Logger.ERROR_LOG, e1.getMessage());
-//				}
-//			}
-//		});
-
-//		loadButton.addActionListener(new ActionListener() {
-//			@Override
-//			public void actionPerformed(ActionEvent e) {
-//				try {
-//					if (idTextField.getText() == null) return;
-//
-//					Long id = Long.parseLong(idTextField.getText());
-//					model = DataManager.getInstance().getAnimal(id);
-//					changeImagePanelContent(model);
-//				} catch (DataManagerException e1) {
-//					Logger.createLog(Logger.ERROR_LOG, e1.getMessage());
-//				}
-//			}
-//		});
-
 		compareButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
