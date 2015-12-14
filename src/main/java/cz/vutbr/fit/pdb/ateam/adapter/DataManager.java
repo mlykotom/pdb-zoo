@@ -317,47 +317,47 @@ public class DataManager {
 			);
 			initScripts.add(
 				"CREATE OR REPLACE PROCEDURE updateEmployeeTable(employeeID IN INT, dateFrom IN Date, dateTo IN Date, new_location in INT) IS " +
-					"  A_OLD_FROM DATE; " +
-					"  A_OLD_TO DATE; " +
-					"  A_OLD_LOC INT; " +
-					"BEGIN " +
-					"  FOR rec IN (SELECT * FROM EMPLOYEES_SHIFT sh WHERE sh.EmplID = employeeID AND  ((dFrom <= dateFrom AND dTo >= dateFrom) OR (dFrom > dateTo AND dFrom <= dateTo ))) " +
-					"  LOOP " +
-					"    IF (rec.DFROM < dateFrom) THEN " +
-					"      IF (rec.Location = new_location) THEN " +
-					"        dateFrom := rec.dFrom; " +
-					"      ELSE " +
-					"        A_OLD_FROM := rec.dFrom; " +
-					"        A_OLD_LOC := rec.Location; " +
-					"        A_OLD_TO := dateFrom -1; " +
-					" " +
-					"        UPDATE Employees_Shift " +
-					"        SET dTo = A_OLD_TO, dFrom = A_OLD_FROM, Location = A_OLD_LOC " +
-					"        WHERE ID = rec.ID; " +
-					" " +
-					"        rec.dFrom := dateFrom; " +
-					"      END IF; " +
-					"    END IF; " +
-					" " +
-					"    IF (rec.dTo <= dateTo) THEN " +
-					"      DELETE Employees_Shift WHERE ID = rec.ID; " +
-					"    ELSE " +
-					"      IF (rec.Location = new_location) THEN " +
-					"        dateTo := rec.dTo; " +
-					"        DELETE Employees_Shift WHERE ID = rec.ID; " +
-					"      ELSE " +
-					"        rec.dFrom := dateTo + 1; " +
-					"        INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) " +
-					"        VALUES (employeeID, rec.Location, rec.dFrom, rec.dTo ); " +
-					"      END IF; " +
-					"    END IF; " +
-					" " +
-					"  END LOOP; " +
-					" " +
-					"  INSERT INTO Employees_Shift (EmplID, Location, dFrom, dTo) " +
-					"  VALUES (employeeID, new_location, dateFrom, dateTo); " +
-					" " +
-					"END;"
+						"  A_OLD_FROM DATE; " +
+						"  A_OLD_TO DATE; " +
+						"  A_OLD_LOC INT; " +
+						"BEGIN " +
+						"  FOR rec IN (SELECT * FROM EMPLOYEES_SHIFT sh WHERE sh.EmplID = employeeID AND  ((dFrom <= dateFrom AND dTo >= dateFrom) OR (dFrom > dateTo AND dFrom <= dateTo ))) " +
+						"  LOOP " +
+						"    IF (rec.DFROM < dateFrom) THEN " +
+						"      IF (rec.Location = new_location) THEN " +
+						"        dateFrom := rec.dFrom; " +
+						"      ELSE " +
+						"        A_OLD_FROM := rec.dFrom; " +
+						"        A_OLD_LOC := rec.Location; " +
+						"        A_OLD_TO := dateFrom -1; " +
+						" " +
+						"        UPDATE Employees_Shift " +
+						"        SET dTo = A_OLD_TO, dFrom = A_OLD_FROM, Location = A_OLD_LOC " +
+						"        WHERE ID = rec.ID; " +
+						" " +
+						"        rec.dFrom := dateFrom; " +
+						"      END IF; " +
+						"    END IF; " +
+						" " +
+						"    IF (rec.dTo <= dateTo) THEN " +
+						"      DELETE Employees_Shift WHERE ID = rec.ID; " +
+						"    ELSE " +
+						"      IF (rec.Location = new_location) THEN " +
+						"        dateTo := rec.dTo; " +
+						"        DELETE Employees_Shift WHERE ID = rec.ID; " +
+						"      ELSE " +
+						"        rec.dFrom := dateTo + 1; " +
+						"        INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) " +
+						"        VALUES (employeeID, rec.Location, rec.dFrom, rec.dTo ); " +
+						"      END IF; " +
+						"    END IF; " +
+						" " +
+						"  END LOOP; " +
+						" " +
+						"  INSERT INTO Employees_Shift (EmplID, Location, dFrom, dTo) " +
+						"  VALUES (employeeID, new_location, dateFrom, dateTo); " +
+						" " +
+						"end;"
 			);
 			initScripts.add(
 				"CREATE OR REPLACE PROCEDURE deleteEmployeeShiftTable(p_animalID IN INT, p_dateFrom IN Date, p_dateTo IN Date) IS " +

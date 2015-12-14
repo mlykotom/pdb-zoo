@@ -52,12 +52,6 @@ INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (2, 7, '01-J
 INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (3, 7, '01-Jan-2000', '01-Jan-2500');
 INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (4, 2, '01-Jan-2000', '01-Jan-2500');
 
-INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (1, 2, '01-Jan-2000', '01-Jan-2500');
-INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (2, 2, '01-Jan-1999', '01-Jan-2014');
-INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (2, 7, '01-Jan-2014', '01-Jan-2500');
-INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (3, 7, '01-Jan-2000', '01-Jan-2500');
-INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (4, 2, '01-Jan-2000', '01-Jan-2500');
-
 INSERT INTO Animals (Name, Species) VALUES ('Tomas', 'Horse');
 INSERT INTO Animals (Name, Species) VALUES ('Gizela', 'Gazelle');
 INSERT INTO Animals (Name, Species) VALUES ('Jasmine', 'Goat');
