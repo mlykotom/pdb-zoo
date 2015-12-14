@@ -38,7 +38,9 @@ public class ContentPanel extends JPanel {
 		mapTabbedPane.addTab("ZOO map", mapPanelContent);
 		// detail tabs
 
-		detailTabbedPane.addTab("Objects", spatialObjectsTab);
+		JScrollPane spatialScollPane = new JScrollPane(spatialObjectsTab);
+		spatialScollPane.getVerticalScrollBar().setUnitIncrement(16);
+		detailTabbedPane.add(spatialScollPane, "Objects");
 
 		JScrollPane animalScrolPane = new JScrollPane(animalsTab);
 		animalScrolPane.getVerticalScrollBar().setUnitIncrement(16);
@@ -71,11 +73,8 @@ public class ContentPanel extends JPanel {
 		mapTabbedPane = new JTabbedPane();
 		mapTabbedPane.setTabPlacement(1);
 		rootPanel.add(mapTabbedPane, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-		final JScrollPane scrollPane1 = new JScrollPane();
-		scrollPane1.setVerticalScrollBarPolicy(20);
-		rootPanel.add(scrollPane1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(-1, 500), null, 0, false));
 		detailTabbedPane = new JTabbedPane();
-		scrollPane1.setViewportView(detailTabbedPane);
+		rootPanel.add(detailTabbedPane, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 	}
 
 	/**
