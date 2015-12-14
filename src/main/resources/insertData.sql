@@ -44,7 +44,7 @@ INSERT INTO Employees (Name, Surname) VALUES ('John', 'McClane');
 
 INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (1, 10, TO_DATE('01-01-2000', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
 INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (2, 10, TO_DATE('01-01-1999', 'dd-mm-yyyy'), TO_DATE('01-01-2014', 'dd-mm-yyyy'));
-INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (2, 4, TO_DATE('01-01-2014', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
+INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (2, 4, TO_DATE('02-01-2014', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
 INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (3, 9, TO_DATE('01-01-2000', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
 INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (4, 9, TO_DATE('01-01-2000', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
 
@@ -58,7 +58,7 @@ INSERT INTO Animals (Name, Species) VALUES ('Donald', 'Duck');
 
 INSERT INTO Animals_Records ( AnimalId, Location, Weight, dFrom, dTo ) VALUES (1, 15, 150.35, TO_DATE('01-01-2000', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
 INSERT INTO Animals_Records ( AnimalId, Location, Weight, dFrom, dTo ) VALUES (2, 10, 200.45, TO_DATE('01-01-1999', 'dd-mm-yyyy'), TO_DATE('01-01-2014', 'dd-mm-yyyy'));
-INSERT INTO Animals_Records ( AnimalId, Location, Weight, dFrom, dTo ) VALUES (2, 10, 195.45, TO_DATE('01-01-2014', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
+INSERT INTO Animals_Records ( AnimalId, Location, Weight, dFrom, dTo ) VALUES (2, 10, 195.45, TO_DATE('02-01-2014', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
 INSERT INTO Animals_Records ( AnimalId, Location, Weight, dFrom, dTo ) VALUES (3, 10, 60.45, TO_DATE('01-01-2000', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
 INSERT INTO Animals_Records ( AnimalId, Location, Weight, dFrom, dTo ) VALUES (4, 4, 650.45, TO_DATE('01-01-2000', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
 INSERT INTO Animals_Records ( AnimalId, Location, Weight, dFrom, dTo ) VALUES (5, 4, 250.49, TO_DATE('01-01-2000', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
