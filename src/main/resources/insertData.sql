@@ -35,18 +35,18 @@ INSERT INTO SPATIAL_OBJECTS (NAME, TYPE, GEOMETRY, ZINDEX) VALUES ('Palm tree', 
 INSERT INTO SPATIAL_OBJECTS (NAME, TYPE, GEOMETRY, ZINDEX) VALUES ('Entrance main parking', 3, SDO_GEOMETRY(2003,null,null,SDO_ELEM_INFO_ARRAY(1,1003,4),SDO_ORDINATE_ARRAY(421.132745950422,156.132745950422,390.867254049578,156.132745950422,406,119.599065440967)), '1');
 INSERT INTO SPATIAL_OBJECTS (NAME, TYPE, GEOMETRY, ZINDEX) VALUES ('Path from entrance', 7, SDO_GEOMETRY(2002,null,null,SDO_ELEM_INFO_ARRAY(1,2,1),SDO_ORDINATE_ARRAY(384,153,303,193)), '0');
 
-
 INSERT INTO Employees (Name, Surname) VALUES ('Jack', 'Daniels');
 INSERT INTO Employees (Name, Surname) VALUES ('Jarko', 'Mustafa');
 INSERT INTO Employees (Name, Surname) VALUES ('Pa', 'Pi');
 INSERT INTO Employees (Name, Surname) VALUES ('Radost', 'Zit');
 INSERT INTO Employees (Name, Surname) VALUES ('John', 'McClane');
 
-INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (1, 2, TO_DATE('01-01-2000', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
-INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (2, 2, TO_DATE('01-01-1999', 'dd-mm-yyyy'), TO_DATE('01-01-2014', 'dd-mm-yyyy'));
-INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (2, 7, TO_DATE('01-01-2014', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
-INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (3, 7, TO_DATE('01-01-2000', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
-INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (4, 2, TO_DATE('01-01-2000', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
+
+INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (1, 10, TO_DATE('01-01-2000', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
+INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (2, 10, TO_DATE('01-01-1999', 'dd-mm-yyyy'), TO_DATE('01-01-2014', 'dd-mm-yyyy'));
+INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (2, 4, TO_DATE('01-01-2014', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
+INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (3, 9, TO_DATE('01-01-2000', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
+INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) VALUES (4, 9, TO_DATE('01-01-2000', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
 
 INSERT INTO Animals (Name, Species) VALUES ('Tomas', 'Horse');
 INSERT INTO Animals (Name, Species) VALUES ('Gizela', 'Goat');
@@ -56,11 +56,11 @@ INSERT INTO Animals (Name, Species) VALUES ('Bubu', 'Bear');
 INSERT INTO Animals (Name, Species) VALUES ('Tweety', 'Bird');
 INSERT INTO Animals (Name, Species) VALUES ('Donald', 'Duck');
 
-INSERT INTO Animals_Records ( AnimalId, Location, Weight, dFrom, dTo ) VALUES (1, 2, 150.35, TO_DATE('01-01-2000', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
+INSERT INTO Animals_Records ( AnimalId, Location, Weight, dFrom, dTo ) VALUES (1, 15, 150.35, TO_DATE('01-01-2000', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
 INSERT INTO Animals_Records ( AnimalId, Location, Weight, dFrom, dTo ) VALUES (2, 10, 200.45, TO_DATE('01-01-1999', 'dd-mm-yyyy'), TO_DATE('01-01-2014', 'dd-mm-yyyy'));
-INSERT INTO Animals_Records ( AnimalId, Location, Weight, dFrom, dTo ) VALUES (2, 7, 195.45, TO_DATE('01-01-2014', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
+INSERT INTO Animals_Records ( AnimalId, Location, Weight, dFrom, dTo ) VALUES (2, 10, 195.45, TO_DATE('01-01-2014', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
 INSERT INTO Animals_Records ( AnimalId, Location, Weight, dFrom, dTo ) VALUES (3, 10, 60.45, TO_DATE('01-01-2000', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
 INSERT INTO Animals_Records ( AnimalId, Location, Weight, dFrom, dTo ) VALUES (4, 4, 650.45, TO_DATE('01-01-2000', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
 INSERT INTO Animals_Records ( AnimalId, Location, Weight, dFrom, dTo ) VALUES (5, 4, 250.49, TO_DATE('01-01-2000', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
-INSERT INTO Animals_Records ( AnimalId, Location, Weight, dFrom, dTo ) VALUES (6, 2, 1.32, TO_DATE('01-01-2000', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
-INSERT INTO Animals_Records ( AnimalId, Location, Weight, dFrom, dTo ) VALUES (7, 2, 6.5, TO_DATE('01-01-2000', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
+INSERT INTO Animals_Records ( AnimalId, Location, Weight, dFrom, dTo ) VALUES (6, 9, 1.32, TO_DATE('01-01-2000', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
+INSERT INTO Animals_Records ( AnimalId, Location, Weight, dFrom, dTo ) VALUES (7, 9, 6.5, TO_DATE('01-01-2000', 'dd-mm-yyyy'), TO_DATE('01-01-2500', 'dd-mm-yyyy'));
