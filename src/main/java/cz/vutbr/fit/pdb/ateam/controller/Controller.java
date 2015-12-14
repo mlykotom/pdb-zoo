@@ -7,10 +7,7 @@ import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import cz.vutbr.fit.pdb.ateam.model.employee.EmployeeModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectModel;
 import cz.vutbr.fit.pdb.ateam.model.spatial.SpatialObjectTypeModel;
-import cz.vutbr.fit.pdb.ateam.observer.AppStateChangedObservable;
-import cz.vutbr.fit.pdb.ateam.observer.IModelChangedStateListener;
-import cz.vutbr.fit.pdb.ateam.observer.ModelChangedStateObservable;
-import cz.vutbr.fit.pdb.ateam.observer.SpatialObjectsReloadObservable;
+import cz.vutbr.fit.pdb.ateam.observer.*;
 import cz.vutbr.fit.pdb.ateam.tasks.AsyncTask;
 import cz.vutbr.fit.pdb.ateam.utils.Logger;
 
@@ -55,6 +52,7 @@ public class Controller {
 	public void reloadAllData() {
 		reloadSpatialObjects();
 		reloadEmployees();
+		SpatialObjectSelectionChangeObservable.getInstance().notifyObservers(null);
 	}
 
 	/**

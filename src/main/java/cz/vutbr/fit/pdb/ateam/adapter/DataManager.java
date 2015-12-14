@@ -20,11 +20,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.Date;
-import java.util.List;
-import java.util.Scanner;
 
 /**
  * Class for communicating with the database.
@@ -163,154 +160,160 @@ public class DataManager {
 			initScripts.clear();
 
 			initScripts.add(
-				"CREATE TABLE Spatial_Object_Types ( " +
-						"  ID    INT                       NOT NULL, " +
-						"  Name  VARCHAR(255)              NOT NULL, " +
-						"  Color VARCHAR(6) DEFAULT 000000 NOT NULL, " +
-						"  PRIMARY KEY (ID) " +
-						")"
+					"CREATE TABLE Spatial_Object_Types ( " +
+							"  ID    INT                       NOT NULL, " +
+							"  Name  VARCHAR(255)              NOT NULL, " +
+							"  Color VARCHAR(6) DEFAULT 000000 NOT NULL, " +
+							"  PRIMARY KEY (ID) " +
+							")"
 			);
 			initScripts.add(
-				"CREATE TABLE Spatial_Objects ( " +
-						"  ID       INT          NOT NULL, " +
-						"  Name     VARCHAR(255) NOT NULL, " +
-						"  Type     INT, " +
-						"  Geometry SDO_GEOMETRY NOT NULL, " +
-						"  ZIndex INT DEFAULT 0 NULL, " +
-						" " +
-						"  PRIMARY KEY (ID), " +
-						"  FOREIGN KEY (Type) REFERENCES Spatial_Object_Types (ID) " +
-						")"
+					"CREATE TABLE Spatial_Objects ( " +
+							"  ID       INT          NOT NULL, " +
+							"  Name     VARCHAR(255) NOT NULL, " +
+							"  Type     INT, " +
+							"  Geometry SDO_GEOMETRY NOT NULL, " +
+							"  ZIndex INT DEFAULT 0 NULL, " +
+							" " +
+							"  PRIMARY KEY (ID), " +
+							"  FOREIGN KEY (Type) REFERENCES Spatial_Object_Types (ID) ON DELETE SET NULL " +
+							")"
 			);
 			initScripts.add(
-				"INSERT INTO USER_SDO_GEOM_METADATA VALUES ( " +
-						"  'SPATIAL_OBJECTS', " +
-						"  'GEOMETRY', " +
-						"  SDO_DIM_ARRAY(SDO_DIM_ELEMENT('X', 0, 640, 1), SDO_DIM_ELEMENT('Y', 0, 480, 1)), " +
-						"  NULL " +
-						")"
+					"INSERT INTO USER_SDO_GEOM_METADATA VALUES ( " +
+							"  'SPATIAL_OBJECTS', " +
+							"  'GEOMETRY', " +
+							"  SDO_DIM_ARRAY(SDO_DIM_ELEMENT('X', 0, 640, 1), SDO_DIM_ELEMENT('Y', 0, 480, 1)), " +
+							"  NULL " +
+							")"
 			);
 			initScripts.add(
-				"CREATE INDEX SPATIAL_OBJECTS_INDEX ON SPATIAL_OBJECTS(GEOMETRY) INDEXTYPE IS MDSYS.SPATIAL_INDEX"
+					"CREATE INDEX SPATIAL_OBJECTS_INDEX ON SPATIAL_OBJECTS(GEOMETRY) INDEXTYPE IS MDSYS.SPATIAL_INDEX"
 			);
 			initScripts.add(
-				"CREATE SEQUENCE Spatial_Object_Types_seq"
+					"CREATE SEQUENCE Spatial_Object_Types_seq"
 			);
 			initScripts.add(
-				"CREATE OR REPLACE TRIGGER Spatial_Object_Types_bir " +
-						"BEFORE INSERT ON Spatial_Object_Types " +
-						"FOR EACH ROW " +
-						"  BEGIN " +
-						"    SELECT Spatial_Object_Types_seq.NEXTVAL " +
-						"    INTO :new.id " +
-						"    FROM dual; " +
-						"  END;"
+					"CREATE OR REPLACE TRIGGER Spatial_Object_Types_bir " +
+							"BEFORE INSERT ON Spatial_Object_Types " +
+							"FOR EACH ROW " +
+							"  BEGIN " +
+							"    SELECT Spatial_Object_Types_seq.NEXTVAL " +
+							"    INTO :new.id " +
+							"    FROM dual; " +
+							"  END;"
 			);
 			initScripts.add(
-				"CREATE SEQUENCE Spatial_Objects_seq"
+					"CREATE SEQUENCE Spatial_Objects_seq"
 			);
 			initScripts.add(
-				"CREATE OR REPLACE TRIGGER Spatial_Objects_bir " +
-						"BEFORE INSERT ON Spatial_Objects " +
-						"FOR EACH ROW " +
-						"  BEGIN " +
-						"    SELECT Spatial_Objects_seq.NEXTVAL " +
-						"    INTO :new.id " +
-						"    FROM dual; " +
-						"  END;"
+					"CREATE OR REPLACE TRIGGER Spatial_Objects_bir " +
+							"BEFORE INSERT ON Spatial_Objects " +
+							"FOR EACH ROW " +
+							"  BEGIN " +
+							"    SELECT Spatial_Objects_seq.NEXTVAL " +
+							"    INTO :new.id " +
+							"    FROM dual; " +
+							"  END;"
 			);
 			initScripts.add(
-				"CREATE TABLE Employees ( " +
-						"  ID INT NOT NULL, " +
-						"  Name VARCHAR(255) NOT NULL, " +
-						"  Surname VARCHAR (255) NOT NULL, " +
-						"  PRIMARY KEY (ID) " +
-						")"
+					"CREATE TABLE Employees ( " +
+							"  ID INT NOT NULL, " +
+							"  Name VARCHAR(255) NOT NULL, " +
+							"  Surname VARCHAR (255) NOT NULL, " +
+							"  PRIMARY KEY (ID) " +
+							")"
 			);
 			initScripts.add(
-				"CREATE TABLE Animals ( " +
-						"  ID INT NOT NULL, " +
-						"  Name VARCHAR(255) NOT NULL, " +
-						"  Species VARCHAR (255) NOT NULL, " +
-						"  PRIMARY KEY (ID) " +
-						")"
+					"CREATE TABLE Animals ( " +
+							"  ID INT NOT NULL, " +
+							"  Name VARCHAR(255) NOT NULL, " +
+							"  Species VARCHAR (255) NOT NULL, " +
+							"  PHOTO ORDSYS.ORDIMAGE, " +
+							"  PHOTO_SI ORDSYS.SI_STILLIMAGE, " +
+							"  PHOTO_AC ORDSYS.SI_AVERAGECOLOR, " +
+							"  PHOTO_CH ORDSYS.SI_COLORHISTOGRAM, " +
+							"  PHOTO_PC ORDSYS.SI_POSITIONALCOLOR, " +
+							"  PHOTO_TX ORDSYS.SI_TEXTURE, " +
+							"  PRIMARY KEY (ID) " +
+							")"
 			);
 			initScripts.add(
-				"CREATE TABLE Employees_Shift ( " +
-						"  ID INT NOT NULL, " +
-						"  EmplID INT NOT NULL, " +
-						"  Location INT, " +
-						"  dFrom DATE NOT NULL, " +
-						"  dTo DATE NOT NULL, " +
-						"  PRIMARY KEY (ID), " +
-						"  FOREIGN KEY (Location) REFERENCES Spatial_Objects (ID), " +
-						"  FOREIGN KEY (EmplID) REFERENCES Employees (ID) " +
-						")"
+					"CREATE TABLE Employees_Shift ( " +
+							"  ID INT NOT NULL, " +
+							"  EmplID INT NOT NULL, " +
+							"  Location INT, " +
+							"  dFrom DATE NOT NULL, " +
+							"  dTo DATE NOT NULL, " +
+							"  PRIMARY KEY (ID), " +
+							"  FOREIGN KEY (Location) REFERENCES Spatial_Objects (ID), " +
+							"  FOREIGN KEY (EmplID) REFERENCES Employees (ID) " +
+							")"
 			);
 			initScripts.add(
-				"CREATE TABLE Animals_Records ( " +
-						"  ID INT NOT NULL, " +
-						"  AnimalID INT NOT NULL, " +
-						"  Location INT, " +
-						"  Weight NUMBER, " +
-						"  dFrom DATE NOT NULL, " +
-						"  dTo DATE NOT NULL, " +
-						"  PRIMARY KEY (ID), " +
-						"  FOREIGN KEY (Location) REFERENCES Spatial_Objects (ID), " +
-						"  FOREIGN KEY (AnimalID) REFERENCES Animals (ID) " +
-						")"
+					"CREATE TABLE Animals_Records ( " +
+							"  ID INT NOT NULL, " +
+							"  AnimalID INT NOT NULL, " +
+							"  Location INT, " +
+							"  Weight NUMBER, " +
+							"  dFrom DATE NOT NULL, " +
+							"  dTo DATE NOT NULL, " +
+							"  PRIMARY KEY (ID), " +
+							"  FOREIGN KEY (Location) REFERENCES Spatial_Objects (ID), " +
+							"  FOREIGN KEY (AnimalID) REFERENCES Animals (ID) " +
+							")"
 			);
 			initScripts.add(
-				"CREATE SEQUENCE Employees_seq"
+					"CREATE SEQUENCE Employees_seq"
 			);
 			initScripts.add(
-				"CREATE OR REPLACE TRIGGER Employees_bir " +
-					"BEFORE INSERT ON Employees " +
-					"FOR EACH ROW " +
-					"  BEGIN " +
-					"    SELECT Employees_seq.NEXTVAL " +
-					"    INTO :new.id " +
-					"    FROM dual; " +
-					"  END;"
+					"CREATE OR REPLACE TRIGGER Employees_bir " +
+							"BEFORE INSERT ON Employees " +
+							"FOR EACH ROW " +
+							"  BEGIN " +
+							"    SELECT Employees_seq.NEXTVAL " +
+							"    INTO :new.id " +
+							"    FROM dual; " +
+							"  END;"
 			);
 			initScripts.add(
-				"CREATE SEQUENCE Employees_Shift_seq"
+					"CREATE SEQUENCE Employees_Shift_seq"
 			);
 			initScripts.add(
 					"CREATE OR REPLACE TRIGGER Employees_Shift_bir " +
-					"BEFORE INSERT ON Employees_Shift " +
-					"FOR EACH ROW " +
-					"  BEGIN " +
-					"    SELECT Employees_Shift_seq.NEXTVAL " +
-					"    INTO :new.id " +
-					"    FROM dual; " +
-					"  END;"
+							"BEFORE INSERT ON Employees_Shift " +
+							"FOR EACH ROW " +
+							"  BEGIN " +
+							"    SELECT Employees_Shift_seq.NEXTVAL " +
+							"    INTO :new.id " +
+							"    FROM dual; " +
+							"  END;"
 			);
 			initScripts.add(
-				"CREATE SEQUENCE Animals_seq"
+					"CREATE SEQUENCE Animals_seq"
 			);
 			initScripts.add(
 					"CREATE OR REPLACE TRIGGER Animals_bir " +
-					"BEFORE INSERT ON Animals " +
-					"FOR EACH ROW " +
-					"  BEGIN " +
-					"    SELECT Animals_seq.NEXTVAL " +
-					"    INTO :new.id " +
-					"    FROM dual; " +
-					"  END;"
+							"BEFORE INSERT ON Animals " +
+							"FOR EACH ROW " +
+							"  BEGIN " +
+							"    SELECT Animals_seq.NEXTVAL " +
+							"    INTO :new.id " +
+							"    FROM dual; " +
+							"  END;"
 			);
 			initScripts.add(
-				"CREATE SEQUENCE Animals_Records_seq"
+					"CREATE SEQUENCE Animals_Records_seq"
 			);
 			initScripts.add(
 					"CREATE OR REPLACE TRIGGER Animals_Records_bir " +
-					"BEFORE INSERT ON Animals_Records " +
-					"FOR EACH ROW " +
-					"  BEGIN " +
-					"    SELECT Animals_Records_seq.NEXTVAL " +
-					"    INTO :new.id " +
-					"    FROM dual; " +
-					"  END;"
+							"BEFORE INSERT ON Animals_Records " +
+							"FOR EACH ROW " +
+							"  BEGIN " +
+							"    SELECT Animals_Records_seq.NEXTVAL " +
+							"    INTO :new.id " +
+							"    FROM dual; " +
+							"  END;"
 			);
 
 			for (String sql : initScripts) {
@@ -319,10 +322,10 @@ public class DataManager {
 			}
 
 			initScripts.clear();
-			
+
 			ClassLoader classLoader = getClass().getClassLoader();
 			URL resourceFile = classLoader.getResource("insertData.sql");
-			if(resourceFile == null)
+			if (resourceFile == null)
 				throw new DataManagerException("Cannot open resource file [initDatabase.sql]!");
 			File file = new File(resourceFile.getFile());
 
@@ -330,8 +333,8 @@ public class DataManager {
 
 			while (scanner.hasNextLine()) {
 				String line = scanner.nextLine();
-				if(line.length() == 0) continue;
-				if(line.charAt(0) == '-') continue;
+				if (line.length() == 0) continue;
+				if (line.charAt(0) == '-') continue;
 				String insertSQL = line.substring(0, line.length() - 1);
 				initScripts.add(insertSQL);
 			}
@@ -528,6 +531,7 @@ public class DataManager {
 
 	/**
 	 * Saves employee model to DB
+	 *
 	 * @param employee model which will be inserted or updated
 	 * @return success
 	 */

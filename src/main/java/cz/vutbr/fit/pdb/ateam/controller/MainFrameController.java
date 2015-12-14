@@ -64,7 +64,7 @@ public class MainFrameController extends Controller {
 		AsyncTask task = new AsyncTask() {
 			@Override
 			protected void onDone(boolean success) {
-				//reloadAllData();
+				reloadAllData();
 			}
 
 			@Override
