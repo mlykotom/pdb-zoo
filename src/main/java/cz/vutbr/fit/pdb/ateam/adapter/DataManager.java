@@ -855,6 +855,12 @@ public class DataManager {
 	// ------------- METHODS FOR SPATIAL OBJECTS
 	// -----------------------------------------
 
+	/**
+	 * Mirrors animal's image.
+	 *
+	 * @param model model of the animal
+	 * @throws DataManagerException when some sql error occurs
+	 */
 	public synchronized void mirrorImage(AnimalModel model) throws DataManagerException {
 
 		String mirrorSQL = ""
@@ -876,6 +882,13 @@ public class DataManager {
 		saveAnimal(model);
 	}
 
+	/**
+	 * Returns array of the threee the most similar animals
+	 *
+	 * @param sourceModel
+	 * @return
+	 * @throws DataManagerException when some sql error occurs
+	 */
 	public synchronized ArrayList<AnimalModel> getThreeSimilarImages(AnimalModel sourceModel) throws DataManagerException {
 		ArrayList<AnimalModel> modelsList = new ArrayList<>();
 
@@ -905,6 +918,13 @@ public class DataManager {
 		return modelsList;
 	}
 
+	/**
+	 * Returns specified animal from the database
+	 *
+	 * @param id
+	 * @return
+	 * @throws DataManagerException when animal is not found
+	 */
 	public synchronized AnimalModel getAnimal(Long id) throws DataManagerException {
 		try {
 			Statement stmt = connection.createStatement();
@@ -934,7 +954,9 @@ public class DataManager {
 	}
 
 	/**
-	 * TODO
+	 * Saves model of the animal into the database.
+	 *
+	 * @param model model of the animal
 	 */
 	public synchronized boolean saveAnimal(AnimalModel model) throws DataManagerException {
 		try {
@@ -962,6 +984,7 @@ public class DataManager {
 			}
 
 			Statement stmt = connection.createStatement();
+			OrdImage image = null;
 
 			String selectSQL = ""
 					+ "SELECT photo "
@@ -974,7 +997,7 @@ public class DataManager {
 			if (!rset.next()) {
 				throw new DataManagerException("Object with id=[" + model.getId() + "] not found!");
 			}
-			OrdImage image = (OrdImage) rset.getORAData("photo", OrdImage.getORADataFactory());
+			image = (OrdImage) rset.getORAData("photo", OrdImage.getORADataFactory());
 			rset.close();
 			stmt.close();
 
@@ -987,12 +1010,15 @@ public class DataManager {
 
 			String updateSQL = "";
 			updateSQL += "UPDATE " + model.getTableName() + " ";
-			updateSQL += "SET name = ?, Species = ?, photo = ? ";
+			if(model.getImage() != null)
+				updateSQL += "SET name = ?, Species = ?, photo = ? ";
+			else
+				updateSQL += "SET name = ?, Species = ? ";
 			updateSQL += "WHERE id=" + model.getId();
 			OraclePreparedStatement preparedStmt = (OraclePreparedStatement) connection.prepareStatement(updateSQL);
 			preparedStmt.setString(1, model.getName());
 			preparedStmt.setString(2, model.getSpecies());
-			preparedStmt.setORAData(3, model.getImage());
+			if(model.getImage() != null) preparedStmt.setORAData(3, model.getImage());
 			Logger.createLog(Logger.DEBUG_LOG, "SENDING QUERY: " + updateSQL + " | photo=" + (image == null ? null : image.toString()));
 			preparedStmt.executeUpdate();
 			preparedStmt.close();
@@ -1419,6 +1445,7 @@ public class DataManager {
 				"FROM EMPLOYEES e LEFT JOIN Employees_Shift s ON e.ID = s.EmplId " +
 				"WHERE s.dFrom <= '" + datum + "' AND s.dTo >= '" + datum + "'";
 
+		System.out.println(sqlQuery);
 		ResultSet resultSet = createDatabaseQuery(sqlQuery);
 
 		try {

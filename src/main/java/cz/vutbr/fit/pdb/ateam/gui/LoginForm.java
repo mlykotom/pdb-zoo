@@ -44,14 +44,11 @@ public class LoginForm extends JFrame {
 	 * Initialization of the LoginForm content.
 	 */
 	public void initUI() {
-		///*
-		userNameTextField.setText("XTUTKO00"); // TODO: remove later
-		passwordPasswordField.setText("0ylw99tk"); // TODO: remove later
-		//*/
-		/*
 		userNameTextField.setText("XMLYNA06"); // TODO: remove later
 		passwordPasswordField.setText("yev4ylx2"); // TODO: remove later
-		*/
+
+		userNameTextField.setText("XTUTKO00"); // TODO: remove later
+		passwordPasswordField.setText("0ylw99tk"); // TODO: remove later
 
 		loginButton.addActionListener(new ActionListener() {
 			@Override
