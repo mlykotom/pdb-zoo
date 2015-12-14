@@ -1,0 +1,245 @@
+-- ----------------------------------
+-- SELECT 1 TABLE 
+-- ----------------------------------
+
+-- Vyber vsetky sluzby zamestnancov v danom datume
+
+----------------
+-- TSQL
+
+VALIDTIME period[2000/01/1-2000/01/2) select em.id as EmployeeID, em.name, em.surname, em.location from employees em;
+
+-- PURE SQL
+
+SELECT DISTINCT e.ID as EmployeeID, e.Name, e.Surname, s.Location, s.dFrom, s.dTo
+FROM EMPLOYEES e LEFT JOIN Employees_Shift s ON e.ID = s.EmplId
+WHERE s.dFrom <= '05-May-2005' AND s.dTo >= '05-May-2005';
+
+-----------------
+-- APPLICATION
+
+String simpleDate = new SimpleDateFormat("dd-MMM-yyyy").format(date);
+String sqlQuery = "SELECT DISTINCT e.ID as EmployeeID, e.Name, e.Surname, s.Location, s.dFrom, s.dTo " +
+  "FROM EMPLOYEES e LEFT JOIN Employees_Shift s ON e.ID = s.EmplId " +
+  "WHERE s.dFrom <= '" + simpleDate + "' AND s.dTo >= '" + simpleDate + "'";
+
+ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+-----------------------------------------------------------------
+----------------------------------------------------------------------
+
+-- ----------------------------------
+-- SELECT - 2 TABLES
+-- ----------------------------------
+
+-- Vyber vsetky sluzby zamestnancov pri ktorych sa starali o dane zviera
+
+----------------
+-- TSQL
+
+VALIDTIME SELECT em.id, em.name, an.name, an.species FROM employees em, animals an WHERE em.location = an.location AND an.id = 1;
+
+-- PURE SQL
+
+SELECT empl.id, empl.name, empl.Surname, es.Location, GREATEST(es.dFrom, ar.dFrom) as dateFrom, LEAST(es.dTo,ar.dTo) as dateTo 
+FROM Employees empl 
+  JOIN Employees_Shift es on empl.ID = es.EmplID 
+  JOIN Animals_Records ar on es.Location = ar.Location
+  JOIN Animals an on an.ID = ar.AnimalID
+WHERE es.dFrom <= ar.dTo AND es.dTo >= ar.dFrom and an.ID = 1;
+
+-----------------
+-- APPLICATION
+
+String sqlQuery = "SELECT empl.id, empl.name, empl.Surname, es.Location, GREATEST(es.dFrom, ar.dFrom) as dateFrom, LEAST(es.dTo,ar.dTo) as dateTo FROM Employees empl " +
+  "JOIN Employees_Shift es on empl.ID = es.EmplID " +
+  "JOIN Animals_Records ar on es.Location = ar.Location " +
+  "JOIN Animals an on an.ID = ar.AnimalID " +
+  "WHERE es.dFrom <= ar.dTo AND es.dTo >= ar.dFrom and an.ID = " + animalModel.getId();
+
+ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+-- ----------------------------------
+-- SELECT - 2 TABLES 
+-- ----------------------------------
+
+-- Vyber vahu najtazsieho zvierata pri ktorom mal dany zamestnanec sluzbu
+
+----------------
+-- TSQL
+
+NONSEQUENCED VALIDTIME SELECT MAX(weight) FROM ( VALIDTIME SELECT an.weight as weight FROM employees em, animals an WHERE em.location = an.location AND em.id = 1) as weights;
+
+-- PURE SQL
+
+SELECT MAX(weight) as Weight FROM (SELECT ar.Weight as weight 
+FROM Employees empl 
+  JOIN Employees_Shift es on empl.ID = es.EmplID
+  JOIN Animals_Records ar on es.Location = ar.Location
+WHERE es.dFrom <= ar.dTo AND es.dTo >= ar.dFrom AND empl.id = 1);
+
+-----------------
+-- APPLICATION
+
+String sqlQuery = "SELECT MAX(weight) as Weight FROM (SELECT ar.Weight as weight FROM Employees empl JOIN Employees_Shift es on empl.ID = es.EmplID " +
+  "JOIN Animals_Records ar on es.Location = ar.Location " +
+  "WHERE es.dFrom <= ar.dTo AND es.dTo >= ar.dFrom AND empl.id = " + employeeModel.getId() + ") ";
+
+ResultSet resultSet = createDatabaseQuery(sqlQuery);
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+-- ----------------------------------
+-- UPDATE 1 TABLE 
+-- ----------------------------------
+
+-- Uprav zamesnancovi lokaciu v danom case
+
+----------------
+-- TSQL
+
+VALIDTIME PERIOD [2001/10/10-2002/01/1) UPDATE Employees SET location = 2 WHERE (ID = 1);
+
+-- PURE SQL
+
+CREATE OR REPLACE PROCEDURE updateEmployeeTable(p_employeeID IN INT, p_dateFrom IN DATE, p_dateTo IN DATE, p_new_location IN INT) IS
+  employeeID INT;
+  dateFrom DATE;
+  dateTo DATE;
+  new_location INT;
+  isUpdated BOOLEAN;
+  A_OLD_FROM DATE;
+  A_OLD_TO DATE;
+  A_OLD_LOC INT;
+BEGIN
+  employeeID := p_employeeID;
+  dateFrom := p_dateFrom;
+  dateTo := p_dateTo;
+  new_location := p_new_location;
+  FOR rec IN (SELECT * FROM EMPLOYEES_SHIFT sh
+              WHERE sh.EmplID = employeeID AND (dFrom <= dateTo AND dTo >= dateFrom)
+              ORDER BY sh.dFrom) 
+  LOOP 
+    isUpdated := FALSE;
+    IF (rec.DFROM < dateFrom) THEN
+      IF (rec.Location = new_location) THEN 
+        dateFrom := rec.dFrom;
+      ELSE 
+        A_OLD_FROM := rec.dFrom;
+        A_OLD_LOC := rec.Location;
+        A_OLD_TO := dateFrom - 1;
+        
+        UPDATE Employees_Shift
+        SET dTo = A_OLD_TO, dFrom = A_OLD_FROM, Location = A_OLD_LOC
+        WHERE ID = rec.ID;
+
+        rec.dFrom := dateFrom;
+        isUpdated := TRUE; 
+      END IF;
+    END IF;
+
+    IF (rec.dTo <= dateTo) THEN
+      IF (isUpdated = FALSE) THEN
+        DELETE Employees_Shift
+        WHERE ID = rec.ID; END IF;
+      ELSE IF (rec.Location = new_location) THEN
+        dateTo := rec.dTo;
+        DELETE Employees_Shift
+        WHERE ID = rec.ID;
+      ELSE IF (isUpdated = FALSE) THEN
+        DELETE Employees_Shift
+        WHERE ID = rec.ID;
+      END IF;
+      
+      rec.dFrom := dateTo + 1;
+      
+      INSERT INTO Employees_Shift (EmplId, Location, dFrom, dTo)
+      VALUES (employeeID, rec.Location, rec.dFrom, rec.dTo); END IF; END IF;
+  END LOOP;
+  INSERT INTO Employees_Shift (EmplID, Location, dFrom, dTo) VALUES (employeeID, new_location, dateFrom, dateTo);
+END;
+
+-----------------
+-- APPLICATION
+
+java.sql.Date dateFrom = new java.sql.Date(arDateFrom.getTime());
+java.sql.Date dateTo = new java.sql.Date(arDateTo.getTime());
+
+CallableStatement cstmt = connection.prepareCall("BEGIN updateEmployeeTable(?, ?, ?, ?); END;");
+cstmt.setLong(1, employeeID);
+cstmt.setDate(2, dateFrom);
+cstmt.setDate(3, dateTo);
+cstmt.setLong(4, location);
+
+cstmt.execute();
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+-- ----------------------------------
+-- DELETE 1 TABLE 
+-- ----------------------------------
+
+-- Vymaze zaznamy daneho zamestnanca v danom case
+
+----------------
+-- TSQL
+
+VALIDTIME PERIOD [2001/10/10-2002/01/1) DELETE FROM Employees WHERE (ID = 1);
+
+-- PURE SQL
+
+CREATE OR REPLACE PROCEDURE deleteEmployeeShiftTable(p_employeeID IN INT, p_dateFrom IN DATE, p_dateTo IN DATE) IS
+  employeeID INT;
+  dateFrom DATE;
+  dateTo DATE;
+  isUpdated BOOLEAN;
+BEGIN 
+  employeeID := p_employeeID;
+  dateFrom := p_dateFrom;
+  dateTo := p_dateTo;
+  FOR rec IN (SELECT * FROM EMPLOYEES_SHIFT sh
+              WHERE sh.EmplID = employeeID AND (dFrom <= dateTo AND dTo >= dateFrom)) 
+  LOOP
+    isUpdated := FALSE;
+    IF (rec.DFROM < dateFrom) THEN
+      UPDATE Employees_Shift
+      SET dTo = dateFrom - 1
+      WHERE ID = rec.ID;
+      
+      rec.dFrom := dateFrom;
+      isUpdated := TRUE; 
+    END IF;
+    IF (rec.dFrom >= dateFrom AND rec.dTo <= dateTo) THEN
+      IF (isUpdated = FALSE) THEN 
+        DELETE Employees_Shift
+        WHERE ID = rec.ID;
+      END IF;
+    ELSE
+      rec.dFrom := dateTo + 1;
+      IF (isUpdated = TRUE) THEN 
+        INSERT INTO Employees_Shift (EmplId, Location, dFrom, dTo)
+        VALUES (employeeID, rec.Location, rec.dFrom, rec.dTo);
+      ELSE
+        UPDATE Employees_Shift
+        SET dTo = rec.dTo, dFrom = rec.dFrom
+        WHERE ID = rec.ID; END IF; END IF;
+  END LOOP;
+END;
+
+-----------------
+-- APPLICATION
+
+java.sql.Date dateFrom = new java.sql.Date(arDateFrom.getTime());
+java.sql.Date dateTo = new java.sql.Date(arDateTo.getTime());
+
+CallableStatement cstmt = connection.prepareCall("BEGIN deleteEmployeeShiftTable(?, ?, ?); END;");
+cstmt.setLong(1, employeeID);
+cstmt.setDate(2, dateFrom);
+cstmt.setDate(3, dateTo);
+
+cstmt.execute();
