@@ -47,6 +47,9 @@ public class EmployeesTable extends JTable {
 		tableModel.addEmployeeModel(employeeModel);
 	}
 
+	/**
+	 * Sets columns widths according to size of displayed data.
+	 */
 	public void setColumnsWidth() {
 		for (int i = 0; i <= 4; i++) {
 			switch (i) {
@@ -57,7 +60,6 @@ public class EmployeesTable extends JTable {
 				case 1:
 				case 2:
 					getColumnModel().getColumn(i).setPreferredWidth(70);
-//					getColumnModel().getColumn(i).setMaxWidth(80);
 					break;
 				case 3:
 					getColumnModel().getColumn(i).setPreferredWidth(120);

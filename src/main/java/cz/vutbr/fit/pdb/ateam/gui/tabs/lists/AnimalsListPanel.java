@@ -41,11 +41,14 @@ public class AnimalsListPanel extends BasePanel {
 		initUI();
 	}
 
+	/**
+	 * This method initializes AnimalListPanel.
+	 */
 	private void initUI() {
 		switchToToday();
 		initializeDatePicker();
 
-		initializeTodayHistoryRarioButtons();
+		initializeTodayHistoryRadioButtons();
 
 		Utils.setComponentFixSize(addNewAnimalButton, 200, 25);
 		addNewAnimalButton.addActionListener(new ActionListener() {
@@ -56,7 +59,10 @@ public class AnimalsListPanel extends BasePanel {
 		});
 	}
 
-	private void initializeTodayHistoryRarioButtons() {
+	/**
+	 * TodayRadioButton and historyRadioButton are initialized here, and also added to same ButtonGroup.
+	 */
+	private void initializeTodayHistoryRadioButtons() {
 		todayRadioButton.setSelected(true);
 
 		ButtonGroup bg = new ButtonGroup();
@@ -66,7 +72,7 @@ public class AnimalsListPanel extends BasePanel {
 		todayRadioButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				controller.actualDateSwitchAction(true);
+				controller.actualDateSwitchAction();
 			}
 		});
 
@@ -76,7 +82,6 @@ public class AnimalsListPanel extends BasePanel {
 				controller.showHistorySwitchAction();
 			}
 		});
-
 	}
 
 
@@ -103,6 +108,10 @@ public class AnimalsListPanel extends BasePanel {
 		});
 	}
 
+	/**
+	 * Sets AnimalsTable passed through parameter.
+	 * @param table
+	 */
 	public void setAnimalsTable(JTable table) {
 		animalsTable = table;
 		tablePanel.removeAll();
@@ -134,10 +143,6 @@ public class AnimalsListPanel extends BasePanel {
 		datePickerLabel.setVisible(true);
 
 		initializeDatePicker();
-	}
-
-	private void createUIComponents() {
-		// TODO: place custom component creation code here
 	}
 
 	/**
@@ -202,6 +207,9 @@ public class AnimalsListPanel extends BasePanel {
 		return rootPanel;
 	}
 
+	/**
+	 * DateLabelFormater is used when new JDatePicker is created to format date properly.
+	 */
 	public class DateLabelFormatter extends JFormattedTextField.AbstractFormatter {
 
 		private String datePattern = "  yyyy-MM-dd";

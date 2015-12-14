@@ -10,7 +10,6 @@ import java.awt.*;
 
 /**
  * @author Tomas Hanus
- * @author Jakub Tutko
  */
 public class AnimalsTab extends BasePanel {
 	private final AnimalsTabController controller;

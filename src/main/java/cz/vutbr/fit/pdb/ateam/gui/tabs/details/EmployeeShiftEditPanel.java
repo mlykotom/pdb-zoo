@@ -45,8 +45,6 @@ public class EmployeeShiftEditPanel extends BasePanel {
 	private JPanel employeeTitlePane;
 	private JLabel surnameLabel;
 	private JLabel shiftLocationLabel;
-	private Date dateFrom;
-
 
 	public EmployeeShiftEditPanel(EmployeesTab employeesTab, ArrayList<SpatialObjectModel> locations) {
 		this.tab = employeesTab;

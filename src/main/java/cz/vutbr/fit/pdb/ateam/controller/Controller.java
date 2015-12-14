@@ -199,7 +199,7 @@ public class Controller {
 			@Override
 			protected void onDone(boolean success) {
 				SpatialObjectsReloadObservable.getInstance().notifyObservers();
-			}//TODO change to EmployeeReloadObservable?
+			}
 
 			@Override
 			protected Boolean doInBackground() throws Exception {

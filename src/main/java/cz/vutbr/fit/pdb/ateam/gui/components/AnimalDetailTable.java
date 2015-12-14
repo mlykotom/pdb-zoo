@@ -15,10 +15,13 @@ import java.util.Comparator;
 import java.util.Date;
 
 /**
+ * Table should contain AnimalDetail history records.
+ *
  * Created by Tomas on 12/12/2015.
  */
 public class AnimalDetailTable extends JTable {
 	private static final String FOREVER_DATE = "01-Jan-2500";
+
 	private AnimalDetailTableModel tableModel;
 
 	public AnimalDetailTable() {
@@ -41,6 +44,9 @@ public class AnimalDetailTable extends JTable {
 		tableModel.addAnimalModel(animalModel);
 	}
 
+	/**
+	 * Sets columns widths according to size of displayed data.
+	 */
 	public void setColumnsWidth() {
 		for (int i = 0; i <= 4; i++) {
 			switch (i) {

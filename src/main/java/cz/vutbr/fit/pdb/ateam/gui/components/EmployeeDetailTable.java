@@ -1,18 +1,13 @@
 package cz.vutbr.fit.pdb.ateam.gui.components;
 
 import cz.vutbr.fit.pdb.ateam.adapter.DataManager;
-import cz.vutbr.fit.pdb.ateam.controller.EmployeesTableController;
 import cz.vutbr.fit.pdb.ateam.model.employee.EmployeeModel;
 import cz.vutbr.fit.pdb.ateam.utils.Utils;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,6 +19,7 @@ import java.util.Date;
  */
 public class EmployeeDetailTable extends JTable {
 	private static final String FOREVER_DATE = "01-Jan-2500";
+
 	private EmployeeDetailTableModel tableModel;
 
 	public EmployeeDetailTable() {
@@ -46,6 +42,9 @@ public class EmployeeDetailTable extends JTable {
 		tableModel.addEmployeeModel(employeeModel);
 	}
 
+	/**
+	 * Sets columns widths according size of displayed data.
+	 */
 	public void setColumnsWidth() {
 		for (int i = 0; i <= 3; i++) {
 			switch (i) {
@@ -144,83 +143,6 @@ public class EmployeeDetailTable extends JTable {
 		@Override
 		public boolean isCellEditable(int rowIndex, int columnIndex) {
 			return columnIndex == 4 || columnIndex == 5;
-		}
-	}
-
-	private class ButtonRenderer extends JButton implements TableCellRenderer {
-
-		public ButtonRenderer() {
-			setOpaque(true);
-		}
-
-		public Component getTableCellRendererComponent(JTable table, Object value,
-		                                               boolean isSelected, boolean hasFocus, int row, int column) {
-			if (isSelected) {
-				setForeground(table.getSelectionForeground());
-				setBackground(table.getSelectionBackground());
-			} else {
-				setForeground(table.getForeground());
-				setBackground(UIManager.getColor("Button.background"));
-			}
-			setText((value == null) ? "" : value.toString());
-			return this;
-		}
-	}
-
-	private class ButtonEditor extends DefaultCellEditor {
-		protected JButton button;
-
-		private String label;
-
-		private EmployeesTableController controller;
-		private EmployeeModel EmployeeModel;
-		private String pushedButton;
-
-		private boolean isPushed;
-
-		public ButtonEditor(EmployeesTableController controller) {
-			super(new JCheckBox());
-
-			this.controller = controller;
-			button = new JButton();
-			button.setOpaque(true);
-			button.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					fireEditingStopped();
-				}
-			});
-		}
-
-		public Component getTableCellEditorComponent(JTable table, Object value,
-		                                             boolean isSelected, int row, int column) {
-
-			Utils.setButtonForegroundAndBackground(isSelected, button, table);
-
-			label = (value == null) ? "" : value.toString();
-			button.setText(label);
-			isPushed = true;
-
-			this.EmployeeModel = ((EmployeeDetailTableModel) table.getModel()).getEmployeeModel(row);
-			if (column == 4) this.pushedButton = "edit";
-
-			return button;
-		}
-
-		public Object getCellEditorValue() {
-			if (isPushed) {
-				if (pushedButton.equals("edit")) controller.EmployeesTableEditAction(EmployeeModel);
-			}
-			isPushed = false;
-			return label;
-		}
-
-		public boolean stopCellEditing() {
-			isPushed = false;
-			return super.stopCellEditing();
-		}
-
-		protected void fireEditingStopped() {
-			super.fireEditingStopped();
 		}
 	}
 }

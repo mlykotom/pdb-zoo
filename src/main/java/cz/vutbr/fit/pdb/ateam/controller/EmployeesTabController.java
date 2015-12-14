@@ -79,6 +79,9 @@ public class EmployeesTabController extends Controller
 		Utils.changePanelContent(this.employeesTab, this.employeesListPanel);
 	}
 
+	/**
+	 * This method calls method fillUpEmployeesTable(Date date) with today's date.
+	 */
 	private void fillUpEmployeesTable() {
 		fillUpEmployeesTable(Calendar.getInstance().getTime());
 	}
@@ -89,7 +92,6 @@ public class EmployeesTabController extends Controller
 	 * @param dateToDisplay
 	 */
 	private void fillUpEmployeesTable(Date dateToDisplay) {
-		//TODO later only fill table with valid data - not creating table again
 		EmployeesTable table = new EmployeesTable(this);
 		table.setColumnsWidth();
 		List<EmployeeModel> models;
@@ -118,20 +120,9 @@ public class EmployeesTabController extends Controller
 	 * This method is supposed to show AddNewEmployee employeesTab.
 	 */
 	public void addNewEmployeeAction() {
-		EmployeeModel newEmployeeModel = new EmployeeModel("", ""); //TODO Generate new ID
+		EmployeeModel newEmployeeModel = new EmployeeModel("", "");
 
 		editEmployeeDetail(newEmployeeModel, EmployeeDetailPanel.NEW_EMPLOYEE);
-	}
-
-
-	/**
-	 * Action called when EditEmployee button is clicked.
-	 */
-	public void editEmployeeAction() {
-		//TODO get selected Employee
-		EmployeeModel selectedEmployee = new EmployeeModel(2, "pa", "pi", (long) 2, null, null); // TODO REMOVE LATER
-
-		editEmployeeDetail(selectedEmployee, EmployeeDetailPanel.EDIT_EMPLOYEE);
 	}
 
 	/**
@@ -161,7 +152,6 @@ public class EmployeesTabController extends Controller
 	 * @return Returns only spatial objects which represent a certain location.
 	 */
 	private ArrayList<SpatialObjectModel> getLocationsFromSpatialObjects(ArrayList<SpatialObjectModel> spatialObjects) {
-		//TODO filter Locations from all spatial objects
 		return spatialObjects;
 	}
 
@@ -227,12 +217,6 @@ public class EmployeesTabController extends Controller
 	@Override
 	public void EmployeesTableEditAction(EmployeeModel employeeModel) {
 		editEmployeeDetail(employeeModel, EmployeeDetailPanel.EDIT_EMPLOYEE);
-		//TODO Show DetailPanel for selected Employee
-	}
-
-	@Override
-	public void EmployeesTableDeleteAction(EmployeeModel employeeModel) {
-		//TODO Delete selected employee
 	}
 
 	/**
@@ -256,7 +240,6 @@ public class EmployeesTabController extends Controller
 			Logger.createLog(Logger.WARNING_LOG, "datePickerChangedAction: Future date selected.");
 			employeesListPanel.switchToToday();
 			newDateWithoutTime = todayDateWithoutTime;
-			//TODO Create Alert message ??here or in the listPanel??
 		} finally {
 			if (!currentlyDisplayedDateWithoutTime.equals(newDateWithoutTime)) {
 				dateToDisplay = newDateWithoutTime;
@@ -364,16 +347,32 @@ public class EmployeesTabController extends Controller
 	 * @param isHistoryUpdate it's true/false in order action should be update/delete.
 	 */
 	public void confirmUpdateDeleteAction(boolean isHistoryUpdate) {
+		Date todayDateWithoutTime = Utils.removeTime(Calendar.getInstance().getTime());
+
+		if (Utils.removeTime(employeeShiftEditPanel.getDateFrom()).after(todayDateWithoutTime) || (Utils.removeTime(employeeShiftEditPanel.getDateTo()).after(todayDateWithoutTime) && isHistoryUpdate == true)){
+			showDialog(ERROR_MESSAGE, "You must choose today or past date.");
+			return;
+		}
+		if (Utils.removeTime(employeeShiftEditPanel.getDateFrom()).after(Utils.removeTime(employeeShiftEditPanel.getDateTo()))){
+			showDialog(ERROR_MESSAGE, "Date from must be earlier or equals to date to.");
+			return;
+		}
+
 		if (isHistoryUpdate) {
 			DataManager.getInstance().updateEmployeeShifts(selectedEmployeeModel.getId(), employeeShiftEditPanel.getDateFrom(), employeeShiftEditPanel.getDateTo(), employeeShiftEditPanel.getSelectedLocation());
 		} else { // if it's not edit action, it's DELETE action
 			DataManager.getInstance().deleteEmployeeShifts(selectedEmployeeModel.getId(), employeeShiftEditPanel.getDateFrom(), employeeShiftEditPanel.getDateTo());
 		}
 		editEmployeeDetail(selectedEmployeeModel, EmployeeDetailPanel.EDIT_EMPLOYEE);
+
 		this.employeeDetailPanel.showHistoryShiftPane();
-		//TODO NullPointer crash after deleting all shift history
 	}
 
+	/**
+	 * This action is triggered by clicking on editRadioButton on EmployeeEditShiftPanel.
+	 * It changes acton from update to delete or from delete to update.
+	 * @param selected
+	 */
 	public void switchBetweenEditAndDeleteAction(boolean selected) {
 		if (selected == true) {
 			employeeShiftEditPanel.showLocationPicker();
@@ -382,7 +381,10 @@ public class EmployeesTabController extends Controller
 		}
 	}
 
-
+	/**
+	 * This action is triggered after click on calculateMaxWeightButton on EmployeeShiftEditPanel. It calculates
+	 * max weight employee has weighed since he started work in zoo.
+	 */
 	public void calculateMaxWeightAction() {
 		Float maxWeight = DataManager.getInstance().calculateMaxWeightForEmployee(selectedEmployeeModel);
 		employeeDetailPanel.setEmployeeHonorWeight(maxWeight);

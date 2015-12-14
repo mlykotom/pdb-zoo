@@ -41,6 +41,9 @@ public class EmployeesHistoryTable extends JTable {
 		tableModel.addEmployeeModel(employeeModel);
 	}
 
+	/**
+	 * Sets columns widths according to size of displayed data.
+	 */
 	public void setColumnsWidth() {
 		for (int i = 0; i <= 4; i++) {
 			switch (i) {

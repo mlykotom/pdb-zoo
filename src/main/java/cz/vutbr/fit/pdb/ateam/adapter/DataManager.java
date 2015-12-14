@@ -1160,7 +1160,6 @@ public class DataManager {
 
 		this.employees = employees;
 
-		// TODO void???
 		return employees;
 	}
 
@@ -1193,24 +1192,8 @@ public class DataManager {
 				String sqlQuery = "SELECT e.ID as EmployeeID, e.Name, e.Surname, s.Location, s.dFrom, s.dTo " +
 						"FROM EMPLOYEES e LEFT JOIN Employees_Shift s ON e.ID = s.EmplId " +
 						"WHERE s.dFrom <= '" + datum + "' AND s.dTo >= '" + datum + "'";
-//				String sqlQuery = "SELECT * FROM Employees_Shift";
-//				String sqlQuery = "SELECT * FROM HAHA";
-//				String sqlQuery = "INSERT INTO HAHA (ID) VALUES (1)";
-//
-//				CREATE TABLE HAHA (
-//						ID INT NOT NULL,
-//						PRIMARY KEY (ID)
-//				);
 
-//				String sqlQuery = "\n" +
-//						"SELECT e.*, s.Location, s.dFrom, s.dTo  FROM Employees e\n" +
-//						"LEFT JOIN Employees_Shift s on e.ID = s.EmplID\n" +
-//						"WHERE s.dFrom <= dateToShow and s.dTo >= dateToShow\n";
 				ResultSet resultSet = createDatabaseQuery(sqlQuery);
-
-//				PreparedStatement psSelectRecord = null;
-//				psSelectRecord = connection.prepareStatement(sqlQuery);
-//				ResultSet resultSet = psSelectRecord.executeQuery();
 
 				try {
 					while (resultSet.next()) {
@@ -1232,6 +1215,14 @@ public class DataManager {
 		return employees;
 	}
 
+	/**
+	 * Method is used to update EmployeeShifts records.
+	 * @param employeeID
+	 * @param arDateFrom
+	 * @param arDateTo
+	 * @param location
+	 * @return
+	 */
 	public boolean updateEmployeeShifts(final Long employeeID, final Date arDateFrom, final Date arDateTo, final Long location) {
 		AsyncTask asyncTask = new AsyncTask() {
 			@Override
@@ -1261,6 +1252,13 @@ public class DataManager {
 	}
 
 
+	/**
+	 * Method is used to delete temporalData from Employees_Shift table from specified interval.
+	 * @param employeeID
+	 * @param arDateFrom
+	 * @param arDateTo
+	 * @return
+	 */
 	public boolean deleteEmployeeShifts(final Long employeeID, final Date arDateFrom, final Date arDateTo) {
 
 		AsyncTask asyncTask = new AsyncTask() {
@@ -1289,6 +1287,13 @@ public class DataManager {
 		return true;
 	}
 
+
+	/**
+	 * Method returns all employeeHistory in ZOO (locations).
+	 * @param employeeID
+	 * @return
+	 * @throws DataManagerException
+	 */
 	public ArrayList<EmployeeModel> getEmployeeHistory(final long employeeID) throws DataManagerException {
 		final ArrayList<EmployeeModel> employees = new ArrayList<>();
 		AsyncTask asyncTask = new AsyncTask() {
@@ -1329,15 +1334,11 @@ public class DataManager {
 	// -----------------------------------------
 
 	/**
-	 * Is used to get cached data from Animals Table.
-	 *
-	 * @return list of Animals
+	 * Method returns record for all animals from specific date.
+	 * @param date
+	 * @return
+	 * @throws DataManagerException
 	 */
-	public List<AnimalModel> getAnimals() {
-		return animals;
-	}
-
-
 	public ArrayList<AnimalModel> getAnimalsAtDate(final Date date) throws DataManagerException {
 		final ArrayList<AnimalModel> animals = new ArrayList<>();
 		AsyncTask asyncTask = new AsyncTask() {
@@ -1382,6 +1383,15 @@ public class DataManager {
 		return animals;
 	}
 
+	/**
+	 * Method is used to update AnimalRecords or to create new animal Record.
+	 * @param animalID
+	 * @param arDateFrom
+	 * @param arDateTo
+	 * @param location
+	 * @param weight
+	 * @return
+	 */
 	public boolean updateAnimalShifts(final Long animalID, final Date arDateFrom, final Date arDateTo, final Long location, final float weight) {
 		AsyncTask asyncTask = new AsyncTask() {
 			@Override
@@ -1411,6 +1421,13 @@ public class DataManager {
 	}
 
 
+	/**
+	 * Method is used to delete temporalData from Animals_Records table from specified interval.
+	 * @param animalID
+	 * @param arDateFrom
+	 * @param arDateTo
+	 * @return
+	 */
 	public boolean deleteAnimalRecords(final Long animalID, final Date arDateFrom, final Date arDateTo) {
 
 		AsyncTask asyncTask = new AsyncTask() {
@@ -1439,6 +1456,13 @@ public class DataManager {
 		return true;
 	}
 
+
+	/**
+	 * Method returns all temporal animal records for specified animal.
+	 * @param animalID
+	 * @return
+	 * @throws DataManagerException
+	 */
 	public ArrayList<AnimalModel> getAnimalHistory(final long animalID) throws DataManagerException {
 		final ArrayList<AnimalModel> animals = new ArrayList<>();
 		AsyncTask asyncTask = new AsyncTask() {
@@ -1476,6 +1500,12 @@ public class DataManager {
 		return animals;
 	}
 
+	/**
+	 * Method returns a list of Employees who has been taking care of specified animal.
+	 * @param animalModel
+	 * @return
+	 * @throws DataManagerException
+	 */
 	public List<EmployeeModel> getEmployeesForAnimal(final AnimalModel animalModel) throws DataManagerException {
 		final ArrayList<EmployeeModel> employees = new ArrayList<>();
 		AsyncTask asyncTask = new AsyncTask() {
@@ -1496,7 +1526,6 @@ public class DataManager {
 
 				try {
 					while (resultSet.next()) {
-						System.out.println(resultSet.getString("Name"));
 						Long emplID = resultSet.getLong("ID");
 						String name = resultSet.getString("Name");
 						String surname = resultSet.getString("Surname");
@@ -1515,6 +1544,11 @@ public class DataManager {
 		return employees;
 	}
 
+	/**
+	 * Method finds highest weight that employee has weighed until now.
+	 * @param employeeModel
+	 * @return
+	 */
 	public Float calculateMaxWeightForEmployee(final EmployeeModel employeeModel) {
 		final Float[] maxWeight = {0f};
 		AsyncTask asyncTask = new AsyncTask() {

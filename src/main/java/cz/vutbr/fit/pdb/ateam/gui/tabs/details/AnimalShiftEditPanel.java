@@ -48,8 +48,6 @@ public class AnimalShiftEditPanel extends BasePanel {
 	private JLabel shiftLocationLabel;
 	private JLabel shiftWeightLabel;
 	private JTextField shiftEditPanelWeightTextField;
-	private Date dateFrom;
-
 
 	public AnimalShiftEditPanel(AnimalsTab animalsTab, ArrayList<SpatialObjectModel> locations) {
 		this.tab = animalsTab;
@@ -60,6 +58,9 @@ public class AnimalShiftEditPanel extends BasePanel {
 		initUI();
 	}
 
+	/**
+	 * Inits AnimalShiftEditPanel.
+	 */
 	private void initUI() {
 		this.nameLabel.setText(controller.getSelectedAnimalModel().getName());
 		this.surnameLabel.setText(controller.getSelectedAnimalModel().getSpecies());
@@ -86,12 +87,15 @@ public class AnimalShiftEditPanel extends BasePanel {
 		setListeners();
 	}
 
+	/**
+	 * In this method all input validators should be set.
+	 */
 	private void setInputValidators() {
 		this.shiftEditPanelWeightTextField.setInputVerifier(new FloatBiggerOrEqualToZeroInputVerifier());
 	}
 
 	/**
-	 * Method sets all listeners on this panel.
+	 * In this method all listeners should be set.
 	 */
 	private void setListeners() {
 		editRadioButton.addChangeListener(new ChangeListener() {
@@ -121,6 +125,10 @@ public class AnimalShiftEditPanel extends BasePanel {
 		return this.controller;
 	}
 
+	/**
+	 * Method create new DatePicker for date Selection.
+	 * @return newly created JDatePicker
+	 */
 	private JDatePickerImpl addDatePicker() {
 		final UtilDateModel dateModel = new UtilDateModel();
 

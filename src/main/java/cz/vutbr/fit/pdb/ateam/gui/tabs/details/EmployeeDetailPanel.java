@@ -25,6 +25,7 @@ public class EmployeeDetailPanel extends BasePanel {
 	public static final int NEW_EMPLOYEE = 0;
 	public static final int EDIT_EMPLOYEE = 1;
 	private static final String[] EMPLOYEE_DETAIL_HEADER = {"New Employee", "Edit Employee"};
+
 	private final EmployeesTabController controller;
 	private JTable employeeDetailTable;
 	private JPanel rootPanel;
@@ -67,6 +68,9 @@ public class EmployeeDetailPanel extends BasePanel {
 
 	}
 
+	/**
+	 * Method initializes EmployeeDetailPanel.
+	 */
 	private void initUI() {
 		this.idField.setEnabled(false);
 		discardButton.addActionListener(new ActionListener() {
@@ -107,7 +111,7 @@ public class EmployeeDetailPanel extends BasePanel {
 	 *
 	 * @param employee       new/existing employee
 	 * @param spatialObjects
-	 * @param editMode       NEW_EMPLOYEE or EDIT_EMPLOYEE to set Panel Mode
+	 * @param editMode       NEW_ANIMAL or EDIT_ANIMAL to set Panel Mode
 	 */
 	public void populateEmployeeDetailPanel(EmployeeModel employee, java.util.List<SpatialObjectModel> spatialObjects, int editMode) {
 		this.employeeDetailPanelMode = editMode;
@@ -145,25 +149,17 @@ public class EmployeeDetailPanel extends BasePanel {
 		historyPane.setVisible(true);
 	}
 
-	public JComboBox getLocationComboBox() {
-		return locationComboBox;
-	}
-
 	@Override
 	public Controller getController() {
 		return tab.getController();
 	}
 
-//	public void hideEmployeeDetailTable() {
-//		this.tablePanel.setVisible(false);
-//	}
-
-//	public void showEmployeeDetailTable() {
-//		this.tablePanel.setVisible(true);
-//	}
-
-	private void createUIComponents() {
-		// TODO: place custom component creation code here
+	/**
+	 * Populate maxWeightLabel with value from parameter.
+	 * @param employeeHonorWeight
+	 */
+	public void setEmployeeHonorWeight(Float employeeHonorWeight) {
+		this.maxWeightLabel.setText(String.valueOf(employeeHonorWeight));
 	}
 
 	public String getNameTextFieldValue() {
@@ -176,10 +172,6 @@ public class EmployeeDetailPanel extends BasePanel {
 
 	public Long getLocationComboBoxValue() {
 		return ((SpatialObjectModel) locationComboBox.getSelectedItem()).getId();
-	}
-
-	public void setEmployeeHonorWeight(Float employeeHonorWeight) {
-		this.maxWeightLabel.setText(String.valueOf(employeeHonorWeight));
 	}
 
 	{
