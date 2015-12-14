@@ -29,6 +29,8 @@ import java.util.List;
  * extend this class.
  *
  * @author Jakub Tutko
+ * @author Tomas Mlynaric
+ * @author Tomas Hanus
  */
 public class Controller {
 	protected static final int INFO_MESSAGE = 0;
@@ -49,7 +51,6 @@ public class Controller {
 
 	/**
 	 * Reloads all data when application starts
-	 * TODO one async task, many queries
 	 */
 	public void reloadAllData() {
 		reloadSpatialObjects();
@@ -141,6 +142,7 @@ public class Controller {
 					dataManager.reloadAllSpatialObjectTypes();
 					return true;
 				} catch (DataManagerException e) {
+					setErrorCode(e.getErrorCode());
 					// TODO should check ORA-02396(max nevyuzity cas) or ORA-01012(neprihlaseno do systemu)
 					Logger.createLog(Logger.ERROR_LOG, e.getMessage());
 				}

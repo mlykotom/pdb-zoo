@@ -67,19 +67,14 @@ public class MainFrame extends JFrame {
 	 * Switch content of content panel
 	 *
 	 * @param panelToShow instanciated component to show
+	 * @return panelToShow (possible to make another call)
 	 */
 	public JPanel switchContent(JPanel panelToShow) {
 		Container contentPane = getContentPane();
 		contentPane.removeAll();
 		contentPane.add(panelToShow);
-		//contentPane.add(new MultimediaPanel()); // TODO: show multimedia
-		// TODO is it necessary? usually yes, but here I don't know
-		//contentPane.revalidate();
-		//contentPane.repaint();
-
 		return panelToShow;
 	}
-
 
 	/**
 	 * Factory for logout button

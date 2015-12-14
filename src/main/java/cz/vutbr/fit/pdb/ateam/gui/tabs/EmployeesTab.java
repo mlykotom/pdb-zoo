@@ -4,26 +4,22 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import cz.vutbr.fit.pdb.ateam.controller.Controller;
 import cz.vutbr.fit.pdb.ateam.controller.EmployeesTabController;
 import cz.vutbr.fit.pdb.ateam.gui.BasePanel;
-import cz.vutbr.fit.pdb.ateam.gui.ContentPanel;
 
 import javax.swing.*;
 import java.awt.*;
 
 /**
- * Created by Tomas Mlynaric on 21.10.2015.
+ * @author Tomas Hanus
  */
 public class EmployeesTab extends BasePanel {
-	private final ContentPanel contentPanel;
-
 	private final EmployeesTabController controller;
 
 	private JPanel rootPanel;
 	private JTabbedPane tabsPane;
 
-	public EmployeesTab(ContentPanel mainPanel, JTabbedPane tabsPane) {
+	public EmployeesTab(JTabbedPane tabsPane) {
 		this.tabsPane = tabsPane;
 		this.controller = new EmployeesTabController(this);
-		this.contentPanel = mainPanel;
 		add(rootPanel);
 	}
 

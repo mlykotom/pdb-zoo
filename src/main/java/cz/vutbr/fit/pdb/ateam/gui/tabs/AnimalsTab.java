@@ -4,26 +4,23 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import cz.vutbr.fit.pdb.ateam.controller.AnimalsTabController;
 import cz.vutbr.fit.pdb.ateam.controller.Controller;
 import cz.vutbr.fit.pdb.ateam.gui.BasePanel;
-import cz.vutbr.fit.pdb.ateam.gui.ContentPanel;
 
 import javax.swing.*;
 import java.awt.*;
 
 /**
- * Created by Tomas Mlynaric on 21.10.2015.
+ * @author Tomas Hanus
+ * @author Jakub Tutko
  */
 public class AnimalsTab extends BasePanel {
-	private final ContentPanel contentPanel;
-
 	private final AnimalsTabController controller;
 
 	private JPanel rootPanel;
 	private JTabbedPane tabsPane;
 
-	public AnimalsTab(ContentPanel mainPanel, JTabbedPane tabsPane) {
+	public AnimalsTab(JTabbedPane tabsPane) {
 		this.tabsPane = tabsPane;
 		this.controller = new AnimalsTabController(this);
-		this.contentPanel = mainPanel;
 		add(rootPanel);
 	}
 

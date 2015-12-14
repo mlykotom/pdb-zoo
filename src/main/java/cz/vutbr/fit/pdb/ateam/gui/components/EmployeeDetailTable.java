@@ -193,13 +193,9 @@ public class EmployeeDetailTable extends JTable {
 
 		public Component getTableCellEditorComponent(JTable table, Object value,
 		                                             boolean isSelected, int row, int column) {
-			if (isSelected) {
-				button.setForeground(table.getSelectionForeground());
-				button.setBackground(table.getSelectionBackground());
-			} else {
-				button.setForeground(table.getForeground());
-				button.setBackground(table.getBackground());
-			}
+
+			Utils.setButtonForegroundAndBackground(isSelected, button, table);
+
 			label = (value == null) ? "" : value.toString();
 			button.setText(label);
 			isPushed = true;

@@ -1,28 +1,18 @@
 package cz.vutbr.fit.pdb.ateam.gui.tabs;
 
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import cz.vutbr.fit.pdb.ateam.controller.SpatialObjectTabController;
-import cz.vutbr.fit.pdb.ateam.gui.ContentPanel;
 
 import javax.swing.*;
 import java.awt.*;
 
 /**
- * Created by Tomas Mlynaric on 22.10.2015.
+ * @author Tomas Mlynaric
  */
 public class SpatialObjectsTab extends JPanel {
-	private final ContentPanel mainPanel;
 	private JPanel rootPanel;
-	private SpatialObjectTabController spatialObjectTabController;
 
-	public SpatialObjectsTab(ContentPanel mainPanel) {
-		spatialObjectTabController = new SpatialObjectTabController(this);
-		this.mainPanel = mainPanel;
+	public SpatialObjectsTab() {
 		add(rootPanel);
-	}
-
-	public ContentPanel getMainPanel() {
-		return mainPanel;
 	}
 
 	{

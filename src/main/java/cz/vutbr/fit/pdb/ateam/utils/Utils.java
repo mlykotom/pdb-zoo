@@ -77,8 +77,8 @@ public class Utils {
 	/**
 	 * If you want use date only as Year, Mont, Day this function removes any extra time units (hours, minutes, ... )
 	 *
-	 * @param date
-	 * @return
+	 * @param date specified date which will be removed from
+	 * @return date in specified format
 	 */
 	public static Date removeTime(Date date) {
 		Calendar cal = Calendar.getInstance();
