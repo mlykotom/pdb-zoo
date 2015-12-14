@@ -94,7 +94,7 @@ public class EmployeesTabController extends Controller
 		final EmployeesTable table = new EmployeesTable(this);
 		table.setColumnsWidth();
 
-		new AsyncTask(){
+		new AsyncTask() {
 			List<EmployeeModel> models = new ArrayList<>();
 
 			@Override
@@ -293,25 +293,33 @@ public class EmployeesTabController extends Controller
 	 * Creates EmployeeDetail table and populates it with data. Then this table is added on EmployeeDetailPanel.
 	 */
 	public void fillEmployeeDetailTable() {
-		EmployeeDetailTable table = new EmployeeDetailTable();
+		final EmployeeDetailTable table = new EmployeeDetailTable();
 		table.setColumnsWidth();
 
-		List<EmployeeModel> models;
+		new AsyncTask() {
+			List<EmployeeModel> models = new ArrayList<>();
 
-		models = new ArrayList<>();
-		try {
-			models = dataManager.getEmployeeHistory(selectedEmployeeModel.getId());
-		} catch (DataManagerException e) {
-			Logger.createLog(Logger.ERROR_LOG, e.getMessage());
-		}
-		if (models != null && models.size() > 0) {
-			for (EmployeeModel model : models) {
-				table.addEmployeeModel(model);
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				try {
+					models = dataManager.getEmployeeHistory(selectedEmployeeModel.getId());
+					return true;
+				} catch (DataManagerException e) {
+					Logger.createLog(Logger.ERROR_LOG, e.getMessage());
+				}
+				return false;
 			}
-		}
 
-		employeeDetailPanel.setEmployeeDetailTable(table);
-
+			@Override
+			protected void onDone(boolean success) {
+				if (models != null && models.size() > 0) {
+					for (EmployeeModel model : models) {
+						table.addEmployeeModel(model);
+					}
+				}
+				employeeDetailPanel.setEmployeeDetailTable(table);
+			}
+		}.start();
 	}
 
 
@@ -355,35 +363,45 @@ public class EmployeesTabController extends Controller
 	 *
 	 * @param isHistoryUpdate it's true/false in order action should be update/delete.
 	 */
-	public void confirmUpdateDeleteAction(boolean isHistoryUpdate) {
+	public void confirmUpdateDeleteAction(final boolean isHistoryUpdate) {
 		Date todayDateWithoutTime = Utils.removeTime(Calendar.getInstance().getTime());
 
-		if (Utils.removeTime(employeeShiftEditPanel.getDateFrom()).after(todayDateWithoutTime) || (Utils.removeTime(employeeShiftEditPanel.getDateTo()).after(todayDateWithoutTime) && isHistoryUpdate == true)){
+		if (Utils.removeTime(employeeShiftEditPanel.getDateFrom()).after(todayDateWithoutTime) || (Utils.removeTime(employeeShiftEditPanel.getDateTo()).after(todayDateWithoutTime) && isHistoryUpdate == true)) {
 			showDialog(ERROR_MESSAGE, "You must choose today or past date.");
 			return;
 		}
-		if (Utils.removeTime(employeeShiftEditPanel.getDateFrom()).after(Utils.removeTime(employeeShiftEditPanel.getDateTo()))){
+		if (Utils.removeTime(employeeShiftEditPanel.getDateFrom()).after(Utils.removeTime(employeeShiftEditPanel.getDateTo()))) {
 			showDialog(ERROR_MESSAGE, "Date from must be earlier or equals to date to.");
 			return;
 		}
 
-		if (isHistoryUpdate) {
-			DataManager.getInstance().updateEmployeeShifts(selectedEmployeeModel.getId(), employeeShiftEditPanel.getDateFrom(), employeeShiftEditPanel.getDateTo(), employeeShiftEditPanel.getSelectedLocation());
-		} else { // if it's not edit action, it's DELETE action
-			DataManager.getInstance().deleteEmployeeShifts(selectedEmployeeModel.getId(), employeeShiftEditPanel.getDateFrom(), employeeShiftEditPanel.getDateTo());
-		}
-		editEmployeeDetail(selectedEmployeeModel, EmployeeDetailPanel.EDIT_EMPLOYEE);
+		new AsyncTask() {
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				if (isHistoryUpdate) {
+					return dataManager.updateEmployeeShifts(selectedEmployeeModel.getId(), employeeShiftEditPanel.getDateFrom(), employeeShiftEditPanel.getDateTo(), employeeShiftEditPanel.getSelectedLocation());
+				} else {
+					// if it's not edit action, it's DELETE action
+					return dataManager.deleteEmployeeShifts(selectedEmployeeModel.getId(), employeeShiftEditPanel.getDateFrom(), employeeShiftEditPanel.getDateTo());
+				}
+			}
 
-		this.employeeDetailPanel.showHistoryShiftPane();
+			@Override
+			protected void onDone(boolean success) {
+				editEmployeeDetail(selectedEmployeeModel, EmployeeDetailPanel.EDIT_EMPLOYEE);
+				employeeDetailPanel.showHistoryShiftPane();
+			}
+		}.start();
 	}
 
 	/**
 	 * This action is triggered by clicking on editRadioButton on EmployeeEditShiftPanel.
 	 * It changes acton from update to delete or from delete to update.
+	 *
 	 * @param selected
 	 */
 	public void switchBetweenEditAndDeleteAction(boolean selected) {
-		if (selected == true) {
+		if (selected) {
 			employeeShiftEditPanel.showLocationPicker();
 		} else {
 			employeeShiftEditPanel.hideLocationPicker();
@@ -395,7 +413,19 @@ public class EmployeesTabController extends Controller
 	 * max weight employee has weighed since he started work in zoo.
 	 */
 	public void calculateMaxWeightAction() {
-		Float maxWeight = DataManager.getInstance().calculateMaxWeightForEmployee(selectedEmployeeModel);
-		employeeDetailPanel.setEmployeeHonorWeight(maxWeight);
+		new AsyncTask(){
+			float maxWeight;
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				maxWeight = dataManager.calculateMaxWeightForEmployee(selectedEmployeeModel);
+				return true;
+			}
+
+			@Override
+			protected void onDone(boolean success) {
+				employeeDetailPanel.setEmployeeHonorWeight(maxWeight);
+			}
+		}.start();
 	}
 }

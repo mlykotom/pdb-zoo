@@ -25,9 +25,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -96,29 +94,37 @@ public class AnimalsTabController extends Controller
 	 *
 	 * @param dateToDisplay
 	 */
-	private void fillUpAnimalsTable(Date dateToDisplay) {
-		AnimalsTable table = new AnimalsTable(this);
+	private void fillUpAnimalsTable(final Date dateToDisplay) {
+		final AnimalsTable table = new AnimalsTable(this);
 		table.setColumnsWidth();
-		List<AnimalModel> models;
 
-		models = new ArrayList<>();
-		try {
-			models = dataManager.getAnimalsAtDate(dateToDisplay);
-		} catch (DataManagerException e) {
-			Logger.createLog(Logger.ERROR_LOG, e.getMessage());
-		}
 
-		for (AnimalModel model : models) {
-			if (selectedSpatialObject == null) {
-				table.addAnimalModel(model);
-			} else {
-				if (selectedSpatialObject.getId() == model.getLocation())
-					table.addAnimalModel(model);
+		new AsyncTask() {
+			List<AnimalModel> models = new ArrayList<>();
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				try {
+					models = dataManager.getAnimalsAtDate(dateToDisplay);
+					return true;
+				} catch (DataManagerException e) {
+					Logger.createLog(Logger.ERROR_LOG, e.getMessage());
+				}
+				return false;
 			}
-		}
 
-		animalsListPanel.setAnimalsTable(table);
-	}
+			@Override
+			protected void onDone(boolean success) {
+				for (AnimalModel model : models) {
+					if (selectedSpatialObject == null) {
+						table.addAnimalModel(model);
+					} else {
+						if (Objects.equals(selectedSpatialObject.getId(), model.getLocation())) table.addAnimalModel(model);
+					}
+				}
+				animalsListPanel.setAnimalsTable(table);
+			}
+		}.start();}
 
 	/**
 	 * This method is supposed to show AddNewAnimal animalsTab.
@@ -289,44 +295,64 @@ public class AnimalsTabController extends Controller
 	 * Creates AnimalDetail table and populates it with data. Then this table is added on AnimalDetailPanel.
 	 */
 	public void fillAnimalDetailTable() {
-		AnimalDetailTable table = new AnimalDetailTable();
+		final AnimalDetailTable table = new AnimalDetailTable();
 		table.setColumnsWidth();
 
-		List<AnimalModel> models;
+		new AsyncTask() {
+			List<AnimalModel> models = new ArrayList<>();
 
-		models = new ArrayList<>();
-		try {
-			models = dataManager.getAnimalHistory(selectedAnimalModel.getId());
-		} catch (DataManagerException e) {
-			Logger.createLog(Logger.ERROR_LOG, e.getMessage());
-		}
-		if (models != null && models.size() > 0) {
-			for (AnimalModel model : models) {
-				table.addAnimalModel(model);
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				try {
+					models = dataManager.getAnimalHistory(selectedAnimalModel.getId());
+					return true;
+				} catch (DataManagerException e) {
+					Logger.createLog(Logger.ERROR_LOG, e.getMessage());
+				}
+				return false;
 			}
-		}
 
-		animalDetailPanel.setAnimalDetailTable(table);
+			@Override
+			protected void onDone(boolean success) {
+				if (models != null && models.size() > 0) {
+					for (AnimalModel model : models) {
+						table.addAnimalModel(model);
+					}
+				}
+				animalDetailPanel.setAnimalDetailTable(table);
+			}
+		}.start();
 	}
 
 
 	public void fillEmployeesHistoryDetailTable() {
-		EmployeesHistoryTable table = new EmployeesHistoryTable();
+		final EmployeesHistoryTable table = new EmployeesHistoryTable();
 		table.setColumnsWidth();
-		List<EmployeeModel> models;
 
-		models = new ArrayList<>();
-		try {
-			models = dataManager.getEmployeesForAnimal(selectedAnimalModel);
-		} catch (DataManagerException e) {
-			Logger.createLog(Logger.ERROR_LOG, e.getMessage());
-		}
+		new AsyncTask() {
+			List<EmployeeModel> models = new ArrayList<>();
 
-		for (EmployeeModel model : models) {
-			table.addEmployeeModel(model);
-		}
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				try {
+					models = dataManager.getEmployeesForAnimal(selectedAnimalModel);
+					return true;
+				} catch (DataManagerException e) {
+					Logger.createLog(Logger.ERROR_LOG, e.getMessage());
+				}
+				return false;
+			}
 
-		animalDetailPanel.setEmployeesHistoryTable(table);
+			@Override
+			protected void onDone(boolean success) {
+				if (models != null && models.size() > 0) {
+					for (EmployeeModel model : models) {
+						table.addEmployeeModel(model);
+					}
+				}
+				animalDetailPanel.setEmployeesHistoryTable(table);
+			}
+		}.start();
 	}
 
 
@@ -369,7 +395,7 @@ public class AnimalsTabController extends Controller
 	 *
 	 * @param isHistoryUpdate it's true/false in order action should be update/delete.
 	 */
-	public void confirmUpdateDeleteAction(boolean isHistoryUpdate) {
+	public void confirmUpdateDeleteAction(final boolean isHistoryUpdate) {
 		Date todayDateWithoutTime = Utils.removeTime(Calendar.getInstance().getTime());
 
 		if (Utils.removeTime(animalShiftEditPanel.getDateFrom()).after(todayDateWithoutTime) || Utils.removeTime(animalShiftEditPanel.getDateTo()).after(todayDateWithoutTime)){
@@ -380,13 +406,24 @@ public class AnimalsTabController extends Controller
 			showDialog(ERROR_MESSAGE, "Date from must be earlier or equals to date to.");
 			return;
 		}
-		if (isHistoryUpdate) {
-			DataManager.getInstance().updateAnimalShifts(selectedAnimalModel.getId(), animalShiftEditPanel.getDateFrom(), animalShiftEditPanel.getDateTo(), animalShiftEditPanel.getSelectedLocation(), animalShiftEditPanel.getWeightTextField());
-		} else { // if it's not edit action, it's DELETE action
-			DataManager.getInstance().deleteAnimalRecords(selectedAnimalModel.getId(), animalShiftEditPanel.getDateFrom(), animalShiftEditPanel.getDateTo());
-		}
-		editAnimalDetail(selectedAnimalModel, AnimalDetailPanel.EDIT_ANIMAL);
-		this.animalDetailPanel.showHistoryShiftPane();
+
+		new AsyncTask() {
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				if (isHistoryUpdate) {
+					return dataManager.updateAnimalShifts(selectedAnimalModel.getId(), animalShiftEditPanel.getDateFrom(), animalShiftEditPanel.getDateTo(), animalShiftEditPanel.getSelectedLocation(), animalShiftEditPanel.getWeightTextField());
+				} else {
+					// if it's not edit action, it's DELETE action
+					return dataManager.deleteAnimalRecords(selectedAnimalModel.getId(), animalShiftEditPanel.getDateFrom(), animalShiftEditPanel.getDateTo());
+				}
+			}
+
+			@Override
+			protected void onDone(boolean success) {
+				editAnimalDetail(selectedAnimalModel, AnimalDetailPanel.EDIT_ANIMAL);
+				animalDetailPanel.showHistoryShiftPane();
+			}
+		}.start();
 	}
 
 	/**
