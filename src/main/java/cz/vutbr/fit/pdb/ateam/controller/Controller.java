@@ -85,7 +85,7 @@ public class Controller {
 						}
 					} catch (DataManagerException e) {
 						Logger.createLog(Logger.ERROR_LOG, e.getMessage());
-						// TODO how to handle exceptions?
+						showDialog(INFO_MESSAGE, "No data changed");
 					}
 				}
 

@@ -193,21 +193,23 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 		}.start();
 	}
 
+	/**
+	 * Operation selects all objects which are related with fence
+	 */
 	public void selectAllEntrancesAction() {
 		new AsyncTask() {
-			public final String FENCE_ID = "Fence";
+			public final String OBJECT_NAME = "Fence";
 			private List<SpatialObjectModel> selectedObjects = new ArrayList<>();
 
 			@Override
 			protected Boolean doInBackground() {
-				SpatialObjectModel fence = BaseModel.findByName(FENCE_ID, getSpatialObjects());
+				SpatialObjectModel fence = BaseModel.findByName(OBJECT_NAME, getSpatialObjects());
 
 				try {
 					selectedObjects = dataManager.getAllSpatialObjectsFromFunction(DataManager.SQL_FUNCTION_SDO_RELATE, fence, null);
-					return true;
+					return (selectedObjects != null && selectedObjects.size() > 0);
 				} catch (DataManagerException e) {
-					e.printStackTrace();
-					// TODO
+					appStateChangedObservable.notifyStateChanged("No object selected.", true);
 					return false;
 				}
 			}

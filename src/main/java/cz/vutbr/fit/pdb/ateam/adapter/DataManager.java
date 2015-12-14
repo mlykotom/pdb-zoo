@@ -1346,7 +1346,6 @@ public class DataManager {
 	// ------------- METHODS FOR EMPLOYEES -----
 	// -----------------------------------------
 
-	// TODO should be used DataManager.findById()
 	public SpatialObjectModel getSpatialObjectModelWithID(long id) {
 		for (SpatialObjectModel model : getSpatialObjects()) {
 			if (model.getId() == id)

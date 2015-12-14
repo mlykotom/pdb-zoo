@@ -293,10 +293,9 @@ public class SpatialObjectTabController extends Controller
 			protected Boolean doInBackground() {
 				try {
 					selectedObjects = dataManager.getAllSpatialObjectsFromFunction(DataManager.SQL_FUNCTION_WITHIN_DISTANCE, selectedObject, distance);
-					return true;
+					return (selectedObjects != null && selectedObjects.size() > 0);
 				} catch (DataManagerException e) {
-					e.printStackTrace();
-					// TODO
+					appStateChangedObservable.notifyStateChanged("No objects selected", true);
 					return false;
 				}
 			}

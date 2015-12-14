@@ -209,10 +209,6 @@ public class AnimalDetailPanel extends BasePanel {
 		return tab.getController();
 	}
 
-	private void createUIComponents() {
-		// TODO: place custom component creation code here
-	}
-
 	public String getNameTextFieldValue() {
 		return nameEditField.getText();
 	}
