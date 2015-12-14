@@ -303,217 +303,232 @@ public class DataManager {
 							"  END;"
 			);
 			initScripts.add(
-				"CREATE SEQUENCE Animals_Records_seq"
+					"CREATE SEQUENCE Animals_Records_seq"
 			);
 			initScripts.add(
-				"CREATE OR REPLACE TRIGGER Animals_Records_bir " +
-					"BEFORE INSERT ON Animals_Records " +
-					"FOR EACH ROW " +
-					"  BEGIN " +
-					"    SELECT Animals_Records_seq.NEXTVAL " +
-					"    INTO :new.id " +
-					"    FROM dual; " +
-					"  END;"
+					"CREATE OR REPLACE TRIGGER Animals_Records_bir " +
+							"BEFORE INSERT ON Animals_Records " +
+							"FOR EACH ROW " +
+							"  BEGIN " +
+							"    SELECT Animals_Records_seq.NEXTVAL " +
+							"    INTO :new.id " +
+							"    FROM dual; " +
+							"  END;"
+			);
+
+			initScripts.add(
+					"CREATE OR REPLACE PROCEDURE updateEmployeeTable(p_employeeID IN INT, p_dateFrom IN Date, p_dateTo IN Date, p_new_location in INT) IS " +
+							"employeeID INT; " +
+							"dateFrom DATE; " +
+							"dateTo DATE; " +
+							"new_location INT; " +
+							" " +
+							"isUpdated BOOLEAN; " +
+							" " +
+							"A_OLD_FROM DATE; " +
+							"A_OLD_TO DATE; " +
+							"A_OLD_LOC INT; " +
+							"BEGIN " +
+							"  employeeID := p_employeeID; " +
+							"  dateFrom := p_dateFrom; " +
+							"  dateTo := p_dateTo; " +
+							"  new_location := p_new_location; " +
+							" " +
+							" " +
+							"  FOR rec IN (SELECT * FROM EMPLOYEES_SHIFT sh WHERE sh.EmplID = employeeID AND (dFrom <= dateTo AND dTo >= dateFrom) ORDER BY sh.dFrom) " +
+							"  LOOP " +
+							"    isUpdated := FALSE; " +
+							" " +
+							"    IF (rec.DFROM < dateFrom) THEN " +
+							"      IF (rec.Location = new_location) THEN " +
+							"        dateFrom := rec.dFrom; " +
+							"      ELSE " +
+							"        A_OLD_FROM := rec.dFrom; " +
+							"        A_OLD_LOC := rec.Location; " +
+							"        A_OLD_TO := dateFrom -1; " +
+							" " +
+							"        UPDATE Employees_Shift " +
+							"        SET dTo = A_OLD_TO, dFrom = A_OLD_FROM, Location = A_OLD_LOC " +
+							"        WHERE ID = rec.ID; " +
+							" " +
+							"        rec.dFrom := dateFrom; " +
+							"        isUpdated := TRUE; " +
+							"      END IF; " +
+							"    END IF; " +
+							"    IF (rec.dTo <= dateTo) THEN " +
+							"      if (isUpdated = FALSE) THEN " +
+							"        DELETE Employees_Shift WHERE ID = rec.ID; " +
+							"      END IF; " +
+							"    ELSE " +
+							"      IF (rec.Location = new_location) THEN " +
+							"        dateTo := rec.dTo; " +
+							"        DELETE Employees_Shift WHERE ID = rec.ID; " +
+							"      ELSE " +
+							"        if (isUpdated = FALSE) THEN " +
+							"          DELETE Employees_Shift WHERE ID = rec.ID; " +
+							"        END IF; " +
+							"        rec.dFrom := dateTo + 1; " +
+							"        INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) " +
+							"        VALUES (employeeID, rec.Location, rec.dFrom, rec.dTo ); " +
+							"      END IF; " +
+							"    END IF; " +
+							"  END LOOP; " +
+							"  INSERT INTO Employees_Shift (EmplID, Location, dFrom, dTo) " +
+							"  VALUES (employeeID, new_location, dateFrom, dateTo); " +
+							" " +
+							"end;"
+			);
+
+			initScripts.add(
+					"CREATE OR REPLACE PROCEDURE deleteEmployeeShiftTable(p_animalID IN INT, p_dateFrom IN Date, p_dateTo IN Date) IS " +
+							"  animalID INT; " +
+							"  dateFrom DATE; " +
+							"  dateTo DATE; " +
+							" " +
+							"  isUpdated BOOLEAN; " +
+							" " +
+							"  BEGIN " +
+							"    animalID := p_animalID; " +
+							"    dateFrom := p_dateFrom; " +
+							"    dateTo := p_dateTo; " +
+							" " +
+							"    FOR rec IN (SELECT * FROM EMPLOYEES_SHIFT sh WHERE sh.EmplID = animalID AND (dFrom <= dateTo AND dTo >= dateFrom)) " +
+							"    LOOP " +
+							"      isUpdated := FALSE; " +
+							"      IF (rec.DFROM < dateFrom) THEN " +
+							"        UPDATE Employees_Shift " +
+							"        SET dTo = dateFrom -1 " +
+							"        WHERE ID = rec.ID; " +
+							" " +
+							"        rec.dFrom := dateFrom; " +
+							" " +
+							"        isUpdated := TRUE; " +
+							"      END IF; " +
+							" " +
+							"      IF (rec.dFrom >= dateFrom AND rec.dTo <= dateTo) THEN " +
+							"        IF ( isUpdated = FALSE) THEN " +
+							"          DELETE Employees_Shift WHERE ID = rec.ID; " +
+							"        END IF; " +
+							"      ELSE " +
+							"        rec.dFrom := dateTo + 1; " +
+							"        IF (isUpdated = TRUE) THEN " +
+							"          INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) " +
+							"          VALUES (animalID, rec.Location, rec.dFrom, rec.dTo ); " +
+							"        ELSE " +
+							"          UPDATE Employees_Shift " +
+							"          SET dTo = rec.dTo, dFrom = rec.dFrom " +
+							"          WHERE ID = rec.ID; " +
+							"        END IF; " +
+							"      END IF; " +
+							"    END LOOP; " +
+							"  end;"
 			);
 			initScripts.add(
-				"CREATE OR REPLACE PROCEDURE updateEmployeeTable(employeeID IN INT, dateFrom IN Date, dateTo IN Date, new_location in INT) IS " +
-					"employeeID INT; " +
-					"dateFrom DATE; " +
-					"dateTo DATE; " +
-					"new_location INT; " +
-					"isUpdated BOOLEAN;" +
-					"  A_OLD_FROM DATE; " +
-					"  A_OLD_TO DATE; " +
-					"  A_OLD_LOC INT; " +
-					"BEGIN " +
-					"  FOR rec IN (SELECT * FROM EMPLOYEES_SHIFT sh WHERE sh.EmplID = employeeID AND  ((dFrom <= dateFrom AND dTo >= dateFrom) OR (dFrom > dateTo AND dFrom <= dateTo ))) " +
-					"  LOOP " +
-					"    IF (rec.DFROM < dateFrom) THEN " +
-					"      IF (rec.Location = new_location) THEN " +
-					"        dateFrom := rec.dFrom; " +
-					"      ELSE " +
-					"        A_OLD_FROM := rec.dFrom; " +
-					"        A_OLD_LOC := rec.Location; " +
-					"        A_OLD_TO := dateFrom -1; " +
-					" " +
-					"        UPDATE Employees_Shift " +
-					"        SET dTo = A_OLD_TO, dFrom = A_OLD_FROM, Location = A_OLD_LOC " +
-					"        WHERE ID = rec.ID; " +
-					" " +
-					"        rec.dFrom := dateFrom; " +
-					"      END IF; " +
-					"    END IF; " +
-					" " +
-					"    IF (rec.dTo <= dateTo) THEN " +
-					"      DELETE Employees_Shift WHERE ID = rec.ID; " +
-					"    ELSE " +
-					"      IF (rec.Location = new_location) THEN " +
-					"        dateTo := rec.dTo; " +
-					"        DELETE Employees_Shift WHERE ID = rec.ID; " +
-					"      ELSE " +
-					"        rec.dFrom := dateTo + 1; " +
-					"        INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) " +
-					"        VALUES (employeeID, rec.Location, rec.dFrom, rec.dTo ); " +
-					"      END IF; " +
-					"    END IF; " +
-					" " +
-					"  END LOOP; " +
-					" " +
-					"  INSERT INTO Employees_Shift (EmplID, Location, dFrom, dTo) " +
-					"  VALUES (employeeID, new_location, dateFrom, dateTo); " +
-					" " +
-					"END;"
+					"CREATE OR REPLACE PROCEDURE updateAnimalTable(p_animalID IN INT, p_dateFrom IN Date, p_dateTo IN Date, p_new_location in INT, p_new_weight in NUMBER) IS " +
+							"new_animalID INT; " +
+							"dateFrom DATE; " +
+							"dateTo DATE; " +
+							"new_location INT; " +
+							"new_weight NUMBER; " +
+							" " +
+							"isUpdated BOOLEAN; " +
+							" " +
+							"A_OLD_FROM DATE; " +
+							"A_OLD_TO DATE; " +
+							"A_OLD_LOC INT; " +
+							"BEGIN " +
+							"  new_animalID := p_animalID; " +
+							"  dateFrom := p_dateFrom; " +
+							"  dateTo := p_dateTo; " +
+							"  new_location := p_new_location; " +
+							"  new_weight := p_new_weight; " +
+							" " +
+							"  FOR rec IN (SELECT * FROM Animals_Records sh WHERE sh.AnimalID = new_animalID AND (sh.dFrom <= dateTo AND sh.dTo >= dateFrom) ORDER BY sh.dFrom) " +
+							"  LOOP " +
+							"    isUpdated := FALSE; " +
+							" " +
+							"    IF (rec.DFROM < dateFrom) THEN " +
+							"      IF (rec.Location = new_location AND rec.Weight = new_weight) THEN " +
+							"        dateFrom := rec.dFrom; " +
+							"      ELSE " +
+							"        A_OLD_FROM := rec.dFrom; " +
+							"        A_OLD_LOC := rec.Location; " +
+							"        A_OLD_TO := dateFrom -1; " +
+							" " +
+							"        UPDATE Animals_Records " +
+							"        SET dTo = A_OLD_TO, dFrom = A_OLD_FROM, Location = A_OLD_LOC " +
+							"        WHERE ID = rec.ID; " +
+							" " +
+							"        rec.dFrom := dateFrom; " +
+							"        isUpdated := TRUE; " +
+							"      END IF; " +
+							"    END IF; " +
+							"    IF (rec.dTo <= dateTo) THEN " +
+							"      if (isUpdated = FALSE) THEN " +
+							"        DELETE Animals_Records WHERE ID = rec.ID; " +
+							"      END IF; " +
+							"    ELSE " +
+							"      IF (rec.Location = new_location AND rec.Weight = new_weight) THEN " +
+							"        dateTo := rec.dTo; " +
+							"        DELETE Animals_Records WHERE ID = rec.ID; " +
+							"      ELSE " +
+							"        if (isUpdated = FALSE) THEN " +
+							"          DELETE Animals_Records WHERE ID = rec.ID; " +
+							"        END IF; " +
+							"        rec.dFrom := dateTo + 1; " +
+							"        INSERT INTO Animals_Records ( AnimalID, Location, Weight, dFrom, dTo ) " +
+							"        VALUES (new_animalID, rec.Location, rec.Weight, rec.dFrom, rec.dTo ); " +
+							"      END IF; " +
+							"    END IF; " +
+							"  END LOOP; " +
+							"  INSERT INTO Animals_Records (AnimalID, Location, Weight, dFrom, dTo) " +
+							"  VALUES (new_animalID, new_location, new_weight, dateFrom, dateTo); " +
+							" " +
+							"end;"
 			);
 			initScripts.add(
-				"CREATE OR REPLACE PROCEDURE deleteEmployeeShiftTable(p_animalID IN INT, p_dateFrom IN Date, p_dateTo IN Date) IS " +
-					"  animalID INT; " +
-					"  dateFrom DATE; " +
-					"  dateTo DATE; " +
-					" " +
-					"  isUpdated BOOLEAN; " +
-					" " +
-					"  BEGIN " +
-					"    animalID := p_animalID; " +
-					"    dateFrom := p_dateFrom; " +
-					"    dateTo := p_dateTo; " +
-					" " +
-					"    FOR rec IN (SELECT * FROM EMPLOYEES_SHIFT sh WHERE sh.EmplID = animalID AND (dFrom <= dateTo AND dTo >= dateFrom)) " +
-					"    LOOP " +
-					"      isUpdated := FALSE; " +
-					"      IF (rec.DFROM < dateFrom) THEN " +
-					"        UPDATE Employees_Shift " +
-					"        SET dTo = dateFrom -1 " +
-					"        WHERE ID = rec.ID; " +
-					" " +
-					"        rec.dFrom := dateFrom; " +
-					" " +
-					"        isUpdated := TRUE; " +
-					"      END IF; " +
-					" " +
-					"      IF (rec.dFrom >= dateFrom AND rec.dTo <= dateTo) THEN " +
-					"        IF ( isUpdated = FALSE) THEN " +
-					"          DELETE Employees_Shift WHERE ID = rec.ID; " +
-					"        END IF; " +
-					"      ELSE " +
-					"        rec.dFrom := dateTo + 1; " +
-					"        IF (isUpdated = TRUE) THEN " +
-					"          INSERT INTO Employees_Shift ( EmplId, Location, dFrom, dTo ) " +
-					"          VALUES (animalID, rec.Location, rec.dFrom, rec.dTo ); " +
-					"        ELSE " +
-					"          UPDATE Employees_Shift " +
-					"          SET dTo = rec.dTo, dFrom = rec.dFrom " +
-					"          WHERE ID = rec.ID; " +
-					"        END IF; " +
-					"      END IF; " +
-					"    END LOOP; " +
-					"  end;"
-			);
-			initScripts.add(
-				"CREATE OR REPLACE PROCEDURE updateAnimalTable(p_animalID IN INT, p_dateFrom IN Date, p_dateTo IN Date, p_new_location in INT, p_new_weight in NUMBER) IS " +
-					"new_animalID INT; " +
-					"dateFrom DATE; " +
-					"dateTo DATE; " +
-					"new_location INT; " +
-					"new_weight NUMBER; " +
-					" " +
-					"isUpdated BOOLEAN; " +
-					" " +
-					"A_OLD_FROM DATE; " +
-					"A_OLD_TO DATE; " +
-					"A_OLD_LOC INT; " +
-					"BEGIN " +
-					"  new_animalID := p_animalID; " +
-					"  dateFrom := p_dateFrom; " +
-					"  dateTo := p_dateTo; " +
-					"  new_location := p_new_location; " +
-					"  new_weight := p_new_weight; " +
-					" " +
-					"  FOR rec IN (SELECT * FROM Animals_Records sh WHERE sh.AnimalID = new_animalID AND (sh.dFrom <= dateTo AND sh.dTo >= dateFrom) ORDER BY sh.dFrom) " +
-					"  LOOP " +
-					"    isUpdated := FALSE; " +
-					" " +
-					"    IF (rec.DFROM < dateFrom) THEN " +
-					"      IF (rec.Location = new_location AND rec.Weight = new_weight) THEN " +
-					"        dateFrom := rec.dFrom; " +
-					"      ELSE " +
-					"        A_OLD_FROM := rec.dFrom; " +
-					"        A_OLD_LOC := rec.Location; " +
-					"        A_OLD_TO := dateFrom -1; " +
-					" " +
-					"        UPDATE Animals_Records " +
-					"        SET dTo = A_OLD_TO, dFrom = A_OLD_FROM, Location = A_OLD_LOC " +
-					"        WHERE ID = rec.ID; " +
-					" " +
-					"        rec.dFrom := dateFrom; " +
-					"        isUpdated := TRUE; " +
-					"      END IF; " +
-					"    END IF; " +
-					"    IF (rec.dTo <= dateTo) THEN " +
-					"      if (isUpdated = FALSE) THEN " +
-					"        DELETE Animals_Records WHERE ID = rec.ID; " +
-					"      END IF; " +
-					"    ELSE " +
-					"      IF (rec.Location = new_location AND rec.Weight = new_weight) THEN " +
-					"        dateTo := rec.dTo; " +
-					"        DELETE Animals_Records WHERE ID = rec.ID; " +
-					"      ELSE " +
-					"        if (isUpdated = FALSE) THEN " +
-					"          DELETE Animals_Records WHERE ID = rec.ID; " +
-					"        END IF; " +
-					"        rec.dFrom := dateTo + 1; " +
-					"        INSERT INTO Animals_Records ( AnimalID, Location, Weight, dFrom, dTo ) " +
-					"        VALUES (new_animalID, rec.Location, rec.Weight, rec.dFrom, rec.dTo ); " +
-					"      END IF; " +
-					"    END IF; " +
-					"  END LOOP; " +
-					"  INSERT INTO Animals_Records (AnimalID, Location, Weight, dFrom, dTo) " +
-					"  VALUES (new_animalID, new_location, new_weight, dateFrom, dateTo); " +
-					" " +
-					"end;"
-			);
-			initScripts.add(
-				"CREATE OR REPLACE PROCEDURE deleteAnimalsRecordsTable(p_animalID IN INT, p_dateFrom IN Date, p_dateTo IN Date) IS " +
-					"  new_animalID INT; " +
-					"  dateFrom DATE; " +
-					"  dateTo DATE; " +
-					" " +
-					"  isUpdated BOOLEAN; " +
-					" " +
-					"  BEGIN " +
-					"    new_animalID := p_animalID; " +
-					"    dateFrom := p_dateFrom; " +
-					"    dateTo := p_dateTo; " +
-					"    isUpdated := FALSE; " +
-					" " +
-					"    FOR rec IN (SELECT * FROM Animals_Records ar WHERE ar.AnimalID = new_animalID AND (ar.dFrom <= dateTo AND ar.dTo >= dateFrom)) " +
-					"    LOOP " +
-					"      IF (rec.DFROM < dateFrom) THEN " +
-					"        UPDATE Animals_Records " +
-					"        SET dTo = dateFrom -1 " +
-					"        WHERE ID = rec.ID; " +
-					" " +
-					"        rec.dFrom := dateFrom; " +
-					" " +
-					"        isUpdated := TRUE; " +
-					"      END IF; " +
-					" " +
-					"      IF (rec.dFrom >= dateFrom AND rec.dTo <= dateTo) THEN " +
-					"        IF ( isUpdated = FALSE) THEN " +
-					"          DELETE Animals_Records WHERE ID = rec.ID; " +
-					"        END IF; " +
-					"      ELSE " +
-					"        rec.dFrom := dateTo + 1; " +
-					"        IF (isUpdated = TRUE) THEN " +
-					"          INSERT INTO Animals_Records ( AnimalID, Location, Weight, dFrom, dTo ) " +
-					"          VALUES (new_animalID, rec.Location, rec.Weight, rec.dFrom, rec.dTo ); " +
-					"        ELSE " +
-					"          UPDATE Animals_Records " +
-					"          SET dTo = rec.dTo, dFrom = rec.dFrom " +
-					"          WHERE ID = rec.ID; " +
-					"        END IF; " +
-					"      END IF; " +
-					"    END LOOP; " +
-					"  end;"
+					"CREATE OR REPLACE PROCEDURE deleteAnimalsRecordsTable(p_animalID IN INT, p_dateFrom IN Date, p_dateTo IN Date) IS " +
+							"  new_animalID INT; " +
+							"  dateFrom DATE; " +
+							"  dateTo DATE; " +
+							" " +
+							"  isUpdated BOOLEAN; " +
+							" " +
+							"  BEGIN " +
+							"    new_animalID := p_animalID; " +
+							"    dateFrom := p_dateFrom; " +
+							"    dateTo := p_dateTo; " +
+							"    isUpdated := FALSE; " +
+							" " +
+							"    FOR rec IN (SELECT * FROM Animals_Records ar WHERE ar.AnimalID = new_animalID AND (ar.dFrom <= dateTo AND ar.dTo >= dateFrom)) " +
+							"    LOOP " +
+							"      IF (rec.DFROM < dateFrom) THEN " +
+							"        UPDATE Animals_Records " +
+							"        SET dTo = dateFrom -1 " +
+							"        WHERE ID = rec.ID; " +
+							" " +
+							"        rec.dFrom := dateFrom; " +
+							" " +
+							"        isUpdated := TRUE; " +
+							"      END IF; " +
+							" " +
+							"      IF (rec.dFrom >= dateFrom AND rec.dTo <= dateTo) THEN " +
+							"        IF ( isUpdated = FALSE) THEN " +
+							"          DELETE Animals_Records WHERE ID = rec.ID; " +
+							"        END IF; " +
+							"      ELSE " +
+							"        rec.dFrom := dateTo + 1; " +
+							"        IF (isUpdated = TRUE) THEN " +
+							"          INSERT INTO Animals_Records ( AnimalID, Location, Weight, dFrom, dTo ) " +
+							"          VALUES (new_animalID, rec.Location, rec.Weight, rec.dFrom, rec.dTo ); " +
+							"        ELSE " +
+							"          UPDATE Animals_Records " +
+							"          SET dTo = rec.dTo, dFrom = rec.dFrom " +
+							"          WHERE ID = rec.ID; " +
+							"        END IF; " +
+							"      END IF; " +
+							"    END LOOP; " +
+							"  end;"
 			);
 
 			for (String sql : initScripts) {
@@ -802,28 +817,7 @@ public class DataManager {
 	}
 
 	private void saveEmployeeTemporalData(EmployeeModel employee, boolean isNewEmployee) throws SQLException {
-		String sqlPrepTemp = null;
 		updateEmployeeShifts(employee.getId(), employee.getDateFrom(), employee.getDateTo(), employee.getLocation());
-//		if (isNewEmployee)
-//		sqlPrepTemp = "INSERT INTO Employees_Shift (EmplID, Location, dFrom, dTo) VALUES(?, ?, ?, ?)";
-//		else {
-//			//TODO implement
-//		}
-//
-//		java.sql.Date dateFrom = new java.sql.Date(employee.getDateFrom().getTime());
-//		java.sql.Date dateTo = new java.sql.Date(employee.getDateTo().getTime());
-//
-//		PreparedStatement preparedTemporalStatement = connection.prepareStatement(sqlPrepTemp);
-//		preparedTemporalStatement.setLong(1, employee.getId());
-//		preparedTemporalStatement.setLong(2, employee.getLocation());
-//		preparedTemporalStatement.setDate(3, dateFrom);
-//		preparedTemporalStatement.setDate(4, dateTo);
-//
-//		Logger.createLog(Logger.DEBUG_LOG, "Sending query: " + sqlPrepTemp + " | name = '" + employee.getName() + "', surname = '" + employee.getSpecies() + "', id = '" + employee.getId() + "'");
-//		if (isNewEmployee) {
-//			this.executeTemporalInsertAndSetId(preparedTemporalStatement, employee);
-//		} else {
-//		}
 	}
 
 
@@ -1383,6 +1377,7 @@ public class DataManager {
 
 	/**
 	 * Returns all employes which are valid in specified date
+	 *
 	 * @param date
 	 * @return
 	 * @throws DataManagerException
@@ -1415,6 +1410,7 @@ public class DataManager {
 
 	/**
 	 * Method is used to update EmployeeShifts records.
+	 *
 	 * @param employeeID
 	 * @param arDateFrom
 	 * @param arDateTo
@@ -1452,6 +1448,7 @@ public class DataManager {
 
 	/**
 	 * Method is used to delete temporalData from Employees_Shift table from specified interval.
+	 *
 	 * @param employeeID
 	 * @param arDateFrom
 	 * @param arDateTo
@@ -1488,6 +1485,7 @@ public class DataManager {
 
 	/**
 	 * Method returns all employeeHistory in ZOO (locations).
+	 *
 	 * @param employeeID
 	 * @return
 	 * @throws DataManagerException
@@ -1533,6 +1531,7 @@ public class DataManager {
 
 	/**
 	 * Method returns record for all animals from specific date.
+	 *
 	 * @param date
 	 * @return
 	 * @throws DataManagerException
@@ -1583,6 +1582,7 @@ public class DataManager {
 
 	/**
 	 * Method is used to update AnimalRecords or to create new animal Record.
+	 *
 	 * @param animalID
 	 * @param arDateFrom
 	 * @param arDateTo
@@ -1621,6 +1621,7 @@ public class DataManager {
 
 	/**
 	 * Method is used to delete temporalData from Animals_Records table from specified interval.
+	 *
 	 * @param animalID
 	 * @param arDateFrom
 	 * @param arDateTo
@@ -1657,6 +1658,7 @@ public class DataManager {
 
 	/**
 	 * Method returns all temporal animal records for specified animal.
+	 *
 	 * @param animalID
 	 * @return
 	 * @throws DataManagerException
@@ -1700,6 +1702,7 @@ public class DataManager {
 
 	/**
 	 * Method returns a list of Employees who has been taking care of specified animal.
+	 *
 	 * @param animalModel
 	 * @return
 	 * @throws DataManagerException
@@ -1744,6 +1747,7 @@ public class DataManager {
 
 	/**
 	 * Method finds highest weight that employee has weighed until now.
+	 *
 	 * @param employeeModel
 	 * @return
 	 */
