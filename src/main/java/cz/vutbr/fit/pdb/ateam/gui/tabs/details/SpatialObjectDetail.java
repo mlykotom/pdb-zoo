@@ -347,7 +347,7 @@ public class SpatialObjectDetail extends BasePanel {
 		rootPanel.add(panel10, new GridConstraints(4, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
 		panel10.setBorder(BorderFactory.createTitledBorder("Closest objects within distance"));
 		final JLabel label9 = new JLabel();
-		label9.setText("Distance");
+		label9.setText("Distance [m]");
 		panel10.add(label9, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		closestObjectsDistanceSpinner = new JSpinner();
 		closestObjectsDistanceSpinner.setEnabled(true);

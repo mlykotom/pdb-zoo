@@ -195,12 +195,12 @@ public class ZooMapController extends Controller implements ISpatialObjectsReloa
 
 	public void selectAllEntrancesAction() {
 		new AsyncTask() {
-			public final Long FENCE_ID = 258L; // TODO select object not id
+			public final String FENCE_ID = "Fence";
 			private List<SpatialObjectModel> selectedObjects = new ArrayList<>();
 
 			@Override
 			protected Boolean doInBackground() {
-				SpatialObjectModel fence = BaseModel.findById(FENCE_ID, getSpatialObjects());
+				SpatialObjectModel fence = BaseModel.findByName(FENCE_ID, getSpatialObjects());
 
 				try {
 					selectedObjects = dataManager.getAllSpatialObjectsFromFunction(DataManager.SQL_FUNCTION_SDO_RELATE, fence, null);

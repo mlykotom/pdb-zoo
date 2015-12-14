@@ -325,8 +325,7 @@ public class SpatialObjectTabController extends Controller
 					selectedObjects = dataManager.getClosestNSpatialObjects(selectedObject, count, isSameType);
 					return true;
 				} catch (DataManagerException e) {
-					e.printStackTrace();
-					// TODO
+					showDialog(ERROR_MESSAGE, "Can't show closest type!");
 					return false;
 				}
 			}
