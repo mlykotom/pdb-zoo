@@ -2,6 +2,7 @@ package cz.vutbr.fit.pdb.ateam.adapter;
 
 import cz.vutbr.fit.pdb.ateam.exception.DataManagerException;
 import cz.vutbr.fit.pdb.ateam.exception.ModelException;
+import cz.vutbr.fit.pdb.ateam.gui.components.ImagePanel;
 import cz.vutbr.fit.pdb.ateam.model.BaseModel;
 import cz.vutbr.fit.pdb.ateam.model.animal.AnimalModel;
 import cz.vutbr.fit.pdb.ateam.model.employee.EmployeeModel;
@@ -15,6 +16,9 @@ import oracle.jdbc.pool.OracleDataSource;
 import oracle.ord.im.OrdImage;
 import oracle.spatial.geometry.JGeometry;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -564,6 +568,11 @@ public class DataManager {
 			connection.commit();
 			connection.setAutoCommit(true);
 
+			insertImageIntoAnimalModel("horse.jpg", 1L);
+			insertImageIntoAnimalModel("bear1.jpg", 4L);
+			insertImageIntoAnimalModel("bear2.jpg", 5L);
+			insertImageIntoAnimalModel("goat.jpg", 3L);
+
 			Logger.createLog(Logger.DEBUG_LOG, "DATABASE INITIALIZED");
 			Logger.createLog(Logger.DEBUG_LOG, "-----------------------------------------------------");
 
@@ -577,6 +586,34 @@ public class DataManager {
 			} catch (SQLException e1) {
 				throw new DataManagerException("SQLException: " + e1.getMessage());
 			}
+		}
+	}
+
+	/**
+	 * Inserts animal image from resources into database animal record.
+	 *
+	 * @param resourceFileName name of the file in resource file
+	 * @param animalID id of the animal
+	 * @throws DataManagerException when resource file can not be open or when animal do not exists
+	 */
+	private void insertImageIntoAnimalModel(String resourceFileName, Long animalID) throws DataManagerException {
+		try {
+			ClassLoader classLoader = getClass().getClassLoader();
+			URL resourceFile = classLoader.getResource(resourceFileName);
+			if (resourceFile == null)
+				throw new DataManagerException("Cannot open resource file [initDatabase.sql]!");
+			File file = new File(resourceFile.getFile());
+			AnimalModel animal;
+			BufferedImage image;
+			animal = getAnimal(animalID);
+			image = ImageIO.read(file);
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			ImageIO.write(image, "png", outputStream);
+			animal.setImageByteArray(outputStream.toByteArray());
+			animal.setIsChanged(true);
+			saveAnimal(animal);
+		} catch (IOException e) {
+			throw new DataManagerException("IOException: " + e.getMessage());
 		}
 	}
 
