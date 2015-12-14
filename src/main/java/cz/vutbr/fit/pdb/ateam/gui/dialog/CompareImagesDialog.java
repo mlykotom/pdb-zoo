@@ -51,7 +51,7 @@ public class CompareImagesDialog extends JDialog {
 		Utils.setComponentFixSize(similarImagePanel2, IMAGE_WIDTH, IMAGE_HEIGHT);
 		Utils.setComponentFixSize(similarImagePanel3, IMAGE_WIDTH, IMAGE_HEIGHT);
 
-		if (originalAnimal != null) {
+		if (originalAnimal != null && originalAnimal.getImage() != null) {
 			ImagePanel imagePanel = null;
 			originalImageLabel.setText("#" + originalAnimal.getId() + " " + originalAnimal.getName());
 			try {
@@ -61,7 +61,7 @@ public class CompareImagesDialog extends JDialog {
 			}
 			originalImagePanel.add(imagePanel);
 		}
-		if (animal1 != null) {
+		if (animal1 != null && animal1.getImage() != null) {
 			ImagePanel imagePanel = null;
 			animal1Label.setText("#" + animal1.getId() + " " + animal1.getName());
 			try {
@@ -71,7 +71,7 @@ public class CompareImagesDialog extends JDialog {
 			}
 			similarImagePanel1.add(imagePanel);
 		}
-		if (animal2 != null) {
+		if (animal2 != null && animal2.getImage() != null) {
 			ImagePanel imagePanel = null;
 			animal2Label.setText("#" + animal2.getId() + " " + animal2.getName());
 			try {
@@ -81,7 +81,7 @@ public class CompareImagesDialog extends JDialog {
 			}
 			similarImagePanel2.add(imagePanel);
 		}
-		if (animal3 != null) {
+		if (animal3 != null && animal3.getImage() != null) {
 			ImagePanel imagePanel = null;
 			animal3Label.setText("#" + animal3.getId() + " " + animal3.getName());
 			try {
@@ -157,7 +157,7 @@ public class CompareImagesDialog extends JDialog {
 		label3.setText("1.");
 		panel4.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		animal1Label = new JLabel();
-		animal1Label.setText("Label");
+		animal1Label.setText("--");
 		panel4.add(animal1Label, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final JPanel panel5 = new JPanel();
 		panel5.setLayout(new GridLayoutManager(2, 3, new Insets(0, 0, 0, 0), -1, -1));
@@ -171,7 +171,7 @@ public class CompareImagesDialog extends JDialog {
 		label4.setText("2.");
 		panel5.add(label4, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		animal2Label = new JLabel();
-		animal2Label.setText("Label");
+		animal2Label.setText("--");
 		panel5.add(animal2Label, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		final JPanel panel6 = new JPanel();
 		panel6.setLayout(new GridLayoutManager(2, 3, new Insets(0, 0, 0, 0), -1, -1));
@@ -185,7 +185,7 @@ public class CompareImagesDialog extends JDialog {
 		label5.setText("3.");
 		panel6.add(label5, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		animal3Label = new JLabel();
-		animal3Label.setText("Label");
+		animal3Label.setText("--");
 		panel6.add(animal3Label, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 		originalImageLabel = new JLabel();
 		originalImageLabel.setText("originalImageLabel");

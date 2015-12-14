@@ -156,6 +156,7 @@ public class EmployeeDetailPanel extends BasePanel {
 
 	/**
 	 * Populate maxWeightLabel with value from parameter.
+	 *
 	 * @param employeeHonorWeight
 	 */
 	public void setEmployeeHonorWeight(Float employeeHonorWeight) {
@@ -286,7 +287,7 @@ public class EmployeeDetailPanel extends BasePanel {
 		final Spacer spacer8 = new Spacer();
 		panel3.add(spacer8, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
 		final JLabel label6 = new JLabel();
-		label6.setText("The highest weight, employee has weighed");
+		label6.setText("The heaviest animal, employee has worked with.");
 		panel3.add(label6, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 	}
 
